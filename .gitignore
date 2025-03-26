@@ -9,25 +9,6 @@ __pycache__/
 .venv
 
 # ignoring big directories
-dataset/
-Generations/
-temp_files/
-sbfl/logs.txt
-temp_sbfl/
-Reports2/
-Reports/
-Reports_evaluation_test/
-Rag_manual_inspection/
-combined_RAG/
-Reports*/
+documentations/
 
-
-rag_test.py
-temp.py
-temp_test_mismatch_stat_getter.py
-temp_test_mismatch_analysis/
-copy_files_in_test_mismatch_analysis.py
 *.zip
-rag_test_manual.py
-test_rag.py
-.RAG_CACHE_*
