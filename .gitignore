@@ -9,6 +9,11 @@ __pycache__/
 .venv
 
 # ignoring big directories
-documentations/
+#documentations/
 
 *.zip
+.idea/inspectionProfiles/profiles_settings.xml
+.idea/misc.xml
+.idea/modules.xml
+.idea/TestPilot_Python.iml
+.idea/vcs.xml

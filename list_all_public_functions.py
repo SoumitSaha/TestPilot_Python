@@ -3,6 +3,7 @@ import inspect
 import pkgutil
 import argparse
 import os
+import json
 
 def list_public_apis(package_name):
     try:
@@ -13,14 +14,10 @@ def list_public_apis(package_name):
 
     public_apis = {"functions": [], "classes": [], "methods": []}
 
-    # Recursively explore all submodules
     def explore_module(module, module_name):
         for name, obj in inspect.getmembers(module):
-            # Public functions
             if inspect.isfunction(obj) and not name.startswith("_"):
-                public_apis["functions"].append((module_name, name, obj))  # Store function object
-
-            # Public classes and their methods
+                public_apis["functions"].append((module_name, name, obj))
             elif inspect.isclass(obj) and not name.startswith("_"):
                 public_apis["classes"].append((module_name, name, obj))
                 for method_name, method in inspect.getmembers(obj, inspect.isfunction):
@@ -36,22 +33,62 @@ def list_public_apis(package_name):
                     print(f"Skipping {submodule_info.name} due to error: {e}")
 
     explore_module(package, package_name)
-
     return public_apis
+
+def extract_public_api_json(package_name):
+    apis = list_public_apis(package_name)
+    results = {package_name: []}
+
+    for module, name, obj in apis["functions"]:
+        try:
+            results[package_name].append({
+                "type": "function",
+                "name": name,
+                "qualified_name": f"{module}.{name}",
+                "signature": str(inspect.signature(obj)),
+                "docstring": inspect.getdoc(obj) or ""
+            })
+        except Exception:
+            continue
+
+    for module, class_name, cls in apis["classes"]:
+        try:
+            results[package_name].append({
+                "type": "class",
+                "name": class_name,
+                "qualified_name": f"{module}.{class_name}",
+                "signature": str(inspect.signature(cls.__init__)) if hasattr(cls, "__init__") else "",
+                "docstring": inspect.getdoc(cls) or ""
+            })
+        except Exception:
+            continue
+
+    for module, class_name, method_name, method in apis["methods"]:
+        try:
+            results[package_name].append({
+                "type": "method",
+                "name": method_name,
+                "qualified_name": f"{module}.{class_name}.{method_name}",
+                "signature": str(inspect.signature(method)),
+                "docstring": inspect.getdoc(method) or ""
+            })
+        except Exception:
+            continue
+
+    return results
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="List public APIs of a given Python package.")
     parser.add_argument("module_name", help="Name of the Python package to inspect.")
+    parser.add_argument("--json", action="store_true", help="Also export as JSON.")
     args = parser.parse_args()
 
     public_apis = list_public_apis(args.module_name)
-
     documentation_dir = f"{os.getcwd()}/documentations"
+    os.makedirs(documentation_dir, exist_ok=True)
     documentation_file = f"{documentation_dir}/help_{args.module_name}.txt"
 
-    # saves a file in documentations folder with functions signatures and corresponding docstrings
-    if public_apis is not [] or public_apis is not None:
-        os.makedirs(documentation_dir, exist_ok=True)
+    if public_apis:
         with open(documentation_file, "w") as f:
             for module_name, func_name, func_obj in public_apis["functions"]:
                 try:
@@ -61,3 +98,9 @@ if __name__ == "__main__":
                     print(f"{docstring}\n", file=f)
                 except Exception as e:
                     print(f"Skipping {module_name}.{func_name} due to error: {e}\n", file=f)
+
+    if args.json:
+        json_data = extract_public_api_json(args.module_name)
+        json_file = f"{documentation_dir}/help_{args.module_name}.json"
+        with open(json_file, "w") as jf:
+            json.dump(json_data, jf, indent=2)
