@@ -25,6 +25,7 @@ def list_public_apis(package_name):
                         public_apis["methods"].append((module_name, name, method_name, method))
 
         if hasattr(module, "__path__"):  # Check if it’s a package with submodules
+        if hasattr(module, "__path__"):
             for submodule_info in pkgutil.walk_packages(module.__path__, module_name + "."):
                 try:
                     submodule = importlib.import_module(submodule_info.name)
@@ -39,13 +40,26 @@ def extract_public_api_json(package_name):
     apis = list_public_apis(package_name)
     results = {package_name: []}
 
+    def get_parameters(sig):
+        return {
+            name: {
+                "default": str(param.default) if param.default is not param.empty else None,
+                "annotation": str(param.annotation) if param.annotation is not param.empty else None,
+                "kind": str(param.kind)
+            }
+            for name, param in sig.parameters.items()
+        }
+
     for module, name, obj in apis["functions"]:
         try:
+            sig = inspect.signature(obj)
             results[package_name].append({
                 "type": "function",
-                "name": name,
                 "qualified_name": f"{module}.{name}",
-                "signature": str(inspect.signature(obj)),
+                "module": module,
+                "signature": str(sig),
+                "parameters": get_parameters(sig),
+                "returns": str(sig.return_annotation) if sig.return_annotation is not inspect.Signature.empty else None,
                 "docstring": inspect.getdoc(obj) or ""
             })
         except Exception:
@@ -53,11 +67,12 @@ def extract_public_api_json(package_name):
 
     for module, class_name, cls in apis["classes"]:
         try:
+            init_sig = inspect.signature(cls.__init__) if hasattr(cls, "__init__") else None
             results[package_name].append({
                 "type": "class",
-                "name": class_name,
                 "qualified_name": f"{module}.{class_name}",
-                "signature": str(inspect.signature(cls.__init__)) if hasattr(cls, "__init__") else "",
+                "module": module,
+                "signature": str(init_sig) if init_sig else None,
                 "docstring": inspect.getdoc(cls) or ""
             })
         except Exception:
@@ -65,11 +80,14 @@ def extract_public_api_json(package_name):
 
     for module, class_name, method_name, method in apis["methods"]:
         try:
+            sig = inspect.signature(method)
             results[package_name].append({
                 "type": "method",
-                "name": method_name,
                 "qualified_name": f"{module}.{class_name}.{method_name}",
-                "signature": str(inspect.signature(method)),
+                "module": module,
+                "signature": str(sig),
+                "parameters": get_parameters(sig),
+                "returns": str(sig.return_annotation) if sig.return_annotation is not inspect.Signature.empty else None,
                 "docstring": inspect.getdoc(method) or ""
             })
         except Exception:
@@ -92,7 +110,7 @@ if __name__ == "__main__":
         with open(documentation_file, "w") as f:
             for module_name, func_name, func_obj in public_apis["functions"]:
                 try:
-                    signature = inspect.signature(func_obj)  # Get function signature
+                    signature = inspect.signature(func_obj)
                     docstring = inspect.getdoc(func_obj) or "⚠️ No documentation available."
                     print(f"\n{module_name}.{func_name}{signature}\n{'-'*len(func_name)}\n", file=f)
                     print(f"{docstring}\n", file=f)
