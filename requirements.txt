@@ -16,5 +16,8 @@ huggingface-hub
 datasets==2.11.0
 faiss_cpu==1.9.0.post1
 pytest-cov==6.0.0
-PyFiglet==1.0.2
 emoji==2.14.1
+pyfiglet==1.0.2
+shortuuid==1.0.13
+faker==37.0.0
+pytz==2025.1

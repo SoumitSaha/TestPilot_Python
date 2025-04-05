@@ -9,7 +9,8 @@ __pycache__/
 .venv
 
 # ignoring big directories
-#documentations/
+doc_text/
+documentations/
 
 *.zip
 .idea/inspectionProfiles/profiles_settings.xml

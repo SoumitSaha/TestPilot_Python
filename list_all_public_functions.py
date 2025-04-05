@@ -41,7 +41,6 @@ def parse_docstring(doc):
     return_desc = None
     raises = []
     examples = []
-
     if doc:
         lines = doc.splitlines()
         for line in lines:
@@ -57,7 +56,6 @@ def parse_docstring(doc):
                 raises.append({"exception": raises_match[1], "description": raises_match[2]})
             if line.startswith("Examples:") or line.startswith(">>>"):
                 examples.append(line)
-
     return params, return_desc, raises, examples
 
 def get_decorators(obj):
@@ -157,29 +155,35 @@ def extract_public_api_json(package_name):
     return results
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="List public APIs of a given Python package.")
-    parser.add_argument("module_name", help="Name of the Python package to inspect.")
-    parser.add_argument("--json", action="store_true", help="Also export as JSON.")
+    parser = argparse.ArgumentParser(description="Generate documentation for packages listed in a file.")
+    parser.add_argument("--input", help="Path to text file containing package names.", default="packages.txt")
     args = parser.parse_args()
 
-    public_apis = list_public_apis(args.module_name)
+    text_output_dir = f"{os.getcwd()}/doc_text"
     documentation_dir = f"{os.getcwd()}/documentations"
+    os.makedirs(text_output_dir, exist_ok=True)
     os.makedirs(documentation_dir, exist_ok=True)
-    documentation_file = f"{documentation_dir}/help_{args.module_name}.txt"
 
-    if public_apis:
-        with open(documentation_file, "w") as f:
-            for module_name, func_name, func_obj in public_apis["functions"]:
-                try:
-                    signature = inspect.signature(func_obj)
-                    docstring = inspect.getdoc(func_obj) or "⚠️ No documentation available."
-                    print(f"\n{module_name}.{func_name}{signature}\n{'-'*len(func_name)}\n", file=f)
-                    print(f"{docstring}\n", file=f)
-                except Exception as e:
-                    print(f"Skipping {module_name}.{func_name} due to error: {e}\n", file=f)
+    with open(args.input, "r") as infile:
+        packages = [line.strip() for line in infile if line.strip() and not line.startswith("#")]
 
-    if args.json:
-        json_data = extract_public_api_json(args.module_name)
-        json_file = f"{documentation_dir}/help_{args.module_name}.json"
+    for package_name in packages:
+        print(f"Processing package: {package_name}")
+        public_apis = list_public_apis(package_name)
+        documentation_file = f"{text_output_dir}/help_{package_name}.txt"
+
+        if public_apis:
+            with open(documentation_file, "w") as f:
+                for module_name, func_name, func_obj in public_apis["functions"]:
+                    try:
+                        signature = inspect.signature(func_obj)
+                        docstring = inspect.getdoc(func_obj) or "⚠️ No documentation available."
+                        print(f"\n{module_name}.{func_name}{signature}\n{'-'*len(func_name)}\n", file=f)
+                        print(f"{docstring}\n", file=f)
+                    except Exception as e:
+                        print(f"Skipping {module_name}.{func_name} due to error: {e}\n", file=f)
+
+        json_data = extract_public_api_json(package_name)
+        json_file = f"{documentation_dir}/help_{package_name}.json"
         with open(json_file, "w") as jf:
             json.dump(json_data, jf, indent=2)
