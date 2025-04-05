@@ -9,21 +9,29 @@
         "string": {
           "default": null,
           "annotation": "<class 'str'>",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": "String to analyze"
         },
         "non_emoji": {
           "default": "False",
           "annotation": "<class 'bool'>",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": "If True also yield all non-emoji characters as Token(char, char)"
         },
         "join_emoji": {
           "default": "True",
           "annotation": "<class 'bool'>",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": "If True, multiple EmojiMatch are merged into a single"
         }
       },
       "returns": "typing.Iterator[emoji.tokenizer.Token]",
-      "docstring": "Find unicode emoji in a string. Yield each emoji as a named tuple\n:class:`Token` ``(chars, EmojiMatch)`` or :class:`Token` ``(chars, EmojiMatchZWJNonRGI)``.\nIf ``non_emoji`` is True, also yield all other characters as\n:class:`Token` ``(char, char)`` .\n\n:param string: String to analyze\n:param non_emoji: If True also yield all non-emoji characters as Token(char, char)\n:param join_emoji: If True, multiple EmojiMatch are merged into a single\n    EmojiMatchZWJNonRGI if they are separated only by a ZWJ."
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Find unicode emoji in a string. Yield each emoji as a named tuple\n:class:`Token` ``(chars, EmojiMatch)`` or :class:`Token` ``(chars, EmojiMatchZWJNonRGI)``.\nIf ``non_emoji`` is True, also yield all other characters as\n:class:`Token` ``(char, char)`` .\n\n:param string: String to analyze\n:param non_emoji: If True also yield all non-emoji characters as Token(char, char)\n:param join_emoji: If True, multiple EmojiMatch are merged into a single\n    EmojiMatchZWJNonRGI if they are separated only by a ZWJ.",
+      "source_code": "def analyze(\n    string: str, non_emoji: bool = False, join_emoji: bool = True\n) -> Iterator[Token]:\n    \"\"\"\n    Find unicode emoji in a string. Yield each emoji as a named tuple\n    :class:`Token` ``(chars, EmojiMatch)`` or :class:`Token` ``(chars, EmojiMatchZWJNonRGI)``.\n    If ``non_emoji`` is True, also yield all other characters as\n    :class:`Token` ``(char, char)`` .\n\n    :param string: String to analyze\n    :param non_emoji: If True also yield all non-emoji characters as Token(char, char)\n    :param join_emoji: If True, multiple EmojiMatch are merged into a single\n        EmojiMatchZWJNonRGI if they are separated only by a ZWJ.\n    \"\"\"\n\n    return filter_tokens(\n        tokenize(string, keep_zwj=True), emoji_only=not non_emoji, join_emoji=join_emoji\n    )\n"
     },
     {
       "type": "function",
@@ -34,31 +42,46 @@
         "string": {
           "default": null,
           "annotation": "<class 'str'>",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": "String contains Unicode characters. MUST BE UNICODE."
         },
         "delimiters": {
           "default": "(':', ':')",
           "annotation": "typing.Tuple[str, str]",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": "(optional) User delimiters other than ``_DEFAULT_DELIMITER``"
         },
         "language": {
           "default": "en",
           "annotation": "<class 'str'>",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": "Choose language of emoji name: language code 'es', 'de', etc. or 'alias'"
         },
         "version": {
           "default": "None",
           "annotation": "typing.Optional[float]",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": "(optional) Max version. If set to an Emoji Version,"
         },
         "handle_version": {
           "default": "None",
           "annotation": "typing.Union[str, typing.Callable[[str, typing.Dict[str, str]], str], NoneType]",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": "(optional) Replace the emoji above ``version``"
         }
       },
       "returns": "<class 'str'>",
-      "docstring": "Replace Unicode emoji in a string with emoji shortcodes. Useful for storage.\n    >>> import emoji\n    >>> print(emoji.emojize(\"Python is fun :thumbs_up:\"))\n    Python is fun \ud83d\udc4d\n    >>> print(emoji.demojize(\"Python is fun \ud83d\udc4d\"))\n    Python is fun :thumbs_up:\n    >>> print(emoji.demojize(\"icode is tricky \ud83d\ude2f\", delimiters=(\"__\", \"__\")))\n    Unicode is tricky __hushed_face__\n\n:param string: String contains Unicode characters. MUST BE UNICODE.\n:param delimiters: (optional) User delimiters other than ``_DEFAULT_DELIMITER``\n:param language: Choose language of emoji name: language code 'es', 'de', etc. or 'alias'\n    to use English aliases\n:param version: (optional) Max version. If set to an Emoji Version,\n    all emoji above this version will be removed.\n:param handle_version: (optional) Replace the emoji above ``version``\n    instead of removing it. handle_version can be either a string or a\n    callable ``handle_version(emj: str, data: dict) -> str``; If it is\n    a callable, it's passed the Unicode emoji and the data dict from\n    :data:`EMOJI_DATA` and must return a replacement string  to be used.\n    The passed data is in the form of::\n\n        handle_version('\\U0001F6EB', {\n            'en' : ':airplane_departure:',\n            'status' : fully_qualified,\n            'E' : 1,\n            'alias' : [':flight_departure:'],\n            'de': ':abflug:',\n            'es': ':avi\u00f3n_despegando:',\n            ...\n        })"
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [
+        ">>> import emoji",
+        ">>> print(emoji.emojize(\"Python is fun :thumbs_up:\"))",
+        ">>> print(emoji.demojize(\"Python is fun \ud83d\udc4d\"))",
+        ">>> print(emoji.demojize(\"icode is tricky \ud83d\ude2f\", delimiters=(\"__\", \"__\")))"
+      ],
+      "docstring": "Replace Unicode emoji in a string with emoji shortcodes. Useful for storage.\n    >>> import emoji\n    >>> print(emoji.emojize(\"Python is fun :thumbs_up:\"))\n    Python is fun \ud83d\udc4d\n    >>> print(emoji.demojize(\"Python is fun \ud83d\udc4d\"))\n    Python is fun :thumbs_up:\n    >>> print(emoji.demojize(\"icode is tricky \ud83d\ude2f\", delimiters=(\"__\", \"__\")))\n    Unicode is tricky __hushed_face__\n\n:param string: String contains Unicode characters. MUST BE UNICODE.\n:param delimiters: (optional) User delimiters other than ``_DEFAULT_DELIMITER``\n:param language: Choose language of emoji name: language code 'es', 'de', etc. or 'alias'\n    to use English aliases\n:param version: (optional) Max version. If set to an Emoji Version,\n    all emoji above this version will be removed.\n:param handle_version: (optional) Replace the emoji above ``version``\n    instead of removing it. handle_version can be either a string or a\n    callable ``handle_version(emj: str, data: dict) -> str``; If it is\n    a callable, it's passed the Unicode emoji and the data dict from\n    :data:`EMOJI_DATA` and must return a replacement string  to be used.\n    The passed data is in the form of::\n\n        handle_version('\\U0001F6EB', {\n            'en' : ':airplane_departure:',\n            'status' : fully_qualified,\n            'E' : 1,\n            'alias' : [':flight_departure:'],\n            'de': ':abflug:',\n            'es': ':avi\u00f3n_despegando:',\n            ...\n        })",
+      "source_code": "def demojize(\n    string: str,\n    delimiters: Tuple[str, str] = (_DEFAULT_DELIMITER, _DEFAULT_DELIMITER),\n    language: str = 'en',\n    version: Optional[float] = None,\n    handle_version: Optional[Union[str, Callable[[str, Dict[str, str]], str]]] = None,\n) -> str:\n    \"\"\"\n    Replace Unicode emoji in a string with emoji shortcodes. Useful for storage.\n        >>> import emoji\n        >>> print(emoji.emojize(\"Python is fun :thumbs_up:\"))\n        Python is fun \ud83d\udc4d\n        >>> print(emoji.demojize(\"Python is fun \ud83d\udc4d\"))\n        Python is fun :thumbs_up:\n        >>> print(emoji.demojize(\"icode is tricky \ud83d\ude2f\", delimiters=(\"__\", \"__\")))\n        Unicode is tricky __hushed_face__\n\n    :param string: String contains Unicode characters. MUST BE UNICODE.\n    :param delimiters: (optional) User delimiters other than ``_DEFAULT_DELIMITER``\n    :param language: Choose language of emoji name: language code 'es', 'de', etc. or 'alias'\n        to use English aliases\n    :param version: (optional) Max version. If set to an Emoji Version,\n        all emoji above this version will be removed.\n    :param handle_version: (optional) Replace the emoji above ``version``\n        instead of removing it. handle_version can be either a string or a\n        callable ``handle_version(emj: str, data: dict) -> str``; If it is\n        a callable, it's passed the Unicode emoji and the data dict from\n        :data:`EMOJI_DATA` and must return a replacement string  to be used.\n        The passed data is in the form of::\n\n            handle_version('\\\\U0001F6EB', {\n                'en' : ':airplane_departure:',\n                'status' : fully_qualified,\n                'E' : 1,\n                'alias' : [':flight_departure:'],\n                'de': ':abflug:',\n                'es': ':avi\u00f3n_despegando:',\n                ...\n            })\n\n    \"\"\"\n\n    if language == 'alias':\n        language = 'en'\n        _use_aliases = True\n    else:\n        _use_aliases = False\n\n    unicode_codes.load_from_json(language)\n\n    def handle(emoji_match: EmojiMatch) -> str:\n        assert emoji_match.data is not None\n        if version is not None and emoji_match.data['E'] > version:\n            if callable(handle_version):\n                return handle_version(emoji_match.emoji, emoji_match.data_copy())\n            elif handle_version is not None:\n                return handle_version\n            else:\n                return ''\n        elif language in emoji_match.data:\n            if _use_aliases and 'alias' in emoji_match.data:\n                return (\n                    delimiters[0] + emoji_match.data['alias'][0][1:-1] + delimiters[1]\n                )\n            else:\n                return delimiters[0] + emoji_match.data[language][1:-1] + delimiters[1]\n        else:\n            # The emoji exists, but it is not translated, so we keep the emoji\n            return emoji_match.emoji\n\n    matches = tokenize(string, keep_zwj=config.demojize_keep_zwj)\n    return ''.join(\n        str(handle(token.value)) if isinstance(token.value, EmojiMatch) else token.value\n        for token in matches\n    )\n"
     },
     {
       "type": "function",
@@ -69,11 +92,17 @@
         "string": {
           "default": null,
           "annotation": "<class 'str'>",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         }
       },
       "returns": "typing.List[str]",
-      "docstring": "Returns distinct list of emojis from the string."
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Returns distinct list of emojis from the string.",
+      "source_code": "def distinct_emoji_list(string: str) -> List[str]:\n    \"\"\"Returns distinct list of emojis from the string.\"\"\"\n    distinct_list = list({e['emoji'] for e in emoji_list(string)})\n    return distinct_list\n"
     },
     {
       "type": "function",
@@ -84,16 +113,23 @@
         "string": {
           "default": null,
           "annotation": "<class 'str'>",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         },
         "unique": {
           "default": "False",
           "annotation": "<class 'bool'>",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": "(optional) True if count only unique emojis"
         }
       },
       "returns": "<class 'int'>",
-      "docstring": "Returns the count of emojis in a string.\n\n:param unique: (optional) True if count only unique emojis"
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Returns the count of emojis in a string.\n\n:param unique: (optional) True if count only unique emojis",
+      "source_code": "def emoji_count(string: str, unique: bool = False) -> int:\n    \"\"\"\n    Returns the count of emojis in a string.\n\n    :param unique: (optional) True if count only unique emojis\n    \"\"\"\n    if unique:\n        return len(distinct_emoji_list(string))\n    return len(emoji_list(string))\n"
     },
     {
       "type": "function",
@@ -104,11 +140,19 @@
         "string": {
           "default": null,
           "annotation": "<class 'str'>",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         }
       },
       "returns": "typing.List[emoji.core._EmojiListReturn]",
-      "docstring": "Returns the location and emoji in list of dict format.\n    >>> emoji.emoji_list(\"Hi, I am fine. \ud83d\ude01\")\n    [{'match_start': 15, 'match_end': 16, 'emoji': '\ud83d\ude01'}]"
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [
+        ">>> emoji.emoji_list(\"Hi, I am fine. \ud83d\ude01\")"
+      ],
+      "docstring": "Returns the location and emoji in list of dict format.\n    >>> emoji.emoji_list(\"Hi, I am fine. \ud83d\ude01\")\n    [{'match_start': 15, 'match_end': 16, 'emoji': '\ud83d\ude01'}]",
+      "source_code": "def emoji_list(string: str) -> List[_EmojiListReturn]:\n    \"\"\"\n    Returns the location and emoji in list of dict format.\n        >>> emoji.emoji_list(\"Hi, I am fine. \ud83d\ude01\")\n        [{'match_start': 15, 'match_end': 16, 'emoji': '\ud83d\ude01'}]\n    \"\"\"\n\n    return [\n        {\n            'match_start': m.value.start,\n            'match_end': m.value.end,\n            'emoji': m.value.emoji,\n        }\n        for m in tokenize(string, keep_zwj=False)\n        if isinstance(m.value, EmojiMatch)\n    ]\n"
     },
     {
       "type": "function",
@@ -119,36 +163,59 @@
         "string": {
           "default": null,
           "annotation": "<class 'str'>",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": "String contains emoji names."
         },
         "delimiters": {
           "default": "(':', ':')",
           "annotation": "typing.Tuple[str, str]",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": "(optional) Use delimiters other than _DEFAULT_DELIMITER. Each delimiter"
         },
         "variant": {
           "default": "None",
           "annotation": "typing.Optional[typing.Literal['text_type', 'emoji_type']]",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": "(optional) Choose variation selector between \"base\"(None), VS-15 (\"text_type\") and VS-16 (\"emoji_type\")"
         },
         "language": {
           "default": "en",
           "annotation": "<class 'str'>",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": "Choose language of emoji name: language code 'es', 'de', etc. or 'alias'"
         },
         "version": {
           "default": "None",
           "annotation": "typing.Optional[float]",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": "(optional) Max version. If set to an Emoji Version,"
         },
         "handle_version": {
           "default": "None",
           "annotation": "typing.Union[str, typing.Callable[[str, typing.Dict[str, str]], str], NoneType]",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": "(optional) Replace the emoji above ``version``"
         }
       },
       "returns": "<class 'str'>",
-      "docstring": "Replace emoji names in a string with Unicode codes.\n    >>> import emoji\n    >>> print(emoji.emojize(\"Python is fun :thumbsup:\", language='alias'))\n    Python is fun \ud83d\udc4d\n    >>> print(emoji.emojize(\"Python is fun :thumbs_up:\"))\n    Python is fun \ud83d\udc4d\n    >>> print(emoji.emojize(\"Python is fun {thumbs_up}\", delimiters = (\"{\", \"}\")))\n    Python is fun \ud83d\udc4d\n    >>> print(emoji.emojize(\"Python is fun :red_heart:\", variant=\"text_type\"))\n    Python is fun \u2764\n    >>> print(emoji.emojize(\"Python is fun :red_heart:\", variant=\"emoji_type\"))\n    Python is fun \u2764\ufe0f # red heart, not black heart\n\n:param string: String contains emoji names.\n:param delimiters: (optional) Use delimiters other than _DEFAULT_DELIMITER. Each delimiter\n    should contain at least one character that is not part of a-zA-Z0-9 and ``_-&.()!?#*+,``.\n    See ``emoji.core._EMOJI_NAME_PATTERN`` for the regular expression of unsafe characters.\n:param variant: (optional) Choose variation selector between \"base\"(None), VS-15 (\"text_type\") and VS-16 (\"emoji_type\")\n:param language: Choose language of emoji name: language code 'es', 'de', etc. or 'alias'\n    to use English aliases\n:param version: (optional) Max version. If set to an Emoji Version,\n    all emoji above this version will be ignored.\n:param handle_version: (optional) Replace the emoji above ``version``\n    instead of ignoring it. handle_version can be either a string or a\n    callable; If it is a callable, it's passed the Unicode emoji and the\n    data dict from :data:`EMOJI_DATA` and must return a replacement string\n    to be used::\n\n        handle_version('\\U0001F6EB', {\n            'en' : ':airplane_departure:',\n            'status' : fully_qualified,\n            'E' : 1,\n            'alias' : [':flight_departure:'],\n            'de': ':abflug:',\n            'es': ':avi\u00f3n_despegando:',\n            ...\n        })\n\n:raises ValueError: if ``variant`` is neither None, 'text_type' or 'emoji_type'"
+      "return_description": null,
+      "raises": [
+        {
+          "exception": "ValueError",
+          "description": "if ``variant`` is neither None, 'text_type' or 'emoji_type'"
+        }
+      ],
+      "decorators": [],
+      "examples": [
+        ">>> import emoji",
+        ">>> print(emoji.emojize(\"Python is fun :thumbsup:\", language='alias'))",
+        ">>> print(emoji.emojize(\"Python is fun :thumbs_up:\"))",
+        ">>> print(emoji.emojize(\"Python is fun {thumbs_up}\", delimiters = (\"{\", \"}\")))",
+        ">>> print(emoji.emojize(\"Python is fun :red_heart:\", variant=\"text_type\"))",
+        ">>> print(emoji.emojize(\"Python is fun :red_heart:\", variant=\"emoji_type\"))"
+      ],
+      "docstring": "Replace emoji names in a string with Unicode codes.\n    >>> import emoji\n    >>> print(emoji.emojize(\"Python is fun :thumbsup:\", language='alias'))\n    Python is fun \ud83d\udc4d\n    >>> print(emoji.emojize(\"Python is fun :thumbs_up:\"))\n    Python is fun \ud83d\udc4d\n    >>> print(emoji.emojize(\"Python is fun {thumbs_up}\", delimiters = (\"{\", \"}\")))\n    Python is fun \ud83d\udc4d\n    >>> print(emoji.emojize(\"Python is fun :red_heart:\", variant=\"text_type\"))\n    Python is fun \u2764\n    >>> print(emoji.emojize(\"Python is fun :red_heart:\", variant=\"emoji_type\"))\n    Python is fun \u2764\ufe0f # red heart, not black heart\n\n:param string: String contains emoji names.\n:param delimiters: (optional) Use delimiters other than _DEFAULT_DELIMITER. Each delimiter\n    should contain at least one character that is not part of a-zA-Z0-9 and ``_-&.()!?#*+,``.\n    See ``emoji.core._EMOJI_NAME_PATTERN`` for the regular expression of unsafe characters.\n:param variant: (optional) Choose variation selector between \"base\"(None), VS-15 (\"text_type\") and VS-16 (\"emoji_type\")\n:param language: Choose language of emoji name: language code 'es', 'de', etc. or 'alias'\n    to use English aliases\n:param version: (optional) Max version. If set to an Emoji Version,\n    all emoji above this version will be ignored.\n:param handle_version: (optional) Replace the emoji above ``version``\n    instead of ignoring it. handle_version can be either a string or a\n    callable; If it is a callable, it's passed the Unicode emoji and the\n    data dict from :data:`EMOJI_DATA` and must return a replacement string\n    to be used::\n\n        handle_version('\\U0001F6EB', {\n            'en' : ':airplane_departure:',\n            'status' : fully_qualified,\n            'E' : 1,\n            'alias' : [':flight_departure:'],\n            'de': ':abflug:',\n            'es': ':avi\u00f3n_despegando:',\n            ...\n        })\n\n:raises ValueError: if ``variant`` is neither None, 'text_type' or 'emoji_type'",
+      "source_code": "def emojize(\n    string: str,\n    delimiters: Tuple[str, str] = (_DEFAULT_DELIMITER, _DEFAULT_DELIMITER),\n    variant: Optional[Literal['text_type', 'emoji_type']] = None,\n    language: str = 'en',\n    version: Optional[float] = None,\n    handle_version: Optional[Union[str, Callable[[str, Dict[str, str]], str]]] = None,\n) -> str:\n    \"\"\"\n    Replace emoji names in a string with Unicode codes.\n        >>> import emoji\n        >>> print(emoji.emojize(\"Python is fun :thumbsup:\", language='alias'))\n        Python is fun \ud83d\udc4d\n        >>> print(emoji.emojize(\"Python is fun :thumbs_up:\"))\n        Python is fun \ud83d\udc4d\n        >>> print(emoji.emojize(\"Python is fun {thumbs_up}\", delimiters = (\"{\", \"}\")))\n        Python is fun \ud83d\udc4d\n        >>> print(emoji.emojize(\"Python is fun :red_heart:\", variant=\"text_type\"))\n        Python is fun \u2764\n        >>> print(emoji.emojize(\"Python is fun :red_heart:\", variant=\"emoji_type\"))\n        Python is fun \u2764\ufe0f # red heart, not black heart\n\n    :param string: String contains emoji names.\n    :param delimiters: (optional) Use delimiters other than _DEFAULT_DELIMITER. Each delimiter\n        should contain at least one character that is not part of a-zA-Z0-9 and ``_-&.()!?#*+,``.\n        See ``emoji.core._EMOJI_NAME_PATTERN`` for the regular expression of unsafe characters.\n    :param variant: (optional) Choose variation selector between \"base\"(None), VS-15 (\"text_type\") and VS-16 (\"emoji_type\")\n    :param language: Choose language of emoji name: language code 'es', 'de', etc. or 'alias'\n        to use English aliases\n    :param version: (optional) Max version. If set to an Emoji Version,\n        all emoji above this version will be ignored.\n    :param handle_version: (optional) Replace the emoji above ``version``\n        instead of ignoring it. handle_version can be either a string or a\n        callable; If it is a callable, it's passed the Unicode emoji and the\n        data dict from :data:`EMOJI_DATA` and must return a replacement string\n        to be used::\n\n            handle_version('\\\\U0001F6EB', {\n                'en' : ':airplane_departure:',\n                'status' : fully_qualified,\n                'E' : 1,\n                'alias' : [':flight_departure:'],\n                'de': ':abflug:',\n                'es': ':avi\u00f3n_despegando:',\n                ...\n            })\n\n    :raises ValueError: if ``variant`` is neither None, 'text_type' or 'emoji_type'\n\n    \"\"\"\n\n    unicode_codes.load_from_json(language)\n\n    pattern = re.compile(\n        '(%s[%s]+%s)'\n        % (re.escape(delimiters[0]), _EMOJI_NAME_PATTERN, re.escape(delimiters[1]))\n    )\n\n    def replace(match: Match[str]) -> str:\n        name = match.group(1)[len(delimiters[0]) : -len(delimiters[1])]\n        emj = unicode_codes.get_emoji_by_name(\n            _DEFAULT_DELIMITER\n            + unicodedata.normalize('NFKC', name)\n            + _DEFAULT_DELIMITER,\n            language,\n        )\n\n        if emj is None:\n            return match.group(1)\n\n        if version is not None and unicode_codes.EMOJI_DATA[emj]['E'] > version:\n            if callable(handle_version):\n                emj_data = unicode_codes.EMOJI_DATA[emj].copy()\n                emj_data['match_start'] = match.start()\n                emj_data['match_end'] = match.end()\n                return handle_version(emj, emj_data)\n\n            elif handle_version is not None:\n                return str(handle_version)\n            else:\n                return ''\n\n        if variant is None or 'variant' not in unicode_codes.EMOJI_DATA[emj]:\n            return emj\n\n        if emj[-1] == '\\ufe0e' or emj[-1] == '\\ufe0f':\n            # Remove an existing variant\n            emj = emj[0:-1]\n        if variant == 'text_type':\n            return emj + '\\ufe0e'\n        elif variant == 'emoji_type':\n            return emj + '\\ufe0f'\n        else:\n            raise ValueError(\n                \"Parameter 'variant' must be either None, 'text_type' or 'emoji_type'\"\n            )\n\n    return pattern.sub(replace, string)\n"
     },
     {
       "type": "function",
@@ -159,11 +226,17 @@
         "string": {
           "default": null,
           "annotation": "<class 'str'>",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         }
       },
       "returns": "<class 'bool'>",
-      "docstring": "Returns True if the string is a single emoji, and it is \"recommended for\ngeneral interchange\" by Unicode.org."
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Returns True if the string is a single emoji, and it is \"recommended for\ngeneral interchange\" by Unicode.org.",
+      "source_code": "def is_emoji(string: str) -> bool:\n    \"\"\"\n    Returns True if the string is a single emoji, and it is \"recommended for\n    general interchange\" by Unicode.org.\n    \"\"\"\n    return string in unicode_codes.EMOJI_DATA\n"
     },
     {
       "type": "function",
@@ -174,11 +247,17 @@
         "key": {
           "default": null,
           "annotation": "<class 'str'>",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         }
       },
       "returns": null,
-      "docstring": "Load values from the file 'emoji_{key}.json' into EMOJI_DATA"
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Load values from the file 'emoji_{key}.json' into EMOJI_DATA",
+      "source_code": "def load_from_json(key: str):\n    \"\"\"Load values from the file 'emoji_{key}.json' into EMOJI_DATA\"\"\"\n\n    if key in _loaded_keys:\n        return\n\n    if key not in LANGUAGES:\n        raise NotImplementedError('Language not supported', key)\n\n    with _open_file(f'emoji_{key}.json') as f:\n        for emj, value in json.load(f).items():\n            EMOJI_DATA[emj][key] = value  # type: ignore\n\n    _loaded_keys.append(key)\n"
     },
     {
       "type": "function",
@@ -189,11 +268,17 @@
         "string": {
           "default": null,
           "annotation": "<class 'str'>",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         }
       },
       "returns": "<class 'bool'>",
-      "docstring": "Returns True if the string contains only emojis.\nThis might not imply that `is_emoji` for all the characters, for example,\nif the string contains variation selectors."
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Returns True if the string contains only emojis.\nThis might not imply that `is_emoji` for all the characters, for example,\nif the string contains variation selectors.",
+      "source_code": "def purely_emoji(string: str) -> bool:\n    \"\"\"\n    Returns True if the string contains only emojis.\n    This might not imply that `is_emoji` for all the characters, for example,\n    if the string contains variation selectors.\n    \"\"\"\n    return all(isinstance(m.value, EmojiMatch) for m in analyze(string, non_emoji=True))\n"
     },
     {
       "type": "function",
@@ -204,21 +289,29 @@
         "string": {
           "default": null,
           "annotation": "<class 'str'>",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": "String contains Unicode characters. MUST BE UNICODE."
         },
         "replace": {
           "default": "",
           "annotation": "typing.Union[str, typing.Callable[[str, typing.Dict[str, str]], str]]",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": "(optional) replace can be either a string or a callable;"
         },
         "version": {
           "default": "-1",
           "annotation": "<class 'float'>",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": "(optional) Max version. If set to an Emoji Version,"
         }
       },
       "returns": "<class 'str'>",
-      "docstring": "Replace Unicode emoji in a customizable string.\n\n:param string: String contains Unicode characters. MUST BE UNICODE.\n:param replace: (optional) replace can be either a string or a callable;\n    If it is a callable, it's passed the Unicode emoji and the data dict from\n    :data:`EMOJI_DATA` and must return a replacement string to be used.\n    replace(str, dict) -> str\n:param version: (optional) Max version. If set to an Emoji Version,\n    only emoji above this version will be replaced."
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Replace Unicode emoji in a customizable string.\n\n:param string: String contains Unicode characters. MUST BE UNICODE.\n:param replace: (optional) replace can be either a string or a callable;\n    If it is a callable, it's passed the Unicode emoji and the data dict from\n    :data:`EMOJI_DATA` and must return a replacement string to be used.\n    replace(str, dict) -> str\n:param version: (optional) Max version. If set to an Emoji Version,\n    only emoji above this version will be replaced.",
+      "source_code": "def replace_emoji(\n    string: str,\n    replace: Union[str, Callable[[str, Dict[str, str]], str]] = '',\n    version: float = -1,\n) -> str:\n    \"\"\"\n    Replace Unicode emoji in a customizable string.\n\n    :param string: String contains Unicode characters. MUST BE UNICODE.\n    :param replace: (optional) replace can be either a string or a callable;\n        If it is a callable, it's passed the Unicode emoji and the data dict from\n        :data:`EMOJI_DATA` and must return a replacement string to be used.\n        replace(str, dict) -> str\n    :param version: (optional) Max version. If set to an Emoji Version,\n        only emoji above this version will be replaced.\n    \"\"\"\n\n    def handle(emoji_match: EmojiMatch) -> str:\n        if version > -1:\n            assert emoji_match.data is not None\n            if emoji_match.data['E'] > version:\n                if callable(replace):\n                    return replace(emoji_match.emoji, emoji_match.data_copy())\n                else:\n                    return str(replace)\n        elif callable(replace):\n            return replace(emoji_match.emoji, emoji_match.data_copy())\n        elif replace is not None:  # type: ignore\n            return replace\n        return emoji_match.emoji\n\n    matches = tokenize(string, keep_zwj=config.replace_emoji_keep_zwj)\n    if config.replace_emoji_keep_zwj:\n        matches = filter_tokens(matches, emoji_only=False, join_emoji=True)\n    return ''.join(\n        str(handle(m.value)) if isinstance(m.value, EmojiMatch) else m.value\n        for m in matches\n    )\n"
     },
     {
       "type": "function",
@@ -229,11 +322,25 @@
         "string": {
           "default": null,
           "annotation": "<class 'str'>",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": "An emoji or a text containing an emoji"
         }
       },
       "returns": "<class 'float'>",
-      "docstring": "Returns the Emoji Version of the emoji.\n\nSee https://www.unicode.org/reports/tr51/#Versioning for more information.\n    >>> emoji.version(\"\ud83d\ude01\")\n    0.6\n    >>> emoji.version(\":butterfly:\")\n    3\n\n:param string: An emoji or a text containing an emoji\n:raises ValueError: if ``string`` does not contain an emoji"
+      "return_description": null,
+      "raises": [
+        {
+          "exception": "ValueError",
+          "description": "if ``string`` does not contain an emoji"
+        }
+      ],
+      "decorators": [],
+      "examples": [
+        ">>> emoji.version(\"\ud83d\ude01\")",
+        ">>> emoji.version(\":butterfly:\")"
+      ],
+      "docstring": "Returns the Emoji Version of the emoji.\n\nSee https://www.unicode.org/reports/tr51/#Versioning for more information.\n    >>> emoji.version(\"\ud83d\ude01\")\n    0.6\n    >>> emoji.version(\":butterfly:\")\n    3\n\n:param string: An emoji or a text containing an emoji\n:raises ValueError: if ``string`` does not contain an emoji",
+      "source_code": "def version(string: str) -> float:\n    \"\"\"\n    Returns the Emoji Version of the emoji.\n\n    See https://www.unicode.org/reports/tr51/#Versioning for more information.\n        >>> emoji.version(\"\ud83d\ude01\")\n        0.6\n        >>> emoji.version(\":butterfly:\")\n        3\n\n    :param string: An emoji or a text containing an emoji\n    :raises ValueError: if ``string`` does not contain an emoji\n    \"\"\"\n    # Try dictionary lookup\n    if string in unicode_codes.EMOJI_DATA:\n        return unicode_codes.EMOJI_DATA[string]['E']\n\n    # Try name lookup\n    emj_code = unicode_codes.get_emoji_by_name(string, 'en')\n    if emj_code and emj_code in unicode_codes.EMOJI_DATA:\n        return unicode_codes.EMOJI_DATA[emj_code]['E']\n\n    # Try to find first emoji in string\n    version: List[float] = []\n\n    def f(e: str, emoji_data: Dict[str, Any]) -> str:\n        version.append(emoji_data['E'])\n        return ''\n\n    replace_emoji(string, replace=f, version=-1)\n    if version:\n        return version[0]\n    emojize(string, language='alias', version=-1, handle_version=f)\n    if version:\n        return version[0]\n    for lang_code in unicode_codes.LANGUAGES:\n        emojize(string, language=lang_code, version=-1, handle_version=f)\n        if version:\n            return version[0]\n\n    raise ValueError('No emoji found in string')\n"
     },
     {
       "type": "function",
@@ -244,26 +351,35 @@
         "typename": {
           "default": null,
           "annotation": null,
-          "kind": "POSITIONAL_ONLY"
+          "kind": "POSITIONAL_ONLY",
+          "description": null
         },
         "fields": {
           "default": "None",
           "annotation": null,
-          "kind": "POSITIONAL_ONLY"
+          "kind": "POSITIONAL_ONLY",
+          "description": null
         },
         "total": {
           "default": "True",
           "annotation": null,
-          "kind": "KEYWORD_ONLY"
+          "kind": "KEYWORD_ONLY",
+          "description": null
         },
         "kwargs": {
           "default": null,
           "annotation": null,
-          "kind": "VAR_KEYWORD"
+          "kind": "VAR_KEYWORD",
+          "description": null
         }
       },
       "returns": null,
-      "docstring": "A simple typed namespace. At runtime it is equivalent to a plain dict.\n\nTypedDict creates a dictionary type that expects all of its\ninstances to have a certain set of keys, where each key is\nassociated with a value of a consistent type. This expectation\nis not checked at runtime but is only enforced by type checkers.\nUsage::\n\n    class Point2D(TypedDict):\n        x: int\n        y: int\n        label: str\n\n    a: Point2D = {'x': 1, 'y': 2, 'label': 'good'}  # OK\n    b: Point2D = {'z': 3, 'label': 'bad'}           # Fails type check\n\n    assert Point2D(x=1, y=2, label='first') == dict(x=1, y=2, label='first')\n\nThe type info can be accessed via the Point2D.__annotations__ dict, and\nthe Point2D.__required_keys__ and Point2D.__optional_keys__ frozensets.\nTypedDict supports an additional equivalent form::\n\n    Point2D = TypedDict('Point2D', {'x': int, 'y': int, 'label': str})\n\nBy default, all keys must be present in a TypedDict. It is possible\nto override this by specifying totality.\nUsage::\n\n    class point2D(TypedDict, total=False):\n        x: int\n        y: int\n\nThis means that a point2D TypedDict can have any of the keys omitted.A type\nchecker is only expected to support a literal False or True as the value of\nthe total argument. True is the default, and makes all items defined in the\nclass body be required.\n\nThe class syntax is only supported in Python 3.6+, while the other\nsyntax form works for Python 2.7 and 3.2+"
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "A simple typed namespace. At runtime it is equivalent to a plain dict.\n\nTypedDict creates a dictionary type that expects all of its\ninstances to have a certain set of keys, where each key is\nassociated with a value of a consistent type. This expectation\nis not checked at runtime but is only enforced by type checkers.\nUsage::\n\n    class Point2D(TypedDict):\n        x: int\n        y: int\n        label: str\n\n    a: Point2D = {'x': 1, 'y': 2, 'label': 'good'}  # OK\n    b: Point2D = {'z': 3, 'label': 'bad'}           # Fails type check\n\n    assert Point2D(x=1, y=2, label='first') == dict(x=1, y=2, label='first')\n\nThe type info can be accessed via the Point2D.__annotations__ dict, and\nthe Point2D.__required_keys__ and Point2D.__optional_keys__ frozensets.\nTypedDict supports an additional equivalent form::\n\n    Point2D = TypedDict('Point2D', {'x': int, 'y': int, 'label': str})\n\nBy default, all keys must be present in a TypedDict. It is possible\nto override this by specifying totality.\nUsage::\n\n    class point2D(TypedDict, total=False):\n        x: int\n        y: int\n\nThis means that a point2D TypedDict can have any of the keys omitted.A type\nchecker is only expected to support a literal False or True as the value of\nthe total argument. True is the default, and makes all items defined in the\nclass body be required.\n\nThe class syntax is only supported in Python 3.6+, while the other\nsyntax form works for Python 2.7 and 3.2+",
+      "source_code": "def TypedDict(typename, fields=None, /, *, total=True, **kwargs):\n    \"\"\"A simple typed namespace. At runtime it is equivalent to a plain dict.\n\n    TypedDict creates a dictionary type that expects all of its\n    instances to have a certain set of keys, where each key is\n    associated with a value of a consistent type. This expectation\n    is not checked at runtime but is only enforced by type checkers.\n    Usage::\n\n        class Point2D(TypedDict):\n            x: int\n            y: int\n            label: str\n\n        a: Point2D = {'x': 1, 'y': 2, 'label': 'good'}  # OK\n        b: Point2D = {'z': 3, 'label': 'bad'}           # Fails type check\n\n        assert Point2D(x=1, y=2, label='first') == dict(x=1, y=2, label='first')\n\n    The type info can be accessed via the Point2D.__annotations__ dict, and\n    the Point2D.__required_keys__ and Point2D.__optional_keys__ frozensets.\n    TypedDict supports an additional equivalent form::\n\n        Point2D = TypedDict('Point2D', {'x': int, 'y': int, 'label': str})\n\n    By default, all keys must be present in a TypedDict. It is possible\n    to override this by specifying totality.\n    Usage::\n\n        class point2D(TypedDict, total=False):\n            x: int\n            y: int\n\n    This means that a point2D TypedDict can have any of the keys omitted.A type\n    checker is only expected to support a literal False or True as the value of\n    the total argument. True is the default, and makes all items defined in the\n    class body be required.\n\n    The class syntax is only supported in Python 3.6+, while the other\n    syntax form works for Python 2.7 and 3.2+\n    \"\"\"\n    if fields is None:\n        fields = kwargs\n    elif kwargs:\n        raise TypeError(\"TypedDict takes either a dict or keyword arguments,\"\n                        \" but not both\")\n    if kwargs:\n        warnings.warn(\n            \"The kwargs-based syntax for TypedDict definitions is deprecated \"\n            \"in Python 3.11, will be removed in Python 3.13, and may not be \"\n            \"understood by third-party type checkers.\",\n            DeprecationWarning,\n            stacklevel=2,\n        )\n\n    ns = {'__annotations__': dict(fields)}\n    module = _caller()\n    if module is not None:\n        # Setting correct module is necessary to make typed dict classes pickleable.\n        ns['__module__'] = module\n\n    return _TypedDictMeta(typename, (), ns, total=total)\n"
     },
     {
       "type": "function",
@@ -274,21 +390,29 @@
         "string": {
           "default": null,
           "annotation": "<class 'str'>",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": "String to analyze"
         },
         "non_emoji": {
           "default": "False",
           "annotation": "<class 'bool'>",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": "If True also yield all non-emoji characters as Token(char, char)"
         },
         "join_emoji": {
           "default": "True",
           "annotation": "<class 'bool'>",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": "If True, multiple EmojiMatch are merged into a single"
         }
       },
       "returns": "typing.Iterator[emoji.tokenizer.Token]",
-      "docstring": "Find unicode emoji in a string. Yield each emoji as a named tuple\n:class:`Token` ``(chars, EmojiMatch)`` or :class:`Token` ``(chars, EmojiMatchZWJNonRGI)``.\nIf ``non_emoji`` is True, also yield all other characters as\n:class:`Token` ``(char, char)`` .\n\n:param string: String to analyze\n:param non_emoji: If True also yield all non-emoji characters as Token(char, char)\n:param join_emoji: If True, multiple EmojiMatch are merged into a single\n    EmojiMatchZWJNonRGI if they are separated only by a ZWJ."
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Find unicode emoji in a string. Yield each emoji as a named tuple\n:class:`Token` ``(chars, EmojiMatch)`` or :class:`Token` ``(chars, EmojiMatchZWJNonRGI)``.\nIf ``non_emoji`` is True, also yield all other characters as\n:class:`Token` ``(char, char)`` .\n\n:param string: String to analyze\n:param non_emoji: If True also yield all non-emoji characters as Token(char, char)\n:param join_emoji: If True, multiple EmojiMatch are merged into a single\n    EmojiMatchZWJNonRGI if they are separated only by a ZWJ.",
+      "source_code": "def analyze(\n    string: str, non_emoji: bool = False, join_emoji: bool = True\n) -> Iterator[Token]:\n    \"\"\"\n    Find unicode emoji in a string. Yield each emoji as a named tuple\n    :class:`Token` ``(chars, EmojiMatch)`` or :class:`Token` ``(chars, EmojiMatchZWJNonRGI)``.\n    If ``non_emoji`` is True, also yield all other characters as\n    :class:`Token` ``(char, char)`` .\n\n    :param string: String to analyze\n    :param non_emoji: If True also yield all non-emoji characters as Token(char, char)\n    :param join_emoji: If True, multiple EmojiMatch are merged into a single\n        EmojiMatchZWJNonRGI if they are separated only by a ZWJ.\n    \"\"\"\n\n    return filter_tokens(\n        tokenize(string, keep_zwj=True), emoji_only=not non_emoji, join_emoji=join_emoji\n    )\n"
     },
     {
       "type": "function",
@@ -299,31 +423,46 @@
         "string": {
           "default": null,
           "annotation": "<class 'str'>",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": "String contains Unicode characters. MUST BE UNICODE."
         },
         "delimiters": {
           "default": "(':', ':')",
           "annotation": "typing.Tuple[str, str]",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": "(optional) User delimiters other than ``_DEFAULT_DELIMITER``"
         },
         "language": {
           "default": "en",
           "annotation": "<class 'str'>",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": "Choose language of emoji name: language code 'es', 'de', etc. or 'alias'"
         },
         "version": {
           "default": "None",
           "annotation": "typing.Optional[float]",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": "(optional) Max version. If set to an Emoji Version,"
         },
         "handle_version": {
           "default": "None",
           "annotation": "typing.Union[str, typing.Callable[[str, typing.Dict[str, str]], str], NoneType]",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": "(optional) Replace the emoji above ``version``"
         }
       },
       "returns": "<class 'str'>",
-      "docstring": "Replace Unicode emoji in a string with emoji shortcodes. Useful for storage.\n    >>> import emoji\n    >>> print(emoji.emojize(\"Python is fun :thumbs_up:\"))\n    Python is fun \ud83d\udc4d\n    >>> print(emoji.demojize(\"Python is fun \ud83d\udc4d\"))\n    Python is fun :thumbs_up:\n    >>> print(emoji.demojize(\"icode is tricky \ud83d\ude2f\", delimiters=(\"__\", \"__\")))\n    Unicode is tricky __hushed_face__\n\n:param string: String contains Unicode characters. MUST BE UNICODE.\n:param delimiters: (optional) User delimiters other than ``_DEFAULT_DELIMITER``\n:param language: Choose language of emoji name: language code 'es', 'de', etc. or 'alias'\n    to use English aliases\n:param version: (optional) Max version. If set to an Emoji Version,\n    all emoji above this version will be removed.\n:param handle_version: (optional) Replace the emoji above ``version``\n    instead of removing it. handle_version can be either a string or a\n    callable ``handle_version(emj: str, data: dict) -> str``; If it is\n    a callable, it's passed the Unicode emoji and the data dict from\n    :data:`EMOJI_DATA` and must return a replacement string  to be used.\n    The passed data is in the form of::\n\n        handle_version('\\U0001F6EB', {\n            'en' : ':airplane_departure:',\n            'status' : fully_qualified,\n            'E' : 1,\n            'alias' : [':flight_departure:'],\n            'de': ':abflug:',\n            'es': ':avi\u00f3n_despegando:',\n            ...\n        })"
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [
+        ">>> import emoji",
+        ">>> print(emoji.emojize(\"Python is fun :thumbs_up:\"))",
+        ">>> print(emoji.demojize(\"Python is fun \ud83d\udc4d\"))",
+        ">>> print(emoji.demojize(\"icode is tricky \ud83d\ude2f\", delimiters=(\"__\", \"__\")))"
+      ],
+      "docstring": "Replace Unicode emoji in a string with emoji shortcodes. Useful for storage.\n    >>> import emoji\n    >>> print(emoji.emojize(\"Python is fun :thumbs_up:\"))\n    Python is fun \ud83d\udc4d\n    >>> print(emoji.demojize(\"Python is fun \ud83d\udc4d\"))\n    Python is fun :thumbs_up:\n    >>> print(emoji.demojize(\"icode is tricky \ud83d\ude2f\", delimiters=(\"__\", \"__\")))\n    Unicode is tricky __hushed_face__\n\n:param string: String contains Unicode characters. MUST BE UNICODE.\n:param delimiters: (optional) User delimiters other than ``_DEFAULT_DELIMITER``\n:param language: Choose language of emoji name: language code 'es', 'de', etc. or 'alias'\n    to use English aliases\n:param version: (optional) Max version. If set to an Emoji Version,\n    all emoji above this version will be removed.\n:param handle_version: (optional) Replace the emoji above ``version``\n    instead of removing it. handle_version can be either a string or a\n    callable ``handle_version(emj: str, data: dict) -> str``; If it is\n    a callable, it's passed the Unicode emoji and the data dict from\n    :data:`EMOJI_DATA` and must return a replacement string  to be used.\n    The passed data is in the form of::\n\n        handle_version('\\U0001F6EB', {\n            'en' : ':airplane_departure:',\n            'status' : fully_qualified,\n            'E' : 1,\n            'alias' : [':flight_departure:'],\n            'de': ':abflug:',\n            'es': ':avi\u00f3n_despegando:',\n            ...\n        })",
+      "source_code": "def demojize(\n    string: str,\n    delimiters: Tuple[str, str] = (_DEFAULT_DELIMITER, _DEFAULT_DELIMITER),\n    language: str = 'en',\n    version: Optional[float] = None,\n    handle_version: Optional[Union[str, Callable[[str, Dict[str, str]], str]]] = None,\n) -> str:\n    \"\"\"\n    Replace Unicode emoji in a string with emoji shortcodes. Useful for storage.\n        >>> import emoji\n        >>> print(emoji.emojize(\"Python is fun :thumbs_up:\"))\n        Python is fun \ud83d\udc4d\n        >>> print(emoji.demojize(\"Python is fun \ud83d\udc4d\"))\n        Python is fun :thumbs_up:\n        >>> print(emoji.demojize(\"icode is tricky \ud83d\ude2f\", delimiters=(\"__\", \"__\")))\n        Unicode is tricky __hushed_face__\n\n    :param string: String contains Unicode characters. MUST BE UNICODE.\n    :param delimiters: (optional) User delimiters other than ``_DEFAULT_DELIMITER``\n    :param language: Choose language of emoji name: language code 'es', 'de', etc. or 'alias'\n        to use English aliases\n    :param version: (optional) Max version. If set to an Emoji Version,\n        all emoji above this version will be removed.\n    :param handle_version: (optional) Replace the emoji above ``version``\n        instead of removing it. handle_version can be either a string or a\n        callable ``handle_version(emj: str, data: dict) -> str``; If it is\n        a callable, it's passed the Unicode emoji and the data dict from\n        :data:`EMOJI_DATA` and must return a replacement string  to be used.\n        The passed data is in the form of::\n\n            handle_version('\\\\U0001F6EB', {\n                'en' : ':airplane_departure:',\n                'status' : fully_qualified,\n                'E' : 1,\n                'alias' : [':flight_departure:'],\n                'de': ':abflug:',\n                'es': ':avi\u00f3n_despegando:',\n                ...\n            })\n\n    \"\"\"\n\n    if language == 'alias':\n        language = 'en'\n        _use_aliases = True\n    else:\n        _use_aliases = False\n\n    unicode_codes.load_from_json(language)\n\n    def handle(emoji_match: EmojiMatch) -> str:\n        assert emoji_match.data is not None\n        if version is not None and emoji_match.data['E'] > version:\n            if callable(handle_version):\n                return handle_version(emoji_match.emoji, emoji_match.data_copy())\n            elif handle_version is not None:\n                return handle_version\n            else:\n                return ''\n        elif language in emoji_match.data:\n            if _use_aliases and 'alias' in emoji_match.data:\n                return (\n                    delimiters[0] + emoji_match.data['alias'][0][1:-1] + delimiters[1]\n                )\n            else:\n                return delimiters[0] + emoji_match.data[language][1:-1] + delimiters[1]\n        else:\n            # The emoji exists, but it is not translated, so we keep the emoji\n            return emoji_match.emoji\n\n    matches = tokenize(string, keep_zwj=config.demojize_keep_zwj)\n    return ''.join(\n        str(handle(token.value)) if isinstance(token.value, EmojiMatch) else token.value\n        for token in matches\n    )\n"
     },
     {
       "type": "function",
@@ -334,11 +473,17 @@
         "string": {
           "default": null,
           "annotation": "<class 'str'>",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         }
       },
       "returns": "typing.List[str]",
-      "docstring": "Returns distinct list of emojis from the string."
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Returns distinct list of emojis from the string.",
+      "source_code": "def distinct_emoji_list(string: str) -> List[str]:\n    \"\"\"Returns distinct list of emojis from the string.\"\"\"\n    distinct_list = list({e['emoji'] for e in emoji_list(string)})\n    return distinct_list\n"
     },
     {
       "type": "function",
@@ -349,16 +494,23 @@
         "string": {
           "default": null,
           "annotation": "<class 'str'>",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         },
         "unique": {
           "default": "False",
           "annotation": "<class 'bool'>",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": "(optional) True if count only unique emojis"
         }
       },
       "returns": "<class 'int'>",
-      "docstring": "Returns the count of emojis in a string.\n\n:param unique: (optional) True if count only unique emojis"
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Returns the count of emojis in a string.\n\n:param unique: (optional) True if count only unique emojis",
+      "source_code": "def emoji_count(string: str, unique: bool = False) -> int:\n    \"\"\"\n    Returns the count of emojis in a string.\n\n    :param unique: (optional) True if count only unique emojis\n    \"\"\"\n    if unique:\n        return len(distinct_emoji_list(string))\n    return len(emoji_list(string))\n"
     },
     {
       "type": "function",
@@ -369,11 +521,19 @@
         "string": {
           "default": null,
           "annotation": "<class 'str'>",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         }
       },
       "returns": "typing.List[emoji.core._EmojiListReturn]",
-      "docstring": "Returns the location and emoji in list of dict format.\n    >>> emoji.emoji_list(\"Hi, I am fine. \ud83d\ude01\")\n    [{'match_start': 15, 'match_end': 16, 'emoji': '\ud83d\ude01'}]"
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [
+        ">>> emoji.emoji_list(\"Hi, I am fine. \ud83d\ude01\")"
+      ],
+      "docstring": "Returns the location and emoji in list of dict format.\n    >>> emoji.emoji_list(\"Hi, I am fine. \ud83d\ude01\")\n    [{'match_start': 15, 'match_end': 16, 'emoji': '\ud83d\ude01'}]",
+      "source_code": "def emoji_list(string: str) -> List[_EmojiListReturn]:\n    \"\"\"\n    Returns the location and emoji in list of dict format.\n        >>> emoji.emoji_list(\"Hi, I am fine. \ud83d\ude01\")\n        [{'match_start': 15, 'match_end': 16, 'emoji': '\ud83d\ude01'}]\n    \"\"\"\n\n    return [\n        {\n            'match_start': m.value.start,\n            'match_end': m.value.end,\n            'emoji': m.value.emoji,\n        }\n        for m in tokenize(string, keep_zwj=False)\n        if isinstance(m.value, EmojiMatch)\n    ]\n"
     },
     {
       "type": "function",
@@ -384,36 +544,59 @@
         "string": {
           "default": null,
           "annotation": "<class 'str'>",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": "String contains emoji names."
         },
         "delimiters": {
           "default": "(':', ':')",
           "annotation": "typing.Tuple[str, str]",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": "(optional) Use delimiters other than _DEFAULT_DELIMITER. Each delimiter"
         },
         "variant": {
           "default": "None",
           "annotation": "typing.Optional[typing.Literal['text_type', 'emoji_type']]",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": "(optional) Choose variation selector between \"base\"(None), VS-15 (\"text_type\") and VS-16 (\"emoji_type\")"
         },
         "language": {
           "default": "en",
           "annotation": "<class 'str'>",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": "Choose language of emoji name: language code 'es', 'de', etc. or 'alias'"
         },
         "version": {
           "default": "None",
           "annotation": "typing.Optional[float]",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": "(optional) Max version. If set to an Emoji Version,"
         },
         "handle_version": {
           "default": "None",
           "annotation": "typing.Union[str, typing.Callable[[str, typing.Dict[str, str]], str], NoneType]",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": "(optional) Replace the emoji above ``version``"
         }
       },
       "returns": "<class 'str'>",
-      "docstring": "Replace emoji names in a string with Unicode codes.\n    >>> import emoji\n    >>> print(emoji.emojize(\"Python is fun :thumbsup:\", language='alias'))\n    Python is fun \ud83d\udc4d\n    >>> print(emoji.emojize(\"Python is fun :thumbs_up:\"))\n    Python is fun \ud83d\udc4d\n    >>> print(emoji.emojize(\"Python is fun {thumbs_up}\", delimiters = (\"{\", \"}\")))\n    Python is fun \ud83d\udc4d\n    >>> print(emoji.emojize(\"Python is fun :red_heart:\", variant=\"text_type\"))\n    Python is fun \u2764\n    >>> print(emoji.emojize(\"Python is fun :red_heart:\", variant=\"emoji_type\"))\n    Python is fun \u2764\ufe0f # red heart, not black heart\n\n:param string: String contains emoji names.\n:param delimiters: (optional) Use delimiters other than _DEFAULT_DELIMITER. Each delimiter\n    should contain at least one character that is not part of a-zA-Z0-9 and ``_-&.()!?#*+,``.\n    See ``emoji.core._EMOJI_NAME_PATTERN`` for the regular expression of unsafe characters.\n:param variant: (optional) Choose variation selector between \"base\"(None), VS-15 (\"text_type\") and VS-16 (\"emoji_type\")\n:param language: Choose language of emoji name: language code 'es', 'de', etc. or 'alias'\n    to use English aliases\n:param version: (optional) Max version. If set to an Emoji Version,\n    all emoji above this version will be ignored.\n:param handle_version: (optional) Replace the emoji above ``version``\n    instead of ignoring it. handle_version can be either a string or a\n    callable; If it is a callable, it's passed the Unicode emoji and the\n    data dict from :data:`EMOJI_DATA` and must return a replacement string\n    to be used::\n\n        handle_version('\\U0001F6EB', {\n            'en' : ':airplane_departure:',\n            'status' : fully_qualified,\n            'E' : 1,\n            'alias' : [':flight_departure:'],\n            'de': ':abflug:',\n            'es': ':avi\u00f3n_despegando:',\n            ...\n        })\n\n:raises ValueError: if ``variant`` is neither None, 'text_type' or 'emoji_type'"
+      "return_description": null,
+      "raises": [
+        {
+          "exception": "ValueError",
+          "description": "if ``variant`` is neither None, 'text_type' or 'emoji_type'"
+        }
+      ],
+      "decorators": [],
+      "examples": [
+        ">>> import emoji",
+        ">>> print(emoji.emojize(\"Python is fun :thumbsup:\", language='alias'))",
+        ">>> print(emoji.emojize(\"Python is fun :thumbs_up:\"))",
+        ">>> print(emoji.emojize(\"Python is fun {thumbs_up}\", delimiters = (\"{\", \"}\")))",
+        ">>> print(emoji.emojize(\"Python is fun :red_heart:\", variant=\"text_type\"))",
+        ">>> print(emoji.emojize(\"Python is fun :red_heart:\", variant=\"emoji_type\"))"
+      ],
+      "docstring": "Replace emoji names in a string with Unicode codes.\n    >>> import emoji\n    >>> print(emoji.emojize(\"Python is fun :thumbsup:\", language='alias'))\n    Python is fun \ud83d\udc4d\n    >>> print(emoji.emojize(\"Python is fun :thumbs_up:\"))\n    Python is fun \ud83d\udc4d\n    >>> print(emoji.emojize(\"Python is fun {thumbs_up}\", delimiters = (\"{\", \"}\")))\n    Python is fun \ud83d\udc4d\n    >>> print(emoji.emojize(\"Python is fun :red_heart:\", variant=\"text_type\"))\n    Python is fun \u2764\n    >>> print(emoji.emojize(\"Python is fun :red_heart:\", variant=\"emoji_type\"))\n    Python is fun \u2764\ufe0f # red heart, not black heart\n\n:param string: String contains emoji names.\n:param delimiters: (optional) Use delimiters other than _DEFAULT_DELIMITER. Each delimiter\n    should contain at least one character that is not part of a-zA-Z0-9 and ``_-&.()!?#*+,``.\n    See ``emoji.core._EMOJI_NAME_PATTERN`` for the regular expression of unsafe characters.\n:param variant: (optional) Choose variation selector between \"base\"(None), VS-15 (\"text_type\") and VS-16 (\"emoji_type\")\n:param language: Choose language of emoji name: language code 'es', 'de', etc. or 'alias'\n    to use English aliases\n:param version: (optional) Max version. If set to an Emoji Version,\n    all emoji above this version will be ignored.\n:param handle_version: (optional) Replace the emoji above ``version``\n    instead of ignoring it. handle_version can be either a string or a\n    callable; If it is a callable, it's passed the Unicode emoji and the\n    data dict from :data:`EMOJI_DATA` and must return a replacement string\n    to be used::\n\n        handle_version('\\U0001F6EB', {\n            'en' : ':airplane_departure:',\n            'status' : fully_qualified,\n            'E' : 1,\n            'alias' : [':flight_departure:'],\n            'de': ':abflug:',\n            'es': ':avi\u00f3n_despegando:',\n            ...\n        })\n\n:raises ValueError: if ``variant`` is neither None, 'text_type' or 'emoji_type'",
+      "source_code": "def emojize(\n    string: str,\n    delimiters: Tuple[str, str] = (_DEFAULT_DELIMITER, _DEFAULT_DELIMITER),\n    variant: Optional[Literal['text_type', 'emoji_type']] = None,\n    language: str = 'en',\n    version: Optional[float] = None,\n    handle_version: Optional[Union[str, Callable[[str, Dict[str, str]], str]]] = None,\n) -> str:\n    \"\"\"\n    Replace emoji names in a string with Unicode codes.\n        >>> import emoji\n        >>> print(emoji.emojize(\"Python is fun :thumbsup:\", language='alias'))\n        Python is fun \ud83d\udc4d\n        >>> print(emoji.emojize(\"Python is fun :thumbs_up:\"))\n        Python is fun \ud83d\udc4d\n        >>> print(emoji.emojize(\"Python is fun {thumbs_up}\", delimiters = (\"{\", \"}\")))\n        Python is fun \ud83d\udc4d\n        >>> print(emoji.emojize(\"Python is fun :red_heart:\", variant=\"text_type\"))\n        Python is fun \u2764\n        >>> print(emoji.emojize(\"Python is fun :red_heart:\", variant=\"emoji_type\"))\n        Python is fun \u2764\ufe0f # red heart, not black heart\n\n    :param string: String contains emoji names.\n    :param delimiters: (optional) Use delimiters other than _DEFAULT_DELIMITER. Each delimiter\n        should contain at least one character that is not part of a-zA-Z0-9 and ``_-&.()!?#*+,``.\n        See ``emoji.core._EMOJI_NAME_PATTERN`` for the regular expression of unsafe characters.\n    :param variant: (optional) Choose variation selector between \"base\"(None), VS-15 (\"text_type\") and VS-16 (\"emoji_type\")\n    :param language: Choose language of emoji name: language code 'es', 'de', etc. or 'alias'\n        to use English aliases\n    :param version: (optional) Max version. If set to an Emoji Version,\n        all emoji above this version will be ignored.\n    :param handle_version: (optional) Replace the emoji above ``version``\n        instead of ignoring it. handle_version can be either a string or a\n        callable; If it is a callable, it's passed the Unicode emoji and the\n        data dict from :data:`EMOJI_DATA` and must return a replacement string\n        to be used::\n\n            handle_version('\\\\U0001F6EB', {\n                'en' : ':airplane_departure:',\n                'status' : fully_qualified,\n                'E' : 1,\n                'alias' : [':flight_departure:'],\n                'de': ':abflug:',\n                'es': ':avi\u00f3n_despegando:',\n                ...\n            })\n\n    :raises ValueError: if ``variant`` is neither None, 'text_type' or 'emoji_type'\n\n    \"\"\"\n\n    unicode_codes.load_from_json(language)\n\n    pattern = re.compile(\n        '(%s[%s]+%s)'\n        % (re.escape(delimiters[0]), _EMOJI_NAME_PATTERN, re.escape(delimiters[1]))\n    )\n\n    def replace(match: Match[str]) -> str:\n        name = match.group(1)[len(delimiters[0]) : -len(delimiters[1])]\n        emj = unicode_codes.get_emoji_by_name(\n            _DEFAULT_DELIMITER\n            + unicodedata.normalize('NFKC', name)\n            + _DEFAULT_DELIMITER,\n            language,\n        )\n\n        if emj is None:\n            return match.group(1)\n\n        if version is not None and unicode_codes.EMOJI_DATA[emj]['E'] > version:\n            if callable(handle_version):\n                emj_data = unicode_codes.EMOJI_DATA[emj].copy()\n                emj_data['match_start'] = match.start()\n                emj_data['match_end'] = match.end()\n                return handle_version(emj, emj_data)\n\n            elif handle_version is not None:\n                return str(handle_version)\n            else:\n                return ''\n\n        if variant is None or 'variant' not in unicode_codes.EMOJI_DATA[emj]:\n            return emj\n\n        if emj[-1] == '\\ufe0e' or emj[-1] == '\\ufe0f':\n            # Remove an existing variant\n            emj = emj[0:-1]\n        if variant == 'text_type':\n            return emj + '\\ufe0e'\n        elif variant == 'emoji_type':\n            return emj + '\\ufe0f'\n        else:\n            raise ValueError(\n                \"Parameter 'variant' must be either None, 'text_type' or 'emoji_type'\"\n            )\n\n    return pattern.sub(replace, string)\n"
     },
     {
       "type": "function",
@@ -424,21 +607,29 @@
         "matches": {
           "default": null,
           "annotation": "typing.Iterator[emoji.tokenizer.Token]",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": "An iterable of tuples of the form ``(match_str, result)``"
         },
         "emoji_only": {
           "default": null,
           "annotation": "<class 'bool'>",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": "If True, only EmojiMatch are returned in the output."
         },
         "join_emoji": {
           "default": null,
           "annotation": "<class 'bool'>",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": "If True, multiple EmojiMatch are merged into"
         }
       },
       "returns": "typing.Iterator[emoji.tokenizer.Token]",
-      "docstring": "Filters the output of `tokenize()`\n\n:param matches: An iterable of tuples of the form ``(match_str, result)``\n    where ``result`` is either an EmojiMatch or a string.\n:param emoji_only: If True, only EmojiMatch are returned in the output.\n    If False all characters are returned\n:param join_emoji: If True, multiple EmojiMatch are merged into\n    a single :class:`EmojiMatchZWJNonRGI` if they are separated only by a ZWJ.\n\n:return: An iterable of tuples :class:`Token` ``(char, char)``,\n    :class:`Token` ``(chars, EmojiMatch)`` or :class:`Token` ``(chars, EmojiMatchZWJNonRGI)``"
+      "return_description": "An iterable of tuples :class:`Token` ``(char, char)``,",
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Filters the output of `tokenize()`\n\n:param matches: An iterable of tuples of the form ``(match_str, result)``\n    where ``result`` is either an EmojiMatch or a string.\n:param emoji_only: If True, only EmojiMatch are returned in the output.\n    If False all characters are returned\n:param join_emoji: If True, multiple EmojiMatch are merged into\n    a single :class:`EmojiMatchZWJNonRGI` if they are separated only by a ZWJ.\n\n:return: An iterable of tuples :class:`Token` ``(char, char)``,\n    :class:`Token` ``(chars, EmojiMatch)`` or :class:`Token` ``(chars, EmojiMatchZWJNonRGI)``",
+      "source_code": "def filter_tokens(\n    matches: Iterator[Token], emoji_only: bool, join_emoji: bool\n) -> Iterator[Token]:\n    \"\"\"\n    Filters the output of `tokenize()`\n\n    :param matches: An iterable of tuples of the form ``(match_str, result)``\n        where ``result`` is either an EmojiMatch or a string.\n    :param emoji_only: If True, only EmojiMatch are returned in the output.\n        If False all characters are returned\n    :param join_emoji: If True, multiple EmojiMatch are merged into\n        a single :class:`EmojiMatchZWJNonRGI` if they are separated only by a ZWJ.\n\n    :return: An iterable of tuples :class:`Token` ``(char, char)``,\n        :class:`Token` ``(chars, EmojiMatch)`` or :class:`Token` ``(chars, EmojiMatchZWJNonRGI)``\n    \"\"\"\n\n    if not join_emoji and not emoji_only:\n        yield from matches\n        return\n\n    if not join_emoji:\n        for token in matches:\n            if token.chars != _ZWJ:\n                yield token\n        return\n\n    # Combine multiple EmojiMatch that are separated by ZWJs into\n    # a single EmojiMatchZWJNonRGI\n    previous_is_emoji = False\n    previous_is_zwj = False\n    pre_previous_is_emoji = False\n    accumulator: List[Token] = []\n    for token in matches:\n        pre_previous_is_emoji = previous_is_emoji\n        if previous_is_emoji and token.value == _ZWJ:\n            previous_is_zwj = True\n        elif isinstance(token.value, EmojiMatch):\n            if pre_previous_is_emoji and previous_is_zwj:\n                if isinstance(accumulator[-1].value, EmojiMatchZWJNonRGI):\n                    accumulator[-1].value._add(token.value)  # pyright: ignore [reportPrivateUsage]\n                    accumulator[-1] = Token(\n                        accumulator[-1].chars + _ZWJ + token.chars,\n                        accumulator[-1].value,\n                    )\n                else:\n                    prev = accumulator.pop()\n                    assert isinstance(prev.value, EmojiMatch)\n                    accumulator.append(\n                        Token(\n                            prev.chars + _ZWJ + token.chars,\n                            EmojiMatchZWJNonRGI(prev.value, token.value),\n                        )\n                    )\n            else:\n                accumulator.append(token)\n            previous_is_emoji = True\n            previous_is_zwj = False\n        else:\n            # Other character, not an emoji\n            previous_is_emoji = False\n            previous_is_zwj = False\n            yield from accumulator\n            if not emoji_only:\n                yield token\n            accumulator = []\n    yield from accumulator\n"
     },
     {
       "type": "function",
@@ -449,11 +640,17 @@
         "string": {
           "default": null,
           "annotation": "<class 'str'>",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         }
       },
       "returns": "<class 'bool'>",
-      "docstring": "Returns True if the string is a single emoji, and it is \"recommended for\ngeneral interchange\" by Unicode.org."
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Returns True if the string is a single emoji, and it is \"recommended for\ngeneral interchange\" by Unicode.org.",
+      "source_code": "def is_emoji(string: str) -> bool:\n    \"\"\"\n    Returns True if the string is a single emoji, and it is \"recommended for\n    general interchange\" by Unicode.org.\n    \"\"\"\n    return string in unicode_codes.EMOJI_DATA\n"
     },
     {
       "type": "function",
@@ -464,11 +661,17 @@
         "string": {
           "default": null,
           "annotation": "<class 'str'>",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         }
       },
       "returns": "<class 'bool'>",
-      "docstring": "Returns True if the string contains only emojis.\nThis might not imply that `is_emoji` for all the characters, for example,\nif the string contains variation selectors."
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Returns True if the string contains only emojis.\nThis might not imply that `is_emoji` for all the characters, for example,\nif the string contains variation selectors.",
+      "source_code": "def purely_emoji(string: str) -> bool:\n    \"\"\"\n    Returns True if the string contains only emojis.\n    This might not imply that `is_emoji` for all the characters, for example,\n    if the string contains variation selectors.\n    \"\"\"\n    return all(isinstance(m.value, EmojiMatch) for m in analyze(string, non_emoji=True))\n"
     },
     {
       "type": "function",
@@ -479,21 +682,29 @@
         "string": {
           "default": null,
           "annotation": "<class 'str'>",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": "String contains Unicode characters. MUST BE UNICODE."
         },
         "replace": {
           "default": "",
           "annotation": "typing.Union[str, typing.Callable[[str, typing.Dict[str, str]], str]]",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": "(optional) replace can be either a string or a callable;"
         },
         "version": {
           "default": "-1",
           "annotation": "<class 'float'>",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": "(optional) Max version. If set to an Emoji Version,"
         }
       },
       "returns": "<class 'str'>",
-      "docstring": "Replace Unicode emoji in a customizable string.\n\n:param string: String contains Unicode characters. MUST BE UNICODE.\n:param replace: (optional) replace can be either a string or a callable;\n    If it is a callable, it's passed the Unicode emoji and the data dict from\n    :data:`EMOJI_DATA` and must return a replacement string to be used.\n    replace(str, dict) -> str\n:param version: (optional) Max version. If set to an Emoji Version,\n    only emoji above this version will be replaced."
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Replace Unicode emoji in a customizable string.\n\n:param string: String contains Unicode characters. MUST BE UNICODE.\n:param replace: (optional) replace can be either a string or a callable;\n    If it is a callable, it's passed the Unicode emoji and the data dict from\n    :data:`EMOJI_DATA` and must return a replacement string to be used.\n    replace(str, dict) -> str\n:param version: (optional) Max version. If set to an Emoji Version,\n    only emoji above this version will be replaced.",
+      "source_code": "def replace_emoji(\n    string: str,\n    replace: Union[str, Callable[[str, Dict[str, str]], str]] = '',\n    version: float = -1,\n) -> str:\n    \"\"\"\n    Replace Unicode emoji in a customizable string.\n\n    :param string: String contains Unicode characters. MUST BE UNICODE.\n    :param replace: (optional) replace can be either a string or a callable;\n        If it is a callable, it's passed the Unicode emoji and the data dict from\n        :data:`EMOJI_DATA` and must return a replacement string to be used.\n        replace(str, dict) -> str\n    :param version: (optional) Max version. If set to an Emoji Version,\n        only emoji above this version will be replaced.\n    \"\"\"\n\n    def handle(emoji_match: EmojiMatch) -> str:\n        if version > -1:\n            assert emoji_match.data is not None\n            if emoji_match.data['E'] > version:\n                if callable(replace):\n                    return replace(emoji_match.emoji, emoji_match.data_copy())\n                else:\n                    return str(replace)\n        elif callable(replace):\n            return replace(emoji_match.emoji, emoji_match.data_copy())\n        elif replace is not None:  # type: ignore\n            return replace\n        return emoji_match.emoji\n\n    matches = tokenize(string, keep_zwj=config.replace_emoji_keep_zwj)\n    if config.replace_emoji_keep_zwj:\n        matches = filter_tokens(matches, emoji_only=False, join_emoji=True)\n    return ''.join(\n        str(handle(m.value)) if isinstance(m.value, EmojiMatch) else m.value\n        for m in matches\n    )\n"
     },
     {
       "type": "function",
@@ -504,16 +715,23 @@
         "string": {
           "default": null,
           "annotation": "<class 'str'>",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": "String contains unicode characters. MUST BE UNICODE."
         },
         "keep_zwj": {
           "default": null,
           "annotation": "<class 'bool'>",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": "Should ZWJ-characters (``\\u200D``) that join non-RGI emoji be"
         }
       },
       "returns": "typing.Iterator[emoji.tokenizer.Token]",
-      "docstring": "Finds unicode emoji in a string. Yields all normal characters as a named\ntuple :class:`Token` ``(char, char)`` and all emoji as :class:`Token` ``(chars, EmojiMatch)``.\n\n:param string: String contains unicode characters. MUST BE UNICODE.\n:param keep_zwj: Should ZWJ-characters (``\\u200D``) that join non-RGI emoji be\n    skipped or should be yielded as normal characters\n:return: An iterable of tuples :class:`Token` ``(char, char)`` or :class:`Token` ``(chars, EmojiMatch)``"
+      "return_description": "An iterable of tuples :class:`Token` ``(char, char)`` or :class:`Token` ``(chars, EmojiMatch)``",
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Finds unicode emoji in a string. Yields all normal characters as a named\ntuple :class:`Token` ``(char, char)`` and all emoji as :class:`Token` ``(chars, EmojiMatch)``.\n\n:param string: String contains unicode characters. MUST BE UNICODE.\n:param keep_zwj: Should ZWJ-characters (``\\u200D``) that join non-RGI emoji be\n    skipped or should be yielded as normal characters\n:return: An iterable of tuples :class:`Token` ``(char, char)`` or :class:`Token` ``(chars, EmojiMatch)``",
+      "source_code": "def tokenize(string: str, keep_zwj: bool) -> Iterator[Token]:\n    \"\"\"\n    Finds unicode emoji in a string. Yields all normal characters as a named\n    tuple :class:`Token` ``(char, char)`` and all emoji as :class:`Token` ``(chars, EmojiMatch)``.\n\n    :param string: String contains unicode characters. MUST BE UNICODE.\n    :param keep_zwj: Should ZWJ-characters (``\\\\u200D``) that join non-RGI emoji be\n        skipped or should be yielded as normal characters\n    :return: An iterable of tuples :class:`Token` ``(char, char)`` or :class:`Token` ``(chars, EmojiMatch)``\n    \"\"\"\n\n    tree = get_search_tree()\n    EMOJI_DATA = unicode_codes.EMOJI_DATA\n    # result: [ Token(oldsubstring0, EmojiMatch), Token(char1, char1), ... ]\n    result: List[Token] = []\n    i = 0\n    length = len(string)\n    ignore: List[\n        int\n    ] = []  # index of chars in string that are skipped, i.e. the ZWJ-char in non-RGI-ZWJ-sequences\n    while i < length:\n        consumed = False\n        char = string[i]\n        if i in ignore:\n            i += 1\n            if char == _ZWJ and keep_zwj:\n                result.append(Token(char, char))\n            continue\n\n        elif char in tree:\n            j = i + 1\n            sub_tree = tree[char]\n            while j < length and string[j] in sub_tree:\n                if j in ignore:\n                    break\n                sub_tree = sub_tree[string[j]]\n                j += 1\n            if 'data' in sub_tree:\n                emj_data = sub_tree['data']\n                code_points = string[i:j]\n\n                # We cannot yield the result here, we need to defer\n                # the call until we are sure that the emoji is finished\n                # i.e. we're not inside an ongoing ZWJ-sequence\n                match_obj = EmojiMatch(code_points, i, j, emj_data)\n\n                i = j - 1\n                consumed = True\n                result.append(Token(code_points, match_obj))\n\n        elif (\n            char == _ZWJ\n            and result\n            and result[-1].chars in EMOJI_DATA\n            and i > 0\n            and string[i - 1] in tree\n        ):\n            # the current char is ZWJ and the last match was an emoji\n            ignore.append(i)\n            if (\n                EMOJI_DATA[result[-1].chars]['status']\n                == unicode_codes.STATUS['component']\n            ):\n                # last match was a component, it could be ZWJ+EMOJI+COMPONENT\n                # or ZWJ+COMPONENT\n                i = i - sum(len(t.chars) for t in result[-2:])\n                if string[i] == _ZWJ:\n                    # It's ZWJ+COMPONENT, move one back\n                    i += 1\n                    del result[-1]\n                else:\n                    # It's ZWJ+EMOJI+COMPONENT, move two back\n                    del result[-2:]\n            else:\n                # last match result[-1] was a normal emoji, move cursor\n                # before the emoji\n                i = i - len(result[-1].chars)\n                del result[-1]\n            continue\n\n        elif result:\n            yield from result\n            result = []\n\n        if not consumed and char != '\\ufe0e' and char != '\\ufe0f':\n            result.append(Token(char, char))\n        i += 1\n\n    yield from result\n"
     },
     {
       "type": "function",
@@ -524,11 +742,25 @@
         "string": {
           "default": null,
           "annotation": "<class 'str'>",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": "An emoji or a text containing an emoji"
         }
       },
       "returns": "<class 'float'>",
-      "docstring": "Returns the Emoji Version of the emoji.\n\nSee https://www.unicode.org/reports/tr51/#Versioning for more information.\n    >>> emoji.version(\"\ud83d\ude01\")\n    0.6\n    >>> emoji.version(\":butterfly:\")\n    3\n\n:param string: An emoji or a text containing an emoji\n:raises ValueError: if ``string`` does not contain an emoji"
+      "return_description": null,
+      "raises": [
+        {
+          "exception": "ValueError",
+          "description": "if ``string`` does not contain an emoji"
+        }
+      ],
+      "decorators": [],
+      "examples": [
+        ">>> emoji.version(\"\ud83d\ude01\")",
+        ">>> emoji.version(\":butterfly:\")"
+      ],
+      "docstring": "Returns the Emoji Version of the emoji.\n\nSee https://www.unicode.org/reports/tr51/#Versioning for more information.\n    >>> emoji.version(\"\ud83d\ude01\")\n    0.6\n    >>> emoji.version(\":butterfly:\")\n    3\n\n:param string: An emoji or a text containing an emoji\n:raises ValueError: if ``string`` does not contain an emoji",
+      "source_code": "def version(string: str) -> float:\n    \"\"\"\n    Returns the Emoji Version of the emoji.\n\n    See https://www.unicode.org/reports/tr51/#Versioning for more information.\n        >>> emoji.version(\"\ud83d\ude01\")\n        0.6\n        >>> emoji.version(\":butterfly:\")\n        3\n\n    :param string: An emoji or a text containing an emoji\n    :raises ValueError: if ``string`` does not contain an emoji\n    \"\"\"\n    # Try dictionary lookup\n    if string in unicode_codes.EMOJI_DATA:\n        return unicode_codes.EMOJI_DATA[string]['E']\n\n    # Try name lookup\n    emj_code = unicode_codes.get_emoji_by_name(string, 'en')\n    if emj_code and emj_code in unicode_codes.EMOJI_DATA:\n        return unicode_codes.EMOJI_DATA[emj_code]['E']\n\n    # Try to find first emoji in string\n    version: List[float] = []\n\n    def f(e: str, emoji_data: Dict[str, Any]) -> str:\n        version.append(emoji_data['E'])\n        return ''\n\n    replace_emoji(string, replace=f, version=-1)\n    if version:\n        return version[0]\n    emojize(string, language='alias', version=-1, handle_version=f)\n    if version:\n        return version[0]\n    for lang_code in unicode_codes.LANGUAGES:\n        emojize(string, language=lang_code, version=-1, handle_version=f)\n        if version:\n            return version[0]\n\n    raise ValueError('No emoji found in string')\n"
     },
     {
       "type": "function",
@@ -539,21 +771,29 @@
         "typename": {
           "default": null,
           "annotation": null,
-          "kind": "POSITIONAL_ONLY"
+          "kind": "POSITIONAL_ONLY",
+          "description": null
         },
         "fields": {
           "default": "None",
           "annotation": null,
-          "kind": "POSITIONAL_ONLY"
+          "kind": "POSITIONAL_ONLY",
+          "description": null
         },
         "kwargs": {
           "default": null,
           "annotation": null,
-          "kind": "VAR_KEYWORD"
+          "kind": "VAR_KEYWORD",
+          "description": null
         }
       },
       "returns": null,
-      "docstring": "Typed version of namedtuple.\n\nUsage in Python versions >= 3.6::\n\n    class Employee(NamedTuple):\n        name: str\n        id: int\n\nThis is equivalent to::\n\n    Employee = collections.namedtuple('Employee', ['name', 'id'])\n\nThe resulting class has an extra __annotations__ attribute, giving a\ndict that maps field names to types.  (The field names are also in\nthe _fields attribute, which is part of the namedtuple API.)\nAlternative equivalent keyword syntax is also accepted::\n\n    Employee = NamedTuple('Employee', name=str, id=int)\n\nIn Python versions <= 3.5 use::\n\n    Employee = NamedTuple('Employee', [('name', str), ('id', int)])"
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Typed version of namedtuple.\n\nUsage in Python versions >= 3.6::\n\n    class Employee(NamedTuple):\n        name: str\n        id: int\n\nThis is equivalent to::\n\n    Employee = collections.namedtuple('Employee', ['name', 'id'])\n\nThe resulting class has an extra __annotations__ attribute, giving a\ndict that maps field names to types.  (The field names are also in\nthe _fields attribute, which is part of the namedtuple API.)\nAlternative equivalent keyword syntax is also accepted::\n\n    Employee = NamedTuple('Employee', name=str, id=int)\n\nIn Python versions <= 3.5 use::\n\n    Employee = NamedTuple('Employee', [('name', str), ('id', int)])",
+      "source_code": "def NamedTuple(typename, fields=None, /, **kwargs):\n    \"\"\"Typed version of namedtuple.\n\n    Usage in Python versions >= 3.6::\n\n        class Employee(NamedTuple):\n            name: str\n            id: int\n\n    This is equivalent to::\n\n        Employee = collections.namedtuple('Employee', ['name', 'id'])\n\n    The resulting class has an extra __annotations__ attribute, giving a\n    dict that maps field names to types.  (The field names are also in\n    the _fields attribute, which is part of the namedtuple API.)\n    Alternative equivalent keyword syntax is also accepted::\n\n        Employee = NamedTuple('Employee', name=str, id=int)\n\n    In Python versions <= 3.5 use::\n\n        Employee = NamedTuple('Employee', [('name', str), ('id', int)])\n    \"\"\"\n    if fields is None:\n        fields = kwargs.items()\n    elif kwargs:\n        raise TypeError(\"Either list of fields or keywords\"\n                        \" can be provided to NamedTuple, not both\")\n    return _make_nmtuple(typename, fields, module=_caller())\n"
     },
     {
       "type": "function",
@@ -564,21 +804,29 @@
         "matches": {
           "default": null,
           "annotation": "typing.Iterator[emoji.tokenizer.Token]",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": "An iterable of tuples of the form ``(match_str, result)``"
         },
         "emoji_only": {
           "default": null,
           "annotation": "<class 'bool'>",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": "If True, only EmojiMatch are returned in the output."
         },
         "join_emoji": {
           "default": null,
           "annotation": "<class 'bool'>",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": "If True, multiple EmojiMatch are merged into"
         }
       },
       "returns": "typing.Iterator[emoji.tokenizer.Token]",
-      "docstring": "Filters the output of `tokenize()`\n\n:param matches: An iterable of tuples of the form ``(match_str, result)``\n    where ``result`` is either an EmojiMatch or a string.\n:param emoji_only: If True, only EmojiMatch are returned in the output.\n    If False all characters are returned\n:param join_emoji: If True, multiple EmojiMatch are merged into\n    a single :class:`EmojiMatchZWJNonRGI` if they are separated only by a ZWJ.\n\n:return: An iterable of tuples :class:`Token` ``(char, char)``,\n    :class:`Token` ``(chars, EmojiMatch)`` or :class:`Token` ``(chars, EmojiMatchZWJNonRGI)``"
+      "return_description": "An iterable of tuples :class:`Token` ``(char, char)``,",
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Filters the output of `tokenize()`\n\n:param matches: An iterable of tuples of the form ``(match_str, result)``\n    where ``result`` is either an EmojiMatch or a string.\n:param emoji_only: If True, only EmojiMatch are returned in the output.\n    If False all characters are returned\n:param join_emoji: If True, multiple EmojiMatch are merged into\n    a single :class:`EmojiMatchZWJNonRGI` if they are separated only by a ZWJ.\n\n:return: An iterable of tuples :class:`Token` ``(char, char)``,\n    :class:`Token` ``(chars, EmojiMatch)`` or :class:`Token` ``(chars, EmojiMatchZWJNonRGI)``",
+      "source_code": "def filter_tokens(\n    matches: Iterator[Token], emoji_only: bool, join_emoji: bool\n) -> Iterator[Token]:\n    \"\"\"\n    Filters the output of `tokenize()`\n\n    :param matches: An iterable of tuples of the form ``(match_str, result)``\n        where ``result`` is either an EmojiMatch or a string.\n    :param emoji_only: If True, only EmojiMatch are returned in the output.\n        If False all characters are returned\n    :param join_emoji: If True, multiple EmojiMatch are merged into\n        a single :class:`EmojiMatchZWJNonRGI` if they are separated only by a ZWJ.\n\n    :return: An iterable of tuples :class:`Token` ``(char, char)``,\n        :class:`Token` ``(chars, EmojiMatch)`` or :class:`Token` ``(chars, EmojiMatchZWJNonRGI)``\n    \"\"\"\n\n    if not join_emoji and not emoji_only:\n        yield from matches\n        return\n\n    if not join_emoji:\n        for token in matches:\n            if token.chars != _ZWJ:\n                yield token\n        return\n\n    # Combine multiple EmojiMatch that are separated by ZWJs into\n    # a single EmojiMatchZWJNonRGI\n    previous_is_emoji = False\n    previous_is_zwj = False\n    pre_previous_is_emoji = False\n    accumulator: List[Token] = []\n    for token in matches:\n        pre_previous_is_emoji = previous_is_emoji\n        if previous_is_emoji and token.value == _ZWJ:\n            previous_is_zwj = True\n        elif isinstance(token.value, EmojiMatch):\n            if pre_previous_is_emoji and previous_is_zwj:\n                if isinstance(accumulator[-1].value, EmojiMatchZWJNonRGI):\n                    accumulator[-1].value._add(token.value)  # pyright: ignore [reportPrivateUsage]\n                    accumulator[-1] = Token(\n                        accumulator[-1].chars + _ZWJ + token.chars,\n                        accumulator[-1].value,\n                    )\n                else:\n                    prev = accumulator.pop()\n                    assert isinstance(prev.value, EmojiMatch)\n                    accumulator.append(\n                        Token(\n                            prev.chars + _ZWJ + token.chars,\n                            EmojiMatchZWJNonRGI(prev.value, token.value),\n                        )\n                    )\n            else:\n                accumulator.append(token)\n            previous_is_emoji = True\n            previous_is_zwj = False\n        else:\n            # Other character, not an emoji\n            previous_is_emoji = False\n            previous_is_zwj = False\n            yield from accumulator\n            if not emoji_only:\n                yield token\n            accumulator = []\n    yield from accumulator\n"
     },
     {
       "type": "function",
@@ -587,7 +835,12 @@
       "signature": "() -> Dict[str, Any]",
       "parameters": {},
       "returns": "typing.Dict[str, typing.Any]",
-      "docstring": "Generate a search tree for demojize().\nExample of a search tree::\n\n    EMOJI_DATA =\n    {'a': {'en': ':Apple:'},\n    'b': {'en': ':Bus:'},\n    'ba': {'en': ':Bat:'},\n    'band': {'en': ':Beatles:'},\n    'bandit': {'en': ':Outlaw:'},\n    'bank': {'en': ':BankOfEngland:'},\n    'bb': {'en': ':BB-gun:'},\n    'c': {'en': ':Car:'}}\n\n    _SEARCH_TREE =\n    {'a': {'data': {'en': ':Apple:'}},\n    'b': {'a': {'data': {'en': ':Bat:'},\n                'n': {'d': {'data': {'en': ':Beatles:'},\n                            'i': {'t': {'data': {'en': ':Outlaw:'}}}},\n                    'k': {'data': {'en': ':BankOfEngland:'}}}},\n        'b': {'data': {'en': ':BB-gun:'}},\n        'data': {'en': ':Bus:'}},\n    'c': {'data': {'en': ':Car:'}}}\n\n               _SEARCH_TREE\n             /     |        \u29f5\n           /       |          \u29f5\n        a          b             c\n        |        / |  \u29f5          |\n        |       /  |    \u29f5        |\n    :Apple:   ba  :Bus:  bb     :Car:\n             /  \u29f5         |\n            /    \u29f5        |\n          :Bat:    ban     :BB-gun:\n                 /     \u29f5\n                /       \u29f5\n             band       bank\n            /   \u29f5         |\n           /     \u29f5        |\n        bandi :Beatles:  :BankOfEngland:\n           |\n        bandit\n           |\n       :Outlaw:"
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Generate a search tree for demojize().\nExample of a search tree::\n\n    EMOJI_DATA =\n    {'a': {'en': ':Apple:'},\n    'b': {'en': ':Bus:'},\n    'ba': {'en': ':Bat:'},\n    'band': {'en': ':Beatles:'},\n    'bandit': {'en': ':Outlaw:'},\n    'bank': {'en': ':BankOfEngland:'},\n    'bb': {'en': ':BB-gun:'},\n    'c': {'en': ':Car:'}}\n\n    _SEARCH_TREE =\n    {'a': {'data': {'en': ':Apple:'}},\n    'b': {'a': {'data': {'en': ':Bat:'},\n                'n': {'d': {'data': {'en': ':Beatles:'},\n                            'i': {'t': {'data': {'en': ':Outlaw:'}}}},\n                    'k': {'data': {'en': ':BankOfEngland:'}}}},\n        'b': {'data': {'en': ':BB-gun:'}},\n        'data': {'en': ':Bus:'}},\n    'c': {'data': {'en': ':Car:'}}}\n\n               _SEARCH_TREE\n             /     |        \u29f5\n           /       |          \u29f5\n        a          b             c\n        |        / |  \u29f5          |\n        |       /  |    \u29f5        |\n    :Apple:   ba  :Bus:  bb     :Car:\n             /  \u29f5         |\n            /    \u29f5        |\n          :Bat:    ban     :BB-gun:\n                 /     \u29f5\n                /       \u29f5\n             band       bank\n            /   \u29f5         |\n           /     \u29f5        |\n        bandi :Beatles:  :BankOfEngland:\n           |\n        bandit\n           |\n       :Outlaw:",
+      "source_code": "def get_search_tree() -> Dict[str, Any]:\n    \"\"\"\n    Generate a search tree for demojize().\n    Example of a search tree::\n\n        EMOJI_DATA =\n        {'a': {'en': ':Apple:'},\n        'b': {'en': ':Bus:'},\n        'ba': {'en': ':Bat:'},\n        'band': {'en': ':Beatles:'},\n        'bandit': {'en': ':Outlaw:'},\n        'bank': {'en': ':BankOfEngland:'},\n        'bb': {'en': ':BB-gun:'},\n        'c': {'en': ':Car:'}}\n\n        _SEARCH_TREE =\n        {'a': {'data': {'en': ':Apple:'}},\n        'b': {'a': {'data': {'en': ':Bat:'},\n                    'n': {'d': {'data': {'en': ':Beatles:'},\n                                'i': {'t': {'data': {'en': ':Outlaw:'}}}},\n                        'k': {'data': {'en': ':BankOfEngland:'}}}},\n            'b': {'data': {'en': ':BB-gun:'}},\n            'data': {'en': ':Bus:'}},\n        'c': {'data': {'en': ':Car:'}}}\n\n                   _SEARCH_TREE\n                 /     |        \u29f5\n               /       |          \u29f5\n            a          b             c\n            |        / |  \u29f5          |\n            |       /  |    \u29f5        |\n        :Apple:   ba  :Bus:  bb     :Car:\n                 /  \u29f5         |\n                /    \u29f5        |\n              :Bat:    ban     :BB-gun:\n                     /     \u29f5\n                    /       \u29f5\n                 band       bank\n                /   \u29f5         |\n               /     \u29f5        |\n            bandi :Beatles:  :BankOfEngland:\n               |\n            bandit\n               |\n           :Outlaw:\n\n\n    \"\"\"\n    if not _SEARCH_TREE:\n        for emj in unicode_codes.EMOJI_DATA:\n            sub_tree = _SEARCH_TREE\n            lastidx = len(emj) - 1\n            for i, char in enumerate(emj):\n                if char not in sub_tree:\n                    sub_tree[char] = {}\n                sub_tree = sub_tree[char]\n                if i == lastidx:\n                    sub_tree['data'] = unicode_codes.EMOJI_DATA[emj]\n    return _SEARCH_TREE\n"
     },
     {
       "type": "function",
@@ -598,16 +851,23 @@
         "string": {
           "default": null,
           "annotation": "<class 'str'>",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": "String contains unicode characters. MUST BE UNICODE."
         },
         "keep_zwj": {
           "default": null,
           "annotation": "<class 'bool'>",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": "Should ZWJ-characters (``\\u200D``) that join non-RGI emoji be"
         }
       },
       "returns": "typing.Iterator[emoji.tokenizer.Token]",
-      "docstring": "Finds unicode emoji in a string. Yields all normal characters as a named\ntuple :class:`Token` ``(char, char)`` and all emoji as :class:`Token` ``(chars, EmojiMatch)``.\n\n:param string: String contains unicode characters. MUST BE UNICODE.\n:param keep_zwj: Should ZWJ-characters (``\\u200D``) that join non-RGI emoji be\n    skipped or should be yielded as normal characters\n:return: An iterable of tuples :class:`Token` ``(char, char)`` or :class:`Token` ``(chars, EmojiMatch)``"
+      "return_description": "An iterable of tuples :class:`Token` ``(char, char)`` or :class:`Token` ``(chars, EmojiMatch)``",
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Finds unicode emoji in a string. Yields all normal characters as a named\ntuple :class:`Token` ``(char, char)`` and all emoji as :class:`Token` ``(chars, EmojiMatch)``.\n\n:param string: String contains unicode characters. MUST BE UNICODE.\n:param keep_zwj: Should ZWJ-characters (``\\u200D``) that join non-RGI emoji be\n    skipped or should be yielded as normal characters\n:return: An iterable of tuples :class:`Token` ``(char, char)`` or :class:`Token` ``(chars, EmojiMatch)``",
+      "source_code": "def tokenize(string: str, keep_zwj: bool) -> Iterator[Token]:\n    \"\"\"\n    Finds unicode emoji in a string. Yields all normal characters as a named\n    tuple :class:`Token` ``(char, char)`` and all emoji as :class:`Token` ``(chars, EmojiMatch)``.\n\n    :param string: String contains unicode characters. MUST BE UNICODE.\n    :param keep_zwj: Should ZWJ-characters (``\\\\u200D``) that join non-RGI emoji be\n        skipped or should be yielded as normal characters\n    :return: An iterable of tuples :class:`Token` ``(char, char)`` or :class:`Token` ``(chars, EmojiMatch)``\n    \"\"\"\n\n    tree = get_search_tree()\n    EMOJI_DATA = unicode_codes.EMOJI_DATA\n    # result: [ Token(oldsubstring0, EmojiMatch), Token(char1, char1), ... ]\n    result: List[Token] = []\n    i = 0\n    length = len(string)\n    ignore: List[\n        int\n    ] = []  # index of chars in string that are skipped, i.e. the ZWJ-char in non-RGI-ZWJ-sequences\n    while i < length:\n        consumed = False\n        char = string[i]\n        if i in ignore:\n            i += 1\n            if char == _ZWJ and keep_zwj:\n                result.append(Token(char, char))\n            continue\n\n        elif char in tree:\n            j = i + 1\n            sub_tree = tree[char]\n            while j < length and string[j] in sub_tree:\n                if j in ignore:\n                    break\n                sub_tree = sub_tree[string[j]]\n                j += 1\n            if 'data' in sub_tree:\n                emj_data = sub_tree['data']\n                code_points = string[i:j]\n\n                # We cannot yield the result here, we need to defer\n                # the call until we are sure that the emoji is finished\n                # i.e. we're not inside an ongoing ZWJ-sequence\n                match_obj = EmojiMatch(code_points, i, j, emj_data)\n\n                i = j - 1\n                consumed = True\n                result.append(Token(code_points, match_obj))\n\n        elif (\n            char == _ZWJ\n            and result\n            and result[-1].chars in EMOJI_DATA\n            and i > 0\n            and string[i - 1] in tree\n        ):\n            # the current char is ZWJ and the last match was an emoji\n            ignore.append(i)\n            if (\n                EMOJI_DATA[result[-1].chars]['status']\n                == unicode_codes.STATUS['component']\n            ):\n                # last match was a component, it could be ZWJ+EMOJI+COMPONENT\n                # or ZWJ+COMPONENT\n                i = i - sum(len(t.chars) for t in result[-2:])\n                if string[i] == _ZWJ:\n                    # It's ZWJ+COMPONENT, move one back\n                    i += 1\n                    del result[-1]\n                else:\n                    # It's ZWJ+EMOJI+COMPONENT, move two back\n                    del result[-2:]\n            else:\n                # last match result[-1] was a normal emoji, move cursor\n                # before the emoji\n                i = i - len(result[-1].chars)\n                del result[-1]\n            continue\n\n        elif result:\n            yield from result\n            result = []\n\n        if not consumed and char != '\\ufe0e' and char != '\\ufe0f':\n            result.append(Token(char, char))\n        i += 1\n\n    yield from result\n"
     },
     {
       "type": "function",
@@ -618,11 +878,17 @@
         "key": {
           "default": null,
           "annotation": "<class 'str'>",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         }
       },
       "returns": null,
-      "docstring": "Load values from the file 'emoji_{key}.json' into EMOJI_DATA"
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Load values from the file 'emoji_{key}.json' into EMOJI_DATA",
+      "source_code": "def load_from_json(key: str):\n    \"\"\"Load values from the file 'emoji_{key}.json' into EMOJI_DATA\"\"\"\n\n    if key in _loaded_keys:\n        return\n\n    if key not in LANGUAGES:\n        raise NotImplementedError('Language not supported', key)\n\n    with _open_file(f'emoji_{key}.json') as f:\n        for emj, value in json.load(f).items():\n            EMOJI_DATA[emj][key] = value  # type: ignore\n\n    _loaded_keys.append(key)\n"
     },
     {
       "type": "function",
@@ -633,163 +899,282 @@
         "maxsize": {
           "default": "128",
           "annotation": null,
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         },
         "typed": {
           "default": "False",
           "annotation": null,
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         }
       },
       "returns": null,
-      "docstring": "Least-recently-used cache decorator.\n\nIf *maxsize* is set to None, the LRU features are disabled and the cache\ncan grow without bound.\n\nIf *typed* is True, arguments of different types will be cached separately.\nFor example, f(3.0) and f(3) will be treated as distinct calls with\ndistinct results.\n\nArguments to the cached function must be hashable.\n\nView the cache statistics named tuple (hits, misses, maxsize, currsize)\nwith f.cache_info().  Clear the cache and statistics with f.cache_clear().\nAccess the underlying function with f.__wrapped__.\n\nSee:  https://en.wikipedia.org/wiki/Cache_replacement_policies#Least_recently_used_(LRU)"
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Least-recently-used cache decorator.\n\nIf *maxsize* is set to None, the LRU features are disabled and the cache\ncan grow without bound.\n\nIf *typed* is True, arguments of different types will be cached separately.\nFor example, f(3.0) and f(3) will be treated as distinct calls with\ndistinct results.\n\nArguments to the cached function must be hashable.\n\nView the cache statistics named tuple (hits, misses, maxsize, currsize)\nwith f.cache_info().  Clear the cache and statistics with f.cache_clear().\nAccess the underlying function with f.__wrapped__.\n\nSee:  https://en.wikipedia.org/wiki/Cache_replacement_policies#Least_recently_used_(LRU)",
+      "source_code": "def lru_cache(maxsize=128, typed=False):\n    \"\"\"Least-recently-used cache decorator.\n\n    If *maxsize* is set to None, the LRU features are disabled and the cache\n    can grow without bound.\n\n    If *typed* is True, arguments of different types will be cached separately.\n    For example, f(3.0) and f(3) will be treated as distinct calls with\n    distinct results.\n\n    Arguments to the cached function must be hashable.\n\n    View the cache statistics named tuple (hits, misses, maxsize, currsize)\n    with f.cache_info().  Clear the cache and statistics with f.cache_clear().\n    Access the underlying function with f.__wrapped__.\n\n    See:  https://en.wikipedia.org/wiki/Cache_replacement_policies#Least_recently_used_(LRU)\n\n    \"\"\"\n\n    # Users should only access the lru_cache through its public API:\n    #       cache_info, cache_clear, and f.__wrapped__\n    # The internals of the lru_cache are encapsulated for thread safety and\n    # to allow the implementation to change (including a possible C version).\n\n    if isinstance(maxsize, int):\n        # Negative maxsize is treated as 0\n        if maxsize < 0:\n            maxsize = 0\n    elif callable(maxsize) and isinstance(typed, bool):\n        # The user_function was passed in directly via the maxsize argument\n        user_function, maxsize = maxsize, 128\n        wrapper = _lru_cache_wrapper(user_function, maxsize, typed, _CacheInfo)\n        wrapper.cache_parameters = lambda : {'maxsize': maxsize, 'typed': typed}\n        return update_wrapper(wrapper, user_function)\n    elif maxsize is not None:\n        raise TypeError(\n            'Expected first argument to be an integer, a callable, or None')\n\n    def decorating_function(user_function):\n        wrapper = _lru_cache_wrapper(user_function, maxsize, typed, _CacheInfo)\n        wrapper.cache_parameters = lambda : {'maxsize': maxsize, 'typed': typed}\n        return update_wrapper(wrapper, user_function)\n\n    return decorating_function\n"
     },
     {
       "type": "class",
       "qualified_name": "emoji.EmojiMatch",
       "module": "emoji",
       "signature": "(self, emoji: str, start: int, end: int, data: Optional[Dict[str, Any]])",
-      "docstring": "Represents a match of a \"recommended for general interchange\" (RGI)\nemoji in a string."
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Represents a match of a \"recommended for general interchange\" (RGI)\nemoji in a string.",
+      "source_code": "class EmojiMatch:\n    \"\"\"\n    Represents a match of a \"recommended for general interchange\" (RGI)\n    emoji in a string.\n    \"\"\"\n\n    __slots__ = ('emoji', 'start', 'end', 'data')\n\n    def __init__(\n        self, emoji: str, start: int, end: int, data: Union[Dict[str, Any], None]\n    ):\n        self.emoji = emoji\n        \"\"\"The emoji substring\"\"\"\n\n        self.start = start\n        \"\"\"The start index of the match in the string\"\"\"\n\n        self.end = end\n        \"\"\"The end index of the match in the string\"\"\"\n\n        self.data = data\n        \"\"\"The entry from :data:`EMOJI_DATA` for this emoji or ``None`` if the emoji is non-RGI\"\"\"\n\n    def data_copy(self) -> Dict[str, Any]:\n        \"\"\"\n        Returns a copy of the data from :data:`EMOJI_DATA` for this match\n        with the additional keys ``match_start`` and ``match_end``.\n        \"\"\"\n        if self.data:\n            emj_data = self.data.copy()\n            emj_data['match_start'] = self.start\n            emj_data['match_end'] = self.end\n            return emj_data\n        else:\n            return {'match_start': self.start, 'match_end': self.end}\n\n    def is_zwj(self) -> bool:\n        \"\"\"\n        Checks if this is a ZWJ-emoji.\n\n        :returns: True if this is a ZWJ-emoji, False otherwise\n        \"\"\"\n\n        return _ZWJ in self.emoji\n\n    def split(self) -> Union['EmojiMatchZWJ', 'EmojiMatch']:\n        \"\"\"\n        Splits a ZWJ-emoji into its constituents.\n\n        :returns: An :class:`EmojiMatchZWJ` containing the \"sub-emoji\" if this is a ZWJ-emoji, otherwise self\n        \"\"\"\n\n        if self.is_zwj():\n            return EmojiMatchZWJ(self)\n        else:\n            return self\n\n    def __repr__(self) -> str:\n        return f'{self.__class__.__name__}({self.emoji}, {self.start}:{self.end})'\n"
     },
     {
       "type": "class",
       "qualified_name": "emoji.EmojiMatchZWJ",
       "module": "emoji",
       "signature": "(self, match: emoji.tokenizer.EmojiMatch)",
-      "docstring": "Represents a match of multiple emoji in a string that were joined by\nzero-width-joiners (ZWJ/``\\u200D``)."
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Represents a match of multiple emoji in a string that were joined by\nzero-width-joiners (ZWJ/``\\u200D``).",
+      "source_code": "class EmojiMatchZWJ(EmojiMatch):\n    \"\"\"\n    Represents a match of multiple emoji in a string that were joined by\n    zero-width-joiners (ZWJ/``\\\\u200D``).\"\"\"\n\n    __slots__ = ('emojis',)\n\n    def __init__(self, match: EmojiMatch):\n        super().__init__(match.emoji, match.start, match.end, match.data)\n\n        self.emojis: List[EmojiMatch] = []\n        \"\"\"List of sub emoji as EmojiMatch objects\"\"\"\n\n        i = match.start\n        for e in match.emoji.split(_ZWJ):\n            m = EmojiMatch(e, i, i + len(e), unicode_codes.EMOJI_DATA.get(e, None))\n            self.emojis.append(m)\n            i += len(e) + 1\n\n    def join(self) -> str:\n        \"\"\"\n        Joins a ZWJ-emoji into a string\n        \"\"\"\n\n        return _ZWJ.join(e.emoji for e in self.emojis)\n\n    def is_zwj(self) -> bool:\n        return True\n\n    def split(self) -> 'EmojiMatchZWJ':\n        return self\n\n    def __repr__(self) -> str:\n        return f'{self.__class__.__name__}({self.join()}, {self.start}:{self.end})'\n"
     },
     {
       "type": "class",
       "qualified_name": "emoji.EmojiMatchZWJNonRGI",
       "module": "emoji",
       "signature": "(self, first_emoji_match: emoji.tokenizer.EmojiMatch, second_emoji_match: emoji.tokenizer.EmojiMatch)",
-      "docstring": "Represents a match of multiple emoji in a string that were joined by\nzero-width-joiners (ZWJ/``\\u200D``). This class is only used for emoji\nthat are not \"recommended for general interchange\" (non-RGI) by Unicode.org.\nThe data property of this class is always None."
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Represents a match of multiple emoji in a string that were joined by\nzero-width-joiners (ZWJ/``\\u200D``). This class is only used for emoji\nthat are not \"recommended for general interchange\" (non-RGI) by Unicode.org.\nThe data property of this class is always None.",
+      "source_code": "class EmojiMatchZWJNonRGI(EmojiMatchZWJ):\n    \"\"\"\n    Represents a match of multiple emoji in a string that were joined by\n    zero-width-joiners (ZWJ/``\\\\u200D``). This class is only used for emoji\n    that are not \"recommended for general interchange\" (non-RGI) by Unicode.org.\n    The data property of this class is always None.\n    \"\"\"\n\n    def __init__(self, first_emoji_match: EmojiMatch, second_emoji_match: EmojiMatch):\n        self.emojis = [first_emoji_match, second_emoji_match]\n        \"\"\"List of sub emoji as EmojiMatch objects\"\"\"\n\n        self._update()\n\n    def _update(self):\n        self.emoji = _ZWJ.join(e.emoji for e in self.emojis)\n        self.start = self.emojis[0].start\n        self.end = self.emojis[-1].end\n        self.data = None\n\n    def _add(self, next_emoji_match: EmojiMatch):\n        self.emojis.append(next_emoji_match)\n        self._update()\n"
     },
     {
       "type": "class",
       "qualified_name": "emoji.Token",
       "module": "emoji",
       "signature": "(self, /, *args, **kwargs)",
-      "docstring": "A named tuple containing the matched string and its :class:`EmojiMatch` object if it is an emoji\nor a single character that is not a unicode emoji."
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "A named tuple containing the matched string and its :class:`EmojiMatch` object if it is an emoji\nor a single character that is not a unicode emoji.",
+      "source_code": "class Token(NamedTuple):\n    \"\"\"\n    A named tuple containing the matched string and its :class:`EmojiMatch` object if it is an emoji\n    or a single character that is not a unicode emoji.\n    \"\"\"\n\n    chars: str\n    value: Union[str, EmojiMatch]\n"
     },
     {
       "type": "class",
       "qualified_name": "emoji.config",
       "module": "emoji",
       "signature": "(self, /, *args, **kwargs)",
-      "docstring": "Module-wide configuration"
+      "return_description": null,
+      "raises": [],
+      "decorators": [
+        "staticmethod"
+      ],
+      "examples": [],
+      "docstring": "Module-wide configuration",
+      "source_code": "class config:\n    \"\"\"Module-wide configuration\"\"\"\n\n    demojize_keep_zwj = True\n    \"\"\"Change the behavior of :func:`emoji.demojize()` regarding\n    zero-width-joiners (ZWJ/``\\\\u200D``) in emoji that are not\n    \"recommended for general interchange\" (non-RGI).\n    It has no effect on RGI emoji.\n\n    For example this family emoji with different skin tones \"\ud83d\udc68\u200d\ud83d\udc69\ud83c\udfff\u200d\ud83d\udc67\ud83c\udffb\u200d\ud83d\udc66\ud83c\udffe\" contains four\n    person emoji that are joined together by three ZWJ characters:\n    ``\ud83d\udc68\\\\u200D\ud83d\udc69\ud83c\udfff\\\\u200D\ud83d\udc67\ud83c\udffb\\\\u200D\ud83d\udc66\ud83c\udffe``\n\n    If ``True``, the zero-width-joiners will be kept and :func:`emoji.emojize()` can\n    reverse the :func:`emoji.demojize()` operation:\n    ``emoji.emojize(emoji.demojize(s)) == s``\n\n    The example emoji would be converted to\n    ``:man:\\\\u200d:woman_dark_skin_tone:\\\\u200d:girl_light_skin_tone:\\\\u200d:boy_medium-dark_skin_tone:``\n\n    If ``False``, the zero-width-joiners will be removed and :func:`emoji.emojize()`\n    can only reverse the individual emoji: ``emoji.emojize(emoji.demojize(s)) != s``\n\n    The example emoji would be converted to\n    ``:man::woman_dark_skin_tone::girl_light_skin_tone::boy_medium-dark_skin_tone:``\n    \"\"\"\n\n    replace_emoji_keep_zwj = False\n    \"\"\"Change the behavior of :func:`emoji.replace_emoji()` regarding\n    zero-width-joiners (ZWJ/``\\\\u200D``) in emoji that are not\n    \"recommended for general interchange\" (non-RGI).\n    It has no effect on RGI emoji.\n\n    See :attr:`config.demojize_keep_zwj` for more information.\n    \"\"\"\n\n    @staticmethod\n    def load_language(language: Union[List[str], str, None] = None):\n        \"\"\"Load one or multiple languages into memory.\n        If no language is specified, all languages will be loaded.\n\n        This makes language data accessible in the :data:`EMOJI_DATA` dict.\n        For example to access a French emoji name, first load French with\n\n         ``emoji.config.load_language('fr')``\n\n        and then access it with\n\n         ``emoji.EMOJI_DATA['\ud83c\udfc4']['fr']``\n\n        Available languages are listed in :data:`LANGUAGES`\"\"\"\n\n        languages = (\n            [language]\n            if isinstance(language, str)\n            else language\n            if language\n            else unicode_codes.LANGUAGES\n        )\n\n        for lang in languages:\n            unicode_codes.load_from_json(lang)\n"
     },
     {
       "type": "class",
       "qualified_name": "emoji.core.Any",
       "module": "emoji.core",
       "signature": "(self, /, *args, **kwargs)",
-      "docstring": "Special type indicating an unconstrained type.\n\n- Any is compatible with every type.\n- Any assumed to have all methods.\n- All values assumed to be instances of Any.\n\nNote that all the above statements are true from the point of view of\nstatic type checkers. At runtime, Any should not be used with instance\nchecks."
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Special type indicating an unconstrained type.\n\n- Any is compatible with every type.\n- Any assumed to have all methods.\n- All values assumed to be instances of Any.\n\nNote that all the above statements are true from the point of view of\nstatic type checkers. At runtime, Any should not be used with instance\nchecks.",
+      "source_code": "class Any(metaclass=_AnyMeta):\n    \"\"\"Special type indicating an unconstrained type.\n\n    - Any is compatible with every type.\n    - Any assumed to have all methods.\n    - All values assumed to be instances of Any.\n\n    Note that all the above statements are true from the point of view of\n    static type checkers. At runtime, Any should not be used with instance\n    checks.\n    \"\"\"\n    def __new__(cls, *args, **kwargs):\n        if cls is Any:\n            raise TypeError(\"Any cannot be instantiated\")\n        return super().__new__(cls, *args, **kwargs)\n"
     },
     {
       "type": "class",
       "qualified_name": "emoji.core.EmojiMatch",
       "module": "emoji.core",
       "signature": "(self, emoji: str, start: int, end: int, data: Optional[Dict[str, Any]])",
-      "docstring": "Represents a match of a \"recommended for general interchange\" (RGI)\nemoji in a string."
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Represents a match of a \"recommended for general interchange\" (RGI)\nemoji in a string.",
+      "source_code": "class EmojiMatch:\n    \"\"\"\n    Represents a match of a \"recommended for general interchange\" (RGI)\n    emoji in a string.\n    \"\"\"\n\n    __slots__ = ('emoji', 'start', 'end', 'data')\n\n    def __init__(\n        self, emoji: str, start: int, end: int, data: Union[Dict[str, Any], None]\n    ):\n        self.emoji = emoji\n        \"\"\"The emoji substring\"\"\"\n\n        self.start = start\n        \"\"\"The start index of the match in the string\"\"\"\n\n        self.end = end\n        \"\"\"The end index of the match in the string\"\"\"\n\n        self.data = data\n        \"\"\"The entry from :data:`EMOJI_DATA` for this emoji or ``None`` if the emoji is non-RGI\"\"\"\n\n    def data_copy(self) -> Dict[str, Any]:\n        \"\"\"\n        Returns a copy of the data from :data:`EMOJI_DATA` for this match\n        with the additional keys ``match_start`` and ``match_end``.\n        \"\"\"\n        if self.data:\n            emj_data = self.data.copy()\n            emj_data['match_start'] = self.start\n            emj_data['match_end'] = self.end\n            return emj_data\n        else:\n            return {'match_start': self.start, 'match_end': self.end}\n\n    def is_zwj(self) -> bool:\n        \"\"\"\n        Checks if this is a ZWJ-emoji.\n\n        :returns: True if this is a ZWJ-emoji, False otherwise\n        \"\"\"\n\n        return _ZWJ in self.emoji\n\n    def split(self) -> Union['EmojiMatchZWJ', 'EmojiMatch']:\n        \"\"\"\n        Splits a ZWJ-emoji into its constituents.\n\n        :returns: An :class:`EmojiMatchZWJ` containing the \"sub-emoji\" if this is a ZWJ-emoji, otherwise self\n        \"\"\"\n\n        if self.is_zwj():\n            return EmojiMatchZWJ(self)\n        else:\n            return self\n\n    def __repr__(self) -> str:\n        return f'{self.__class__.__name__}({self.emoji}, {self.start}:{self.end})'\n"
     },
     {
       "type": "class",
       "qualified_name": "emoji.core.EmojiMatchZWJ",
       "module": "emoji.core",
       "signature": "(self, match: emoji.tokenizer.EmojiMatch)",
-      "docstring": "Represents a match of multiple emoji in a string that were joined by\nzero-width-joiners (ZWJ/``\\u200D``)."
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Represents a match of multiple emoji in a string that were joined by\nzero-width-joiners (ZWJ/``\\u200D``).",
+      "source_code": "class EmojiMatchZWJ(EmojiMatch):\n    \"\"\"\n    Represents a match of multiple emoji in a string that were joined by\n    zero-width-joiners (ZWJ/``\\\\u200D``).\"\"\"\n\n    __slots__ = ('emojis',)\n\n    def __init__(self, match: EmojiMatch):\n        super().__init__(match.emoji, match.start, match.end, match.data)\n\n        self.emojis: List[EmojiMatch] = []\n        \"\"\"List of sub emoji as EmojiMatch objects\"\"\"\n\n        i = match.start\n        for e in match.emoji.split(_ZWJ):\n            m = EmojiMatch(e, i, i + len(e), unicode_codes.EMOJI_DATA.get(e, None))\n            self.emojis.append(m)\n            i += len(e) + 1\n\n    def join(self) -> str:\n        \"\"\"\n        Joins a ZWJ-emoji into a string\n        \"\"\"\n\n        return _ZWJ.join(e.emoji for e in self.emojis)\n\n    def is_zwj(self) -> bool:\n        return True\n\n    def split(self) -> 'EmojiMatchZWJ':\n        return self\n\n    def __repr__(self) -> str:\n        return f'{self.__class__.__name__}({self.join()}, {self.start}:{self.end})'\n"
     },
     {
       "type": "class",
       "qualified_name": "emoji.core.EmojiMatchZWJNonRGI",
       "module": "emoji.core",
       "signature": "(self, first_emoji_match: emoji.tokenizer.EmojiMatch, second_emoji_match: emoji.tokenizer.EmojiMatch)",
-      "docstring": "Represents a match of multiple emoji in a string that were joined by\nzero-width-joiners (ZWJ/``\\u200D``). This class is only used for emoji\nthat are not \"recommended for general interchange\" (non-RGI) by Unicode.org.\nThe data property of this class is always None."
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Represents a match of multiple emoji in a string that were joined by\nzero-width-joiners (ZWJ/``\\u200D``). This class is only used for emoji\nthat are not \"recommended for general interchange\" (non-RGI) by Unicode.org.\nThe data property of this class is always None.",
+      "source_code": "class EmojiMatchZWJNonRGI(EmojiMatchZWJ):\n    \"\"\"\n    Represents a match of multiple emoji in a string that were joined by\n    zero-width-joiners (ZWJ/``\\\\u200D``). This class is only used for emoji\n    that are not \"recommended for general interchange\" (non-RGI) by Unicode.org.\n    The data property of this class is always None.\n    \"\"\"\n\n    def __init__(self, first_emoji_match: EmojiMatch, second_emoji_match: EmojiMatch):\n        self.emojis = [first_emoji_match, second_emoji_match]\n        \"\"\"List of sub emoji as EmojiMatch objects\"\"\"\n\n        self._update()\n\n    def _update(self):\n        self.emoji = _ZWJ.join(e.emoji for e in self.emojis)\n        self.start = self.emojis[0].start\n        self.end = self.emojis[-1].end\n        self.data = None\n\n    def _add(self, next_emoji_match: EmojiMatch):\n        self.emojis.append(next_emoji_match)\n        self._update()\n"
     },
     {
       "type": "class",
       "qualified_name": "emoji.core.Token",
       "module": "emoji.core",
       "signature": "(self, /, *args, **kwargs)",
-      "docstring": "A named tuple containing the matched string and its :class:`EmojiMatch` object if it is an emoji\nor a single character that is not a unicode emoji."
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "A named tuple containing the matched string and its :class:`EmojiMatch` object if it is an emoji\nor a single character that is not a unicode emoji.",
+      "source_code": "class Token(NamedTuple):\n    \"\"\"\n    A named tuple containing the matched string and its :class:`EmojiMatch` object if it is an emoji\n    or a single character that is not a unicode emoji.\n    \"\"\"\n\n    chars: str\n    value: Union[str, EmojiMatch]\n"
     },
     {
       "type": "class",
       "qualified_name": "emoji.core.config",
       "module": "emoji.core",
       "signature": "(self, /, *args, **kwargs)",
-      "docstring": "Module-wide configuration"
+      "return_description": null,
+      "raises": [],
+      "decorators": [
+        "staticmethod"
+      ],
+      "examples": [],
+      "docstring": "Module-wide configuration",
+      "source_code": "class config:\n    \"\"\"Module-wide configuration\"\"\"\n\n    demojize_keep_zwj = True\n    \"\"\"Change the behavior of :func:`emoji.demojize()` regarding\n    zero-width-joiners (ZWJ/``\\\\u200D``) in emoji that are not\n    \"recommended for general interchange\" (non-RGI).\n    It has no effect on RGI emoji.\n\n    For example this family emoji with different skin tones \"\ud83d\udc68\u200d\ud83d\udc69\ud83c\udfff\u200d\ud83d\udc67\ud83c\udffb\u200d\ud83d\udc66\ud83c\udffe\" contains four\n    person emoji that are joined together by three ZWJ characters:\n    ``\ud83d\udc68\\\\u200D\ud83d\udc69\ud83c\udfff\\\\u200D\ud83d\udc67\ud83c\udffb\\\\u200D\ud83d\udc66\ud83c\udffe``\n\n    If ``True``, the zero-width-joiners will be kept and :func:`emoji.emojize()` can\n    reverse the :func:`emoji.demojize()` operation:\n    ``emoji.emojize(emoji.demojize(s)) == s``\n\n    The example emoji would be converted to\n    ``:man:\\\\u200d:woman_dark_skin_tone:\\\\u200d:girl_light_skin_tone:\\\\u200d:boy_medium-dark_skin_tone:``\n\n    If ``False``, the zero-width-joiners will be removed and :func:`emoji.emojize()`\n    can only reverse the individual emoji: ``emoji.emojize(emoji.demojize(s)) != s``\n\n    The example emoji would be converted to\n    ``:man::woman_dark_skin_tone::girl_light_skin_tone::boy_medium-dark_skin_tone:``\n    \"\"\"\n\n    replace_emoji_keep_zwj = False\n    \"\"\"Change the behavior of :func:`emoji.replace_emoji()` regarding\n    zero-width-joiners (ZWJ/``\\\\u200D``) in emoji that are not\n    \"recommended for general interchange\" (non-RGI).\n    It has no effect on RGI emoji.\n\n    See :attr:`config.demojize_keep_zwj` for more information.\n    \"\"\"\n\n    @staticmethod\n    def load_language(language: Union[List[str], str, None] = None):\n        \"\"\"Load one or multiple languages into memory.\n        If no language is specified, all languages will be loaded.\n\n        This makes language data accessible in the :data:`EMOJI_DATA` dict.\n        For example to access a French emoji name, first load French with\n\n         ``emoji.config.load_language('fr')``\n\n        and then access it with\n\n         ``emoji.EMOJI_DATA['\ud83c\udfc4']['fr']``\n\n        Available languages are listed in :data:`LANGUAGES`\"\"\"\n\n        languages = (\n            [language]\n            if isinstance(language, str)\n            else language\n            if language\n            else unicode_codes.LANGUAGES\n        )\n\n        for lang in languages:\n            unicode_codes.load_from_json(lang)\n"
     },
     {
       "type": "class",
       "qualified_name": "emoji.tokenizer.Any",
       "module": "emoji.tokenizer",
       "signature": "(self, /, *args, **kwargs)",
-      "docstring": "Special type indicating an unconstrained type.\n\n- Any is compatible with every type.\n- Any assumed to have all methods.\n- All values assumed to be instances of Any.\n\nNote that all the above statements are true from the point of view of\nstatic type checkers. At runtime, Any should not be used with instance\nchecks."
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Special type indicating an unconstrained type.\n\n- Any is compatible with every type.\n- Any assumed to have all methods.\n- All values assumed to be instances of Any.\n\nNote that all the above statements are true from the point of view of\nstatic type checkers. At runtime, Any should not be used with instance\nchecks.",
+      "source_code": "class Any(metaclass=_AnyMeta):\n    \"\"\"Special type indicating an unconstrained type.\n\n    - Any is compatible with every type.\n    - Any assumed to have all methods.\n    - All values assumed to be instances of Any.\n\n    Note that all the above statements are true from the point of view of\n    static type checkers. At runtime, Any should not be used with instance\n    checks.\n    \"\"\"\n    def __new__(cls, *args, **kwargs):\n        if cls is Any:\n            raise TypeError(\"Any cannot be instantiated\")\n        return super().__new__(cls, *args, **kwargs)\n"
     },
     {
       "type": "class",
       "qualified_name": "emoji.tokenizer.EmojiMatch",
       "module": "emoji.tokenizer",
       "signature": "(self, emoji: str, start: int, end: int, data: Optional[Dict[str, Any]])",
-      "docstring": "Represents a match of a \"recommended for general interchange\" (RGI)\nemoji in a string."
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Represents a match of a \"recommended for general interchange\" (RGI)\nemoji in a string.",
+      "source_code": "class EmojiMatch:\n    \"\"\"\n    Represents a match of a \"recommended for general interchange\" (RGI)\n    emoji in a string.\n    \"\"\"\n\n    __slots__ = ('emoji', 'start', 'end', 'data')\n\n    def __init__(\n        self, emoji: str, start: int, end: int, data: Union[Dict[str, Any], None]\n    ):\n        self.emoji = emoji\n        \"\"\"The emoji substring\"\"\"\n\n        self.start = start\n        \"\"\"The start index of the match in the string\"\"\"\n\n        self.end = end\n        \"\"\"The end index of the match in the string\"\"\"\n\n        self.data = data\n        \"\"\"The entry from :data:`EMOJI_DATA` for this emoji or ``None`` if the emoji is non-RGI\"\"\"\n\n    def data_copy(self) -> Dict[str, Any]:\n        \"\"\"\n        Returns a copy of the data from :data:`EMOJI_DATA` for this match\n        with the additional keys ``match_start`` and ``match_end``.\n        \"\"\"\n        if self.data:\n            emj_data = self.data.copy()\n            emj_data['match_start'] = self.start\n            emj_data['match_end'] = self.end\n            return emj_data\n        else:\n            return {'match_start': self.start, 'match_end': self.end}\n\n    def is_zwj(self) -> bool:\n        \"\"\"\n        Checks if this is a ZWJ-emoji.\n\n        :returns: True if this is a ZWJ-emoji, False otherwise\n        \"\"\"\n\n        return _ZWJ in self.emoji\n\n    def split(self) -> Union['EmojiMatchZWJ', 'EmojiMatch']:\n        \"\"\"\n        Splits a ZWJ-emoji into its constituents.\n\n        :returns: An :class:`EmojiMatchZWJ` containing the \"sub-emoji\" if this is a ZWJ-emoji, otherwise self\n        \"\"\"\n\n        if self.is_zwj():\n            return EmojiMatchZWJ(self)\n        else:\n            return self\n\n    def __repr__(self) -> str:\n        return f'{self.__class__.__name__}({self.emoji}, {self.start}:{self.end})'\n"
     },
     {
       "type": "class",
       "qualified_name": "emoji.tokenizer.EmojiMatchZWJ",
       "module": "emoji.tokenizer",
       "signature": "(self, match: emoji.tokenizer.EmojiMatch)",
-      "docstring": "Represents a match of multiple emoji in a string that were joined by\nzero-width-joiners (ZWJ/``\\u200D``)."
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Represents a match of multiple emoji in a string that were joined by\nzero-width-joiners (ZWJ/``\\u200D``).",
+      "source_code": "class EmojiMatchZWJ(EmojiMatch):\n    \"\"\"\n    Represents a match of multiple emoji in a string that were joined by\n    zero-width-joiners (ZWJ/``\\\\u200D``).\"\"\"\n\n    __slots__ = ('emojis',)\n\n    def __init__(self, match: EmojiMatch):\n        super().__init__(match.emoji, match.start, match.end, match.data)\n\n        self.emojis: List[EmojiMatch] = []\n        \"\"\"List of sub emoji as EmojiMatch objects\"\"\"\n\n        i = match.start\n        for e in match.emoji.split(_ZWJ):\n            m = EmojiMatch(e, i, i + len(e), unicode_codes.EMOJI_DATA.get(e, None))\n            self.emojis.append(m)\n            i += len(e) + 1\n\n    def join(self) -> str:\n        \"\"\"\n        Joins a ZWJ-emoji into a string\n        \"\"\"\n\n        return _ZWJ.join(e.emoji for e in self.emojis)\n\n    def is_zwj(self) -> bool:\n        return True\n\n    def split(self) -> 'EmojiMatchZWJ':\n        return self\n\n    def __repr__(self) -> str:\n        return f'{self.__class__.__name__}({self.join()}, {self.start}:{self.end})'\n"
     },
     {
       "type": "class",
       "qualified_name": "emoji.tokenizer.EmojiMatchZWJNonRGI",
       "module": "emoji.tokenizer",
       "signature": "(self, first_emoji_match: emoji.tokenizer.EmojiMatch, second_emoji_match: emoji.tokenizer.EmojiMatch)",
-      "docstring": "Represents a match of multiple emoji in a string that were joined by\nzero-width-joiners (ZWJ/``\\u200D``). This class is only used for emoji\nthat are not \"recommended for general interchange\" (non-RGI) by Unicode.org.\nThe data property of this class is always None."
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Represents a match of multiple emoji in a string that were joined by\nzero-width-joiners (ZWJ/``\\u200D``). This class is only used for emoji\nthat are not \"recommended for general interchange\" (non-RGI) by Unicode.org.\nThe data property of this class is always None.",
+      "source_code": "class EmojiMatchZWJNonRGI(EmojiMatchZWJ):\n    \"\"\"\n    Represents a match of multiple emoji in a string that were joined by\n    zero-width-joiners (ZWJ/``\\\\u200D``). This class is only used for emoji\n    that are not \"recommended for general interchange\" (non-RGI) by Unicode.org.\n    The data property of this class is always None.\n    \"\"\"\n\n    def __init__(self, first_emoji_match: EmojiMatch, second_emoji_match: EmojiMatch):\n        self.emojis = [first_emoji_match, second_emoji_match]\n        \"\"\"List of sub emoji as EmojiMatch objects\"\"\"\n\n        self._update()\n\n    def _update(self):\n        self.emoji = _ZWJ.join(e.emoji for e in self.emojis)\n        self.start = self.emojis[0].start\n        self.end = self.emojis[-1].end\n        self.data = None\n\n    def _add(self, next_emoji_match: EmojiMatch):\n        self.emojis.append(next_emoji_match)\n        self._update()\n"
     },
     {
       "type": "class",
       "qualified_name": "emoji.tokenizer.Token",
       "module": "emoji.tokenizer",
       "signature": "(self, /, *args, **kwargs)",
-      "docstring": "A named tuple containing the matched string and its :class:`EmojiMatch` object if it is an emoji\nor a single character that is not a unicode emoji."
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "A named tuple containing the matched string and its :class:`EmojiMatch` object if it is an emoji\nor a single character that is not a unicode emoji.",
+      "source_code": "class Token(NamedTuple):\n    \"\"\"\n    A named tuple containing the matched string and its :class:`EmojiMatch` object if it is an emoji\n    or a single character that is not a unicode emoji.\n    \"\"\"\n\n    chars: str\n    value: Union[str, EmojiMatch]\n"
     },
     {
       "type": "class",
       "qualified_name": "emoji.unicode_codes.Any",
       "module": "emoji.unicode_codes",
       "signature": "(self, /, *args, **kwargs)",
-      "docstring": "Special type indicating an unconstrained type.\n\n- Any is compatible with every type.\n- Any assumed to have all methods.\n- All values assumed to be instances of Any.\n\nNote that all the above statements are true from the point of view of\nstatic type checkers. At runtime, Any should not be used with instance\nchecks."
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Special type indicating an unconstrained type.\n\n- Any is compatible with every type.\n- Any assumed to have all methods.\n- All values assumed to be instances of Any.\n\nNote that all the above statements are true from the point of view of\nstatic type checkers. At runtime, Any should not be used with instance\nchecks.",
+      "source_code": "class Any(metaclass=_AnyMeta):\n    \"\"\"Special type indicating an unconstrained type.\n\n    - Any is compatible with every type.\n    - Any assumed to have all methods.\n    - All values assumed to be instances of Any.\n\n    Note that all the above statements are true from the point of view of\n    static type checkers. At runtime, Any should not be used with instance\n    checks.\n    \"\"\"\n    def __new__(cls, *args, **kwargs):\n        if cls is Any:\n            raise TypeError(\"Any cannot be instantiated\")\n        return super().__new__(cls, *args, **kwargs)\n"
     },
     {
       "type": "class",
       "qualified_name": "emoji.unicode_codes.BinaryIO",
       "module": "emoji.unicode_codes",
       "signature": "(self, /, *args, **kwargs)",
-      "docstring": "Typed version of the return of open() in binary mode."
+      "return_description": null,
+      "raises": [],
+      "decorators": [
+        "abstractmethod",
+        "abstractmethod"
+      ],
+      "examples": [],
+      "docstring": "Typed version of the return of open() in binary mode.",
+      "source_code": "class BinaryIO(IO[bytes]):\n    \"\"\"Typed version of the return of open() in binary mode.\"\"\"\n\n    __slots__ = ()\n\n    @abstractmethod\n    def write(self, s: Union[bytes, bytearray]) -> int:\n        pass\n\n    @abstractmethod\n    def __enter__(self) -> 'BinaryIO':\n        pass\n"
     },
     {
       "type": "class",
       "qualified_name": "emoji.unicode_codes.EmojiDataDict",
       "module": "emoji.unicode_codes",
       "signature": "(self, /, *args, **kwargs)",
-      "docstring": "Replaces built-in-dict in the values of the EMOJI_DATA dict.\nAuto loads language data when accessing language data via\nkey-access without prior loading of the language:\ne.g. EMOJI_DATA['\ud83d\udc4c']['fr'] will auto load French language and not throw\na KeyError.\nShows a deprecation warning explainging that `emoji.config.load_language()`\nshould be used."
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Replaces built-in-dict in the values of the EMOJI_DATA dict.\nAuto loads language data when accessing language data via\nkey-access without prior loading of the language:\ne.g. EMOJI_DATA['\ud83d\udc4c']['fr'] will auto load French language and not throw\na KeyError.\nShows a deprecation warning explainging that `emoji.config.load_language()`\nshould be used.",
+      "source_code": "class EmojiDataDict(Dict[str, Any]):\n    \"\"\"Replaces built-in-dict in the values of the EMOJI_DATA dict.\n    Auto loads language data when accessing language data via\n    key-access without prior loading of the language:\n    e.g. EMOJI_DATA['\ud83d\udc4c']['fr'] will auto load French language and not throw\n    a KeyError.\n    Shows a deprecation warning explainging that `emoji.config.load_language()`\n    should be used.\"\"\"\n\n    def __missing__(self, key: str) -> str:\n        \"\"\"Auto load language `key`, raises KeyError if language is no supported.\"\"\"\n        if key in LANGUAGES and key not in _loaded_keys:\n            load_from_json(key)\n            if key in self:\n                warn(\n                    f\"\"\"Use emoji.config.load_language('{key}') before accesing EMOJI_DATA[emj]['{key}'].\nAccessing EMOJI_DATA[emj]['{key}'] without loading the language is deprecated.\"\"\",\n                    DeprecationWarning,\n                    stacklevel=3,\n                )\n                return self[key]  # type: ignore\n\n        raise KeyError(key)\n"
     },
     {
       "type": "class",
       "qualified_name": "emoji.unicode_codes.data_dict.Any",
       "module": "emoji.unicode_codes.data_dict",
       "signature": "(self, /, *args, **kwargs)",
-      "docstring": "Special type indicating an unconstrained type.\n\n- Any is compatible with every type.\n- Any assumed to have all methods.\n- All values assumed to be instances of Any.\n\nNote that all the above statements are true from the point of view of\nstatic type checkers. At runtime, Any should not be used with instance\nchecks."
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Special type indicating an unconstrained type.\n\n- Any is compatible with every type.\n- Any assumed to have all methods.\n- All values assumed to be instances of Any.\n\nNote that all the above statements are true from the point of view of\nstatic type checkers. At runtime, Any should not be used with instance\nchecks.",
+      "source_code": "class Any(metaclass=_AnyMeta):\n    \"\"\"Special type indicating an unconstrained type.\n\n    - Any is compatible with every type.\n    - Any assumed to have all methods.\n    - All values assumed to be instances of Any.\n\n    Note that all the above statements are true from the point of view of\n    static type checkers. At runtime, Any should not be used with instance\n    checks.\n    \"\"\"\n    def __new__(cls, *args, **kwargs):\n        if cls is Any:\n            raise TypeError(\"Any cannot be instantiated\")\n        return super().__new__(cls, *args, **kwargs)\n"
     },
     {
       "type": "class",
       "qualified_name": "emoji.unicode_codes.data_dict.Any",
       "module": "emoji.unicode_codes.data_dict",
       "signature": "(self, /, *args, **kwargs)",
-      "docstring": "Special type indicating an unconstrained type.\n\n- Any is compatible with every type.\n- Any assumed to have all methods.\n- All values assumed to be instances of Any.\n\nNote that all the above statements are true from the point of view of\nstatic type checkers. At runtime, Any should not be used with instance\nchecks."
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Special type indicating an unconstrained type.\n\n- Any is compatible with every type.\n- Any assumed to have all methods.\n- All values assumed to be instances of Any.\n\nNote that all the above statements are true from the point of view of\nstatic type checkers. At runtime, Any should not be used with instance\nchecks.",
+      "source_code": "class Any(metaclass=_AnyMeta):\n    \"\"\"Special type indicating an unconstrained type.\n\n    - Any is compatible with every type.\n    - Any assumed to have all methods.\n    - All values assumed to be instances of Any.\n\n    Note that all the above statements are true from the point of view of\n    static type checkers. At runtime, Any should not be used with instance\n    checks.\n    \"\"\"\n    def __new__(cls, *args, **kwargs):\n        if cls is Any:\n            raise TypeError(\"Any cannot be instantiated\")\n        return super().__new__(cls, *args, **kwargs)\n"
     },
     {
       "type": "method",
@@ -800,11 +1185,17 @@
         "self": {
           "default": null,
           "annotation": null,
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         }
       },
       "returns": "typing.Dict[str, typing.Any]",
-      "docstring": "Returns a copy of the data from :data:`EMOJI_DATA` for this match\nwith the additional keys ``match_start`` and ``match_end``."
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Returns a copy of the data from :data:`EMOJI_DATA` for this match\nwith the additional keys ``match_start`` and ``match_end``.",
+      "source_code": "    def data_copy(self) -> Dict[str, Any]:\n        \"\"\"\n        Returns a copy of the data from :data:`EMOJI_DATA` for this match\n        with the additional keys ``match_start`` and ``match_end``.\n        \"\"\"\n        if self.data:\n            emj_data = self.data.copy()\n            emj_data['match_start'] = self.start\n            emj_data['match_end'] = self.end\n            return emj_data\n        else:\n            return {'match_start': self.start, 'match_end': self.end}\n"
     },
     {
       "type": "method",
@@ -815,11 +1206,17 @@
         "self": {
           "default": null,
           "annotation": null,
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         }
       },
       "returns": "<class 'bool'>",
-      "docstring": "Checks if this is a ZWJ-emoji.\n\n:returns: True if this is a ZWJ-emoji, False otherwise"
+      "return_description": "True if this is a ZWJ-emoji, False otherwise",
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Checks if this is a ZWJ-emoji.\n\n:returns: True if this is a ZWJ-emoji, False otherwise",
+      "source_code": "    def is_zwj(self) -> bool:\n        \"\"\"\n        Checks if this is a ZWJ-emoji.\n\n        :returns: True if this is a ZWJ-emoji, False otherwise\n        \"\"\"\n\n        return _ZWJ in self.emoji\n"
     },
     {
       "type": "method",
@@ -830,11 +1227,17 @@
         "self": {
           "default": null,
           "annotation": null,
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         }
       },
       "returns": "typing.Union[ForwardRef('EmojiMatchZWJ'), ForwardRef('EmojiMatch')]",
-      "docstring": "Splits a ZWJ-emoji into its constituents.\n\n:returns: An :class:`EmojiMatchZWJ` containing the \"sub-emoji\" if this is a ZWJ-emoji, otherwise self"
+      "return_description": "An :class:`EmojiMatchZWJ` containing the \"sub-emoji\" if this is a ZWJ-emoji, otherwise self",
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Splits a ZWJ-emoji into its constituents.\n\n:returns: An :class:`EmojiMatchZWJ` containing the \"sub-emoji\" if this is a ZWJ-emoji, otherwise self",
+      "source_code": "    def split(self) -> Union['EmojiMatchZWJ', 'EmojiMatch']:\n        \"\"\"\n        Splits a ZWJ-emoji into its constituents.\n\n        :returns: An :class:`EmojiMatchZWJ` containing the \"sub-emoji\" if this is a ZWJ-emoji, otherwise self\n        \"\"\"\n\n        if self.is_zwj():\n            return EmojiMatchZWJ(self)\n        else:\n            return self\n"
     },
     {
       "type": "method",
@@ -845,11 +1248,17 @@
         "self": {
           "default": null,
           "annotation": null,
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         }
       },
       "returns": "typing.Dict[str, typing.Any]",
-      "docstring": "Returns a copy of the data from :data:`EMOJI_DATA` for this match\nwith the additional keys ``match_start`` and ``match_end``."
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Returns a copy of the data from :data:`EMOJI_DATA` for this match\nwith the additional keys ``match_start`` and ``match_end``.",
+      "source_code": "    def data_copy(self) -> Dict[str, Any]:\n        \"\"\"\n        Returns a copy of the data from :data:`EMOJI_DATA` for this match\n        with the additional keys ``match_start`` and ``match_end``.\n        \"\"\"\n        if self.data:\n            emj_data = self.data.copy()\n            emj_data['match_start'] = self.start\n            emj_data['match_end'] = self.end\n            return emj_data\n        else:\n            return {'match_start': self.start, 'match_end': self.end}\n"
     },
     {
       "type": "method",
@@ -860,11 +1269,17 @@
         "self": {
           "default": null,
           "annotation": null,
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         }
       },
       "returns": "<class 'bool'>",
-      "docstring": "Checks if this is a ZWJ-emoji.\n\n:returns: True if this is a ZWJ-emoji, False otherwise"
+      "return_description": "True if this is a ZWJ-emoji, False otherwise",
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Checks if this is a ZWJ-emoji.\n\n:returns: True if this is a ZWJ-emoji, False otherwise",
+      "source_code": "    def is_zwj(self) -> bool:\n        return True\n"
     },
     {
       "type": "method",
@@ -875,11 +1290,17 @@
         "self": {
           "default": null,
           "annotation": null,
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         }
       },
       "returns": "<class 'str'>",
-      "docstring": "Joins a ZWJ-emoji into a string"
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Joins a ZWJ-emoji into a string",
+      "source_code": "    def join(self) -> str:\n        \"\"\"\n        Joins a ZWJ-emoji into a string\n        \"\"\"\n\n        return _ZWJ.join(e.emoji for e in self.emojis)\n"
     },
     {
       "type": "method",
@@ -890,11 +1311,17 @@
         "self": {
           "default": null,
           "annotation": null,
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         }
       },
       "returns": "EmojiMatchZWJ",
-      "docstring": "Splits a ZWJ-emoji into its constituents.\n\n:returns: An :class:`EmojiMatchZWJ` containing the \"sub-emoji\" if this is a ZWJ-emoji, otherwise self"
+      "return_description": "An :class:`EmojiMatchZWJ` containing the \"sub-emoji\" if this is a ZWJ-emoji, otherwise self",
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Splits a ZWJ-emoji into its constituents.\n\n:returns: An :class:`EmojiMatchZWJ` containing the \"sub-emoji\" if this is a ZWJ-emoji, otherwise self",
+      "source_code": "    def split(self) -> 'EmojiMatchZWJ':\n        return self\n"
     },
     {
       "type": "method",
@@ -905,11 +1332,17 @@
         "self": {
           "default": null,
           "annotation": null,
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         }
       },
       "returns": "typing.Dict[str, typing.Any]",
-      "docstring": "Returns a copy of the data from :data:`EMOJI_DATA` for this match\nwith the additional keys ``match_start`` and ``match_end``."
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Returns a copy of the data from :data:`EMOJI_DATA` for this match\nwith the additional keys ``match_start`` and ``match_end``.",
+      "source_code": "    def data_copy(self) -> Dict[str, Any]:\n        \"\"\"\n        Returns a copy of the data from :data:`EMOJI_DATA` for this match\n        with the additional keys ``match_start`` and ``match_end``.\n        \"\"\"\n        if self.data:\n            emj_data = self.data.copy()\n            emj_data['match_start'] = self.start\n            emj_data['match_end'] = self.end\n            return emj_data\n        else:\n            return {'match_start': self.start, 'match_end': self.end}\n"
     },
     {
       "type": "method",
@@ -920,11 +1353,17 @@
         "self": {
           "default": null,
           "annotation": null,
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         }
       },
       "returns": "<class 'bool'>",
-      "docstring": "Checks if this is a ZWJ-emoji.\n\n:returns: True if this is a ZWJ-emoji, False otherwise"
+      "return_description": "True if this is a ZWJ-emoji, False otherwise",
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Checks if this is a ZWJ-emoji.\n\n:returns: True if this is a ZWJ-emoji, False otherwise",
+      "source_code": "    def is_zwj(self) -> bool:\n        return True\n"
     },
     {
       "type": "method",
@@ -935,11 +1374,17 @@
         "self": {
           "default": null,
           "annotation": null,
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         }
       },
       "returns": "<class 'str'>",
-      "docstring": "Joins a ZWJ-emoji into a string"
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Joins a ZWJ-emoji into a string",
+      "source_code": "    def join(self) -> str:\n        \"\"\"\n        Joins a ZWJ-emoji into a string\n        \"\"\"\n\n        return _ZWJ.join(e.emoji for e in self.emojis)\n"
     },
     {
       "type": "method",
@@ -950,11 +1395,17 @@
         "self": {
           "default": null,
           "annotation": null,
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         }
       },
       "returns": "EmojiMatchZWJ",
-      "docstring": "Splits a ZWJ-emoji into its constituents.\n\n:returns: An :class:`EmojiMatchZWJ` containing the \"sub-emoji\" if this is a ZWJ-emoji, otherwise self"
+      "return_description": "An :class:`EmojiMatchZWJ` containing the \"sub-emoji\" if this is a ZWJ-emoji, otherwise self",
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Splits a ZWJ-emoji into its constituents.\n\n:returns: An :class:`EmojiMatchZWJ` containing the \"sub-emoji\" if this is a ZWJ-emoji, otherwise self",
+      "source_code": "    def split(self) -> 'EmojiMatchZWJ':\n        return self\n"
     },
     {
       "type": "method",
@@ -965,11 +1416,19 @@
         "language": {
           "default": "None",
           "annotation": "typing.Union[typing.List[str], str, NoneType]",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         }
       },
       "returns": null,
-      "docstring": "Load one or multiple languages into memory.\nIf no language is specified, all languages will be loaded.\n\nThis makes language data accessible in the :data:`EMOJI_DATA` dict.\nFor example to access a French emoji name, first load French with\n\n ``emoji.config.load_language('fr')``\n\nand then access it with\n\n ``emoji.EMOJI_DATA['\ud83c\udfc4']['fr']``\n\nAvailable languages are listed in :data:`LANGUAGES`"
+      "return_description": null,
+      "raises": [],
+      "decorators": [
+        "staticmethod"
+      ],
+      "examples": [],
+      "docstring": "Load one or multiple languages into memory.\nIf no language is specified, all languages will be loaded.\n\nThis makes language data accessible in the :data:`EMOJI_DATA` dict.\nFor example to access a French emoji name, first load French with\n\n ``emoji.config.load_language('fr')``\n\nand then access it with\n\n ``emoji.EMOJI_DATA['\ud83c\udfc4']['fr']``\n\nAvailable languages are listed in :data:`LANGUAGES`",
+      "source_code": "    @staticmethod\n    def load_language(language: Union[List[str], str, None] = None):\n        \"\"\"Load one or multiple languages into memory.\n        If no language is specified, all languages will be loaded.\n\n        This makes language data accessible in the :data:`EMOJI_DATA` dict.\n        For example to access a French emoji name, first load French with\n\n         ``emoji.config.load_language('fr')``\n\n        and then access it with\n\n         ``emoji.EMOJI_DATA['\ud83c\udfc4']['fr']``\n\n        Available languages are listed in :data:`LANGUAGES`\"\"\"\n\n        languages = (\n            [language]\n            if isinstance(language, str)\n            else language\n            if language\n            else unicode_codes.LANGUAGES\n        )\n\n        for lang in languages:\n            unicode_codes.load_from_json(lang)\n"
     },
     {
       "type": "method",
@@ -980,11 +1439,17 @@
         "self": {
           "default": null,
           "annotation": null,
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         }
       },
       "returns": "typing.Dict[str, typing.Any]",
-      "docstring": "Returns a copy of the data from :data:`EMOJI_DATA` for this match\nwith the additional keys ``match_start`` and ``match_end``."
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Returns a copy of the data from :data:`EMOJI_DATA` for this match\nwith the additional keys ``match_start`` and ``match_end``.",
+      "source_code": "    def data_copy(self) -> Dict[str, Any]:\n        \"\"\"\n        Returns a copy of the data from :data:`EMOJI_DATA` for this match\n        with the additional keys ``match_start`` and ``match_end``.\n        \"\"\"\n        if self.data:\n            emj_data = self.data.copy()\n            emj_data['match_start'] = self.start\n            emj_data['match_end'] = self.end\n            return emj_data\n        else:\n            return {'match_start': self.start, 'match_end': self.end}\n"
     },
     {
       "type": "method",
@@ -995,11 +1460,17 @@
         "self": {
           "default": null,
           "annotation": null,
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         }
       },
       "returns": "<class 'bool'>",
-      "docstring": "Checks if this is a ZWJ-emoji.\n\n:returns: True if this is a ZWJ-emoji, False otherwise"
+      "return_description": "True if this is a ZWJ-emoji, False otherwise",
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Checks if this is a ZWJ-emoji.\n\n:returns: True if this is a ZWJ-emoji, False otherwise",
+      "source_code": "    def is_zwj(self) -> bool:\n        \"\"\"\n        Checks if this is a ZWJ-emoji.\n\n        :returns: True if this is a ZWJ-emoji, False otherwise\n        \"\"\"\n\n        return _ZWJ in self.emoji\n"
     },
     {
       "type": "method",
@@ -1010,11 +1481,17 @@
         "self": {
           "default": null,
           "annotation": null,
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         }
       },
       "returns": "typing.Union[ForwardRef('EmojiMatchZWJ'), ForwardRef('EmojiMatch')]",
-      "docstring": "Splits a ZWJ-emoji into its constituents.\n\n:returns: An :class:`EmojiMatchZWJ` containing the \"sub-emoji\" if this is a ZWJ-emoji, otherwise self"
+      "return_description": "An :class:`EmojiMatchZWJ` containing the \"sub-emoji\" if this is a ZWJ-emoji, otherwise self",
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Splits a ZWJ-emoji into its constituents.\n\n:returns: An :class:`EmojiMatchZWJ` containing the \"sub-emoji\" if this is a ZWJ-emoji, otherwise self",
+      "source_code": "    def split(self) -> Union['EmojiMatchZWJ', 'EmojiMatch']:\n        \"\"\"\n        Splits a ZWJ-emoji into its constituents.\n\n        :returns: An :class:`EmojiMatchZWJ` containing the \"sub-emoji\" if this is a ZWJ-emoji, otherwise self\n        \"\"\"\n\n        if self.is_zwj():\n            return EmojiMatchZWJ(self)\n        else:\n            return self\n"
     },
     {
       "type": "method",
@@ -1025,11 +1502,17 @@
         "self": {
           "default": null,
           "annotation": null,
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         }
       },
       "returns": "typing.Dict[str, typing.Any]",
-      "docstring": "Returns a copy of the data from :data:`EMOJI_DATA` for this match\nwith the additional keys ``match_start`` and ``match_end``."
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Returns a copy of the data from :data:`EMOJI_DATA` for this match\nwith the additional keys ``match_start`` and ``match_end``.",
+      "source_code": "    def data_copy(self) -> Dict[str, Any]:\n        \"\"\"\n        Returns a copy of the data from :data:`EMOJI_DATA` for this match\n        with the additional keys ``match_start`` and ``match_end``.\n        \"\"\"\n        if self.data:\n            emj_data = self.data.copy()\n            emj_data['match_start'] = self.start\n            emj_data['match_end'] = self.end\n            return emj_data\n        else:\n            return {'match_start': self.start, 'match_end': self.end}\n"
     },
     {
       "type": "method",
@@ -1040,11 +1523,17 @@
         "self": {
           "default": null,
           "annotation": null,
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         }
       },
       "returns": "<class 'bool'>",
-      "docstring": "Checks if this is a ZWJ-emoji.\n\n:returns: True if this is a ZWJ-emoji, False otherwise"
+      "return_description": "True if this is a ZWJ-emoji, False otherwise",
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Checks if this is a ZWJ-emoji.\n\n:returns: True if this is a ZWJ-emoji, False otherwise",
+      "source_code": "    def is_zwj(self) -> bool:\n        return True\n"
     },
     {
       "type": "method",
@@ -1055,11 +1544,17 @@
         "self": {
           "default": null,
           "annotation": null,
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         }
       },
       "returns": "<class 'str'>",
-      "docstring": "Joins a ZWJ-emoji into a string"
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Joins a ZWJ-emoji into a string",
+      "source_code": "    def join(self) -> str:\n        \"\"\"\n        Joins a ZWJ-emoji into a string\n        \"\"\"\n\n        return _ZWJ.join(e.emoji for e in self.emojis)\n"
     },
     {
       "type": "method",
@@ -1070,11 +1565,17 @@
         "self": {
           "default": null,
           "annotation": null,
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         }
       },
       "returns": "EmojiMatchZWJ",
-      "docstring": "Splits a ZWJ-emoji into its constituents.\n\n:returns: An :class:`EmojiMatchZWJ` containing the \"sub-emoji\" if this is a ZWJ-emoji, otherwise self"
+      "return_description": "An :class:`EmojiMatchZWJ` containing the \"sub-emoji\" if this is a ZWJ-emoji, otherwise self",
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Splits a ZWJ-emoji into its constituents.\n\n:returns: An :class:`EmojiMatchZWJ` containing the \"sub-emoji\" if this is a ZWJ-emoji, otherwise self",
+      "source_code": "    def split(self) -> 'EmojiMatchZWJ':\n        return self\n"
     },
     {
       "type": "method",
@@ -1085,11 +1586,17 @@
         "self": {
           "default": null,
           "annotation": null,
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         }
       },
       "returns": "typing.Dict[str, typing.Any]",
-      "docstring": "Returns a copy of the data from :data:`EMOJI_DATA` for this match\nwith the additional keys ``match_start`` and ``match_end``."
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Returns a copy of the data from :data:`EMOJI_DATA` for this match\nwith the additional keys ``match_start`` and ``match_end``.",
+      "source_code": "    def data_copy(self) -> Dict[str, Any]:\n        \"\"\"\n        Returns a copy of the data from :data:`EMOJI_DATA` for this match\n        with the additional keys ``match_start`` and ``match_end``.\n        \"\"\"\n        if self.data:\n            emj_data = self.data.copy()\n            emj_data['match_start'] = self.start\n            emj_data['match_end'] = self.end\n            return emj_data\n        else:\n            return {'match_start': self.start, 'match_end': self.end}\n"
     },
     {
       "type": "method",
@@ -1100,11 +1607,17 @@
         "self": {
           "default": null,
           "annotation": null,
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         }
       },
       "returns": "<class 'bool'>",
-      "docstring": "Checks if this is a ZWJ-emoji.\n\n:returns: True if this is a ZWJ-emoji, False otherwise"
+      "return_description": "True if this is a ZWJ-emoji, False otherwise",
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Checks if this is a ZWJ-emoji.\n\n:returns: True if this is a ZWJ-emoji, False otherwise",
+      "source_code": "    def is_zwj(self) -> bool:\n        return True\n"
     },
     {
       "type": "method",
@@ -1115,11 +1628,17 @@
         "self": {
           "default": null,
           "annotation": null,
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         }
       },
       "returns": "<class 'str'>",
-      "docstring": "Joins a ZWJ-emoji into a string"
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Joins a ZWJ-emoji into a string",
+      "source_code": "    def join(self) -> str:\n        \"\"\"\n        Joins a ZWJ-emoji into a string\n        \"\"\"\n\n        return _ZWJ.join(e.emoji for e in self.emojis)\n"
     },
     {
       "type": "method",
@@ -1130,11 +1649,17 @@
         "self": {
           "default": null,
           "annotation": null,
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         }
       },
       "returns": "EmojiMatchZWJ",
-      "docstring": "Splits a ZWJ-emoji into its constituents.\n\n:returns: An :class:`EmojiMatchZWJ` containing the \"sub-emoji\" if this is a ZWJ-emoji, otherwise self"
+      "return_description": "An :class:`EmojiMatchZWJ` containing the \"sub-emoji\" if this is a ZWJ-emoji, otherwise self",
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Splits a ZWJ-emoji into its constituents.\n\n:returns: An :class:`EmojiMatchZWJ` containing the \"sub-emoji\" if this is a ZWJ-emoji, otherwise self",
+      "source_code": "    def split(self) -> 'EmojiMatchZWJ':\n        return self\n"
     },
     {
       "type": "method",
@@ -1145,11 +1670,19 @@
         "language": {
           "default": "None",
           "annotation": "typing.Union[typing.List[str], str, NoneType]",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         }
       },
       "returns": null,
-      "docstring": "Load one or multiple languages into memory.\nIf no language is specified, all languages will be loaded.\n\nThis makes language data accessible in the :data:`EMOJI_DATA` dict.\nFor example to access a French emoji name, first load French with\n\n ``emoji.config.load_language('fr')``\n\nand then access it with\n\n ``emoji.EMOJI_DATA['\ud83c\udfc4']['fr']``\n\nAvailable languages are listed in :data:`LANGUAGES`"
+      "return_description": null,
+      "raises": [],
+      "decorators": [
+        "staticmethod"
+      ],
+      "examples": [],
+      "docstring": "Load one or multiple languages into memory.\nIf no language is specified, all languages will be loaded.\n\nThis makes language data accessible in the :data:`EMOJI_DATA` dict.\nFor example to access a French emoji name, first load French with\n\n ``emoji.config.load_language('fr')``\n\nand then access it with\n\n ``emoji.EMOJI_DATA['\ud83c\udfc4']['fr']``\n\nAvailable languages are listed in :data:`LANGUAGES`",
+      "source_code": "    @staticmethod\n    def load_language(language: Union[List[str], str, None] = None):\n        \"\"\"Load one or multiple languages into memory.\n        If no language is specified, all languages will be loaded.\n\n        This makes language data accessible in the :data:`EMOJI_DATA` dict.\n        For example to access a French emoji name, first load French with\n\n         ``emoji.config.load_language('fr')``\n\n        and then access it with\n\n         ``emoji.EMOJI_DATA['\ud83c\udfc4']['fr']``\n\n        Available languages are listed in :data:`LANGUAGES`\"\"\"\n\n        languages = (\n            [language]\n            if isinstance(language, str)\n            else language\n            if language\n            else unicode_codes.LANGUAGES\n        )\n\n        for lang in languages:\n            unicode_codes.load_from_json(lang)\n"
     },
     {
       "type": "method",
@@ -1160,11 +1693,17 @@
         "self": {
           "default": null,
           "annotation": null,
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         }
       },
       "returns": "typing.Dict[str, typing.Any]",
-      "docstring": "Returns a copy of the data from :data:`EMOJI_DATA` for this match\nwith the additional keys ``match_start`` and ``match_end``."
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Returns a copy of the data from :data:`EMOJI_DATA` for this match\nwith the additional keys ``match_start`` and ``match_end``.",
+      "source_code": "    def data_copy(self) -> Dict[str, Any]:\n        \"\"\"\n        Returns a copy of the data from :data:`EMOJI_DATA` for this match\n        with the additional keys ``match_start`` and ``match_end``.\n        \"\"\"\n        if self.data:\n            emj_data = self.data.copy()\n            emj_data['match_start'] = self.start\n            emj_data['match_end'] = self.end\n            return emj_data\n        else:\n            return {'match_start': self.start, 'match_end': self.end}\n"
     },
     {
       "type": "method",
@@ -1175,11 +1714,17 @@
         "self": {
           "default": null,
           "annotation": null,
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         }
       },
       "returns": "<class 'bool'>",
-      "docstring": "Checks if this is a ZWJ-emoji.\n\n:returns: True if this is a ZWJ-emoji, False otherwise"
+      "return_description": "True if this is a ZWJ-emoji, False otherwise",
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Checks if this is a ZWJ-emoji.\n\n:returns: True if this is a ZWJ-emoji, False otherwise",
+      "source_code": "    def is_zwj(self) -> bool:\n        \"\"\"\n        Checks if this is a ZWJ-emoji.\n\n        :returns: True if this is a ZWJ-emoji, False otherwise\n        \"\"\"\n\n        return _ZWJ in self.emoji\n"
     },
     {
       "type": "method",
@@ -1190,11 +1735,17 @@
         "self": {
           "default": null,
           "annotation": null,
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         }
       },
       "returns": "typing.Union[ForwardRef('EmojiMatchZWJ'), ForwardRef('EmojiMatch')]",
-      "docstring": "Splits a ZWJ-emoji into its constituents.\n\n:returns: An :class:`EmojiMatchZWJ` containing the \"sub-emoji\" if this is a ZWJ-emoji, otherwise self"
+      "return_description": "An :class:`EmojiMatchZWJ` containing the \"sub-emoji\" if this is a ZWJ-emoji, otherwise self",
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Splits a ZWJ-emoji into its constituents.\n\n:returns: An :class:`EmojiMatchZWJ` containing the \"sub-emoji\" if this is a ZWJ-emoji, otherwise self",
+      "source_code": "    def split(self) -> Union['EmojiMatchZWJ', 'EmojiMatch']:\n        \"\"\"\n        Splits a ZWJ-emoji into its constituents.\n\n        :returns: An :class:`EmojiMatchZWJ` containing the \"sub-emoji\" if this is a ZWJ-emoji, otherwise self\n        \"\"\"\n\n        if self.is_zwj():\n            return EmojiMatchZWJ(self)\n        else:\n            return self\n"
     },
     {
       "type": "method",
@@ -1205,11 +1756,17 @@
         "self": {
           "default": null,
           "annotation": null,
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         }
       },
       "returns": "typing.Dict[str, typing.Any]",
-      "docstring": "Returns a copy of the data from :data:`EMOJI_DATA` for this match\nwith the additional keys ``match_start`` and ``match_end``."
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Returns a copy of the data from :data:`EMOJI_DATA` for this match\nwith the additional keys ``match_start`` and ``match_end``.",
+      "source_code": "    def data_copy(self) -> Dict[str, Any]:\n        \"\"\"\n        Returns a copy of the data from :data:`EMOJI_DATA` for this match\n        with the additional keys ``match_start`` and ``match_end``.\n        \"\"\"\n        if self.data:\n            emj_data = self.data.copy()\n            emj_data['match_start'] = self.start\n            emj_data['match_end'] = self.end\n            return emj_data\n        else:\n            return {'match_start': self.start, 'match_end': self.end}\n"
     },
     {
       "type": "method",
@@ -1220,11 +1777,17 @@
         "self": {
           "default": null,
           "annotation": null,
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         }
       },
       "returns": "<class 'bool'>",
-      "docstring": "Checks if this is a ZWJ-emoji.\n\n:returns: True if this is a ZWJ-emoji, False otherwise"
+      "return_description": "True if this is a ZWJ-emoji, False otherwise",
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Checks if this is a ZWJ-emoji.\n\n:returns: True if this is a ZWJ-emoji, False otherwise",
+      "source_code": "    def is_zwj(self) -> bool:\n        return True\n"
     },
     {
       "type": "method",
@@ -1235,11 +1798,17 @@
         "self": {
           "default": null,
           "annotation": null,
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         }
       },
       "returns": "<class 'str'>",
-      "docstring": "Joins a ZWJ-emoji into a string"
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Joins a ZWJ-emoji into a string",
+      "source_code": "    def join(self) -> str:\n        \"\"\"\n        Joins a ZWJ-emoji into a string\n        \"\"\"\n\n        return _ZWJ.join(e.emoji for e in self.emojis)\n"
     },
     {
       "type": "method",
@@ -1250,11 +1819,17 @@
         "self": {
           "default": null,
           "annotation": null,
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         }
       },
       "returns": "EmojiMatchZWJ",
-      "docstring": "Splits a ZWJ-emoji into its constituents.\n\n:returns: An :class:`EmojiMatchZWJ` containing the \"sub-emoji\" if this is a ZWJ-emoji, otherwise self"
+      "return_description": "An :class:`EmojiMatchZWJ` containing the \"sub-emoji\" if this is a ZWJ-emoji, otherwise self",
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Splits a ZWJ-emoji into its constituents.\n\n:returns: An :class:`EmojiMatchZWJ` containing the \"sub-emoji\" if this is a ZWJ-emoji, otherwise self",
+      "source_code": "    def split(self) -> 'EmojiMatchZWJ':\n        return self\n"
     },
     {
       "type": "method",
@@ -1265,11 +1840,17 @@
         "self": {
           "default": null,
           "annotation": null,
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         }
       },
       "returns": "typing.Dict[str, typing.Any]",
-      "docstring": "Returns a copy of the data from :data:`EMOJI_DATA` for this match\nwith the additional keys ``match_start`` and ``match_end``."
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Returns a copy of the data from :data:`EMOJI_DATA` for this match\nwith the additional keys ``match_start`` and ``match_end``.",
+      "source_code": "    def data_copy(self) -> Dict[str, Any]:\n        \"\"\"\n        Returns a copy of the data from :data:`EMOJI_DATA` for this match\n        with the additional keys ``match_start`` and ``match_end``.\n        \"\"\"\n        if self.data:\n            emj_data = self.data.copy()\n            emj_data['match_start'] = self.start\n            emj_data['match_end'] = self.end\n            return emj_data\n        else:\n            return {'match_start': self.start, 'match_end': self.end}\n"
     },
     {
       "type": "method",
@@ -1280,11 +1861,17 @@
         "self": {
           "default": null,
           "annotation": null,
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         }
       },
       "returns": "<class 'bool'>",
-      "docstring": "Checks if this is a ZWJ-emoji.\n\n:returns: True if this is a ZWJ-emoji, False otherwise"
+      "return_description": "True if this is a ZWJ-emoji, False otherwise",
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Checks if this is a ZWJ-emoji.\n\n:returns: True if this is a ZWJ-emoji, False otherwise",
+      "source_code": "    def is_zwj(self) -> bool:\n        return True\n"
     },
     {
       "type": "method",
@@ -1295,11 +1882,17 @@
         "self": {
           "default": null,
           "annotation": null,
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         }
       },
       "returns": "<class 'str'>",
-      "docstring": "Joins a ZWJ-emoji into a string"
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Joins a ZWJ-emoji into a string",
+      "source_code": "    def join(self) -> str:\n        \"\"\"\n        Joins a ZWJ-emoji into a string\n        \"\"\"\n\n        return _ZWJ.join(e.emoji for e in self.emojis)\n"
     },
     {
       "type": "method",
@@ -1310,11 +1903,17 @@
         "self": {
           "default": null,
           "annotation": null,
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         }
       },
       "returns": "EmojiMatchZWJ",
-      "docstring": "Splits a ZWJ-emoji into its constituents.\n\n:returns: An :class:`EmojiMatchZWJ` containing the \"sub-emoji\" if this is a ZWJ-emoji, otherwise self"
+      "return_description": "An :class:`EmojiMatchZWJ` containing the \"sub-emoji\" if this is a ZWJ-emoji, otherwise self",
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Splits a ZWJ-emoji into its constituents.\n\n:returns: An :class:`EmojiMatchZWJ` containing the \"sub-emoji\" if this is a ZWJ-emoji, otherwise self",
+      "source_code": "    def split(self) -> 'EmojiMatchZWJ':\n        return self\n"
     },
     {
       "type": "method",
@@ -1325,11 +1924,19 @@
         "self": {
           "default": null,
           "annotation": null,
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         }
       },
       "returns": "None",
-      "docstring": ""
+      "return_description": null,
+      "raises": [],
+      "decorators": [
+        "abstractmethod"
+      ],
+      "examples": [],
+      "docstring": "",
+      "source_code": "    @abstractmethod\n    def close(self) -> None:\n        pass\n"
     },
     {
       "type": "method",
@@ -1340,11 +1947,19 @@
         "self": {
           "default": null,
           "annotation": null,
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         }
       },
       "returns": "<class 'int'>",
-      "docstring": ""
+      "return_description": null,
+      "raises": [],
+      "decorators": [
+        "abstractmethod"
+      ],
+      "examples": [],
+      "docstring": "",
+      "source_code": "    @abstractmethod\n    def fileno(self) -> int:\n        pass\n"
     },
     {
       "type": "method",
@@ -1355,11 +1970,19 @@
         "self": {
           "default": null,
           "annotation": null,
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         }
       },
       "returns": "None",
-      "docstring": ""
+      "return_description": null,
+      "raises": [],
+      "decorators": [
+        "abstractmethod"
+      ],
+      "examples": [],
+      "docstring": "",
+      "source_code": "    @abstractmethod\n    def flush(self) -> None:\n        pass\n"
     },
     {
       "type": "method",
@@ -1370,11 +1993,19 @@
         "self": {
           "default": null,
           "annotation": null,
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         }
       },
       "returns": "<class 'bool'>",
-      "docstring": ""
+      "return_description": null,
+      "raises": [],
+      "decorators": [
+        "abstractmethod"
+      ],
+      "examples": [],
+      "docstring": "",
+      "source_code": "    @abstractmethod\n    def isatty(self) -> bool:\n        pass\n"
     },
     {
       "type": "method",
@@ -1385,16 +2016,25 @@
         "self": {
           "default": null,
           "annotation": null,
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         },
         "n": {
           "default": "-1",
           "annotation": "<class 'int'>",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         }
       },
       "returns": "~AnyStr",
-      "docstring": ""
+      "return_description": null,
+      "raises": [],
+      "decorators": [
+        "abstractmethod"
+      ],
+      "examples": [],
+      "docstring": "",
+      "source_code": "    @abstractmethod\n    def read(self, n: int = -1) -> AnyStr:\n        pass\n"
     },
     {
       "type": "method",
@@ -1405,11 +2045,19 @@
         "self": {
           "default": null,
           "annotation": null,
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         }
       },
       "returns": "<class 'bool'>",
-      "docstring": ""
+      "return_description": null,
+      "raises": [],
+      "decorators": [
+        "abstractmethod"
+      ],
+      "examples": [],
+      "docstring": "",
+      "source_code": "    @abstractmethod\n    def readable(self) -> bool:\n        pass\n"
     },
     {
       "type": "method",
@@ -1420,16 +2068,25 @@
         "self": {
           "default": null,
           "annotation": null,
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         },
         "limit": {
           "default": "-1",
           "annotation": "<class 'int'>",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         }
       },
       "returns": "~AnyStr",
-      "docstring": ""
+      "return_description": null,
+      "raises": [],
+      "decorators": [
+        "abstractmethod"
+      ],
+      "examples": [],
+      "docstring": "",
+      "source_code": "    @abstractmethod\n    def readline(self, limit: int = -1) -> AnyStr:\n        pass\n"
     },
     {
       "type": "method",
@@ -1440,16 +2097,25 @@
         "self": {
           "default": null,
           "annotation": null,
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         },
         "hint": {
           "default": "-1",
           "annotation": "<class 'int'>",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         }
       },
       "returns": "typing.List[~AnyStr]",
-      "docstring": ""
+      "return_description": null,
+      "raises": [],
+      "decorators": [
+        "abstractmethod"
+      ],
+      "examples": [],
+      "docstring": "",
+      "source_code": "    @abstractmethod\n    def readlines(self, hint: int = -1) -> List[AnyStr]:\n        pass\n"
     },
     {
       "type": "method",
@@ -1460,21 +2126,31 @@
         "self": {
           "default": null,
           "annotation": null,
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         },
         "offset": {
           "default": null,
           "annotation": "<class 'int'>",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         },
         "whence": {
           "default": "0",
           "annotation": "<class 'int'>",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         }
       },
       "returns": "<class 'int'>",
-      "docstring": ""
+      "return_description": null,
+      "raises": [],
+      "decorators": [
+        "abstractmethod"
+      ],
+      "examples": [],
+      "docstring": "",
+      "source_code": "    @abstractmethod\n    def seek(self, offset: int, whence: int = 0) -> int:\n        pass\n"
     },
     {
       "type": "method",
@@ -1485,11 +2161,19 @@
         "self": {
           "default": null,
           "annotation": null,
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         }
       },
       "returns": "<class 'bool'>",
-      "docstring": ""
+      "return_description": null,
+      "raises": [],
+      "decorators": [
+        "abstractmethod"
+      ],
+      "examples": [],
+      "docstring": "",
+      "source_code": "    @abstractmethod\n    def seekable(self) -> bool:\n        pass\n"
     },
     {
       "type": "method",
@@ -1500,11 +2184,19 @@
         "self": {
           "default": null,
           "annotation": null,
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         }
       },
       "returns": "<class 'int'>",
-      "docstring": ""
+      "return_description": null,
+      "raises": [],
+      "decorators": [
+        "abstractmethod"
+      ],
+      "examples": [],
+      "docstring": "",
+      "source_code": "    @abstractmethod\n    def tell(self) -> int:\n        pass\n"
     },
     {
       "type": "method",
@@ -1515,16 +2207,25 @@
         "self": {
           "default": null,
           "annotation": null,
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         },
         "size": {
           "default": "None",
           "annotation": "<class 'int'>",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         }
       },
       "returns": "<class 'int'>",
-      "docstring": ""
+      "return_description": null,
+      "raises": [],
+      "decorators": [
+        "abstractmethod"
+      ],
+      "examples": [],
+      "docstring": "",
+      "source_code": "    @abstractmethod\n    def truncate(self, size: int = None) -> int:\n        pass\n"
     },
     {
       "type": "method",
@@ -1535,11 +2236,19 @@
         "self": {
           "default": null,
           "annotation": null,
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         }
       },
       "returns": "<class 'bool'>",
-      "docstring": ""
+      "return_description": null,
+      "raises": [],
+      "decorators": [
+        "abstractmethod"
+      ],
+      "examples": [],
+      "docstring": "",
+      "source_code": "    @abstractmethod\n    def writable(self) -> bool:\n        pass\n"
     },
     {
       "type": "method",
@@ -1550,16 +2259,25 @@
         "self": {
           "default": null,
           "annotation": null,
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         },
         "s": {
           "default": null,
           "annotation": "typing.Union[bytes, bytearray]",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         }
       },
       "returns": "<class 'int'>",
-      "docstring": ""
+      "return_description": null,
+      "raises": [],
+      "decorators": [
+        "abstractmethod"
+      ],
+      "examples": [],
+      "docstring": "",
+      "source_code": "    @abstractmethod\n    def write(self, s: Union[bytes, bytearray]) -> int:\n        pass\n"
     },
     {
       "type": "method",
@@ -1570,16 +2288,25 @@
         "self": {
           "default": null,
           "annotation": null,
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         },
         "lines": {
           "default": null,
           "annotation": "typing.List[~AnyStr]",
-          "kind": "POSITIONAL_OR_KEYWORD"
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
         }
       },
       "returns": "None",
-      "docstring": ""
+      "return_description": null,
+      "raises": [],
+      "decorators": [
+        "abstractmethod"
+      ],
+      "examples": [],
+      "docstring": "",
+      "source_code": "    @abstractmethod\n    def writelines(self, lines: List[AnyStr]) -> None:\n        pass\n"
     }
   ]
 }
