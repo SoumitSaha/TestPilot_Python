@@ -11,6 +11,7 @@ __pycache__/
 # ignoring big directories
 doc_text/
 documentations/
+prompts/
 
 *.zip
 .idea/inspectionProfiles/profiles_settings.xml
