@@ -10,7 +10,7 @@ __pycache__/
 
 # ignoring big directories
 doc_text/
-documentations/
+#documentations/
 prompts/
 
 *.zip
@@ -19,3 +19,4 @@ prompts/
 .idea/modules.xml
 .idea/TestPilot_Python.iml
 .idea/vcs.xml
+documentations/help_Faker.json
