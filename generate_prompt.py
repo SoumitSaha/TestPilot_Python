@@ -1,92 +1,60 @@
 import json
 import os
 from typing import Dict, List, Optional
-import tiktoken
-
-MAX_TOKENS = 6000  # Aim to stay under this for GPT-4 (safe buffer from 8K)
-
-def estimate_tokens(text: str, model: str = "gpt-4") -> int:
-    encoding = tiktoken.encoding_for_model(model)
-    return len(encoding.encode(text))
 
 def clean_docstring(docstring: str) -> str:
+    """
+    Cleans the docstring by removing excessive newlines and trimming unnecessary spaces.
+    """
     if not docstring:
         return ""
-    return "\n".join(line.strip() for line in docstring.strip().splitlines())
+    # Avoid redundant triple backticks within docstrings
+    docstring = docstring.replace("```", "INLINE_BACKTICK")
+    return "\n".join(line.strip() for line in docstring.strip().splitlines()).replace("INLINE_BACKTICK", "```")
 
-def build_prompt(item: Dict, include_doc=True, include_examples=True, include_source=True) -> str:
+def clean_source_code(source_code: str) -> str:
     """
-    Builds a smart prompt that includes as much information as possible within GPT token limits.
+    Cleans the source code by removing excessive spaces and avoiding redundant backticks.
     """
-    type_ = item.get("type", "function")
+    if not source_code:
+        return ""
+    return source_code.replace("```", "INLINE_BACKTICK").strip().replace("INLINE_BACKTICK", "```")
+
+def build_prompt(item: Dict, no_of_tests: int) -> str:
+    """
+    Builds a prompt following the specified format with placeholders replaced by metadata.
+    """
     qualified_name = item.get("qualified_name", "unknown")
-    signature = item.get("signature", "")
-    docstring = clean_docstring(item.get("docstring", ""))
-    examples = item.get("examples", [])
-    source_code = item.get("source_code", "").strip()
+    module_name = item.get("module", "unknown")
+    func_sig = item.get("signature", "")
 
-    base_prompt = (
-        "You are a skilled Python developer. You specialize in writing high-quality unit tests "
-        "for open-source Python libraries using `pytest`.\n\n"
-        "I will provide you with metadata about a public API. Your task is to generate a **unit test** using `pytest` that:\n"
-        "- Uses realistic and meaningful inputs,\n"
-        "- Verifies expected behavior through assertions,\n"
-        "- Handles edge cases if possible,\n"
-        "- Is self-contained and can be executed without modification.\n\n"
+    # Format the qualified name to replace '.' with '_'
+    formatted_qualified_name = qualified_name.replace(".", "_") # Example: "emoji.config" -> "emoji_config"
+
+    # Format prompt with placeholders
+    prompt = (
+        f"You need to write {no_of_tests} unit tests of {qualified_name} of pypi module {module_name}.\n"
+        f"The method signature: \n{func_sig}\n\n"
+        "Maintain the following format:\n\n"
+        f"import {module_name}\n"
+        "import unittest\n\n"
+        f"class Test{module_name}Module(unittest.TestCase):\n"
     )
 
-    metadata_sections = []
+    # Generate tests
+    for i in range(no_of_tests):
+        prompt += f"    def test_{formatted_qualified_name}_{i}(self):\n"
+        prompt += f"        # Write code to test the {qualified_name} method\n"
+        prompt += f"        pass\n\n"
 
-    metadata_sections.append(f"### API Type:\n{type_}\n\n")
-    metadata_sections.append(f"### Qualified Name:\n{qualified_name}\n\n")
-    metadata_sections.append(f"### Signature:\n{signature}\n\n")
+    prompt += "\nif __name__ == '__main__':\n"
+    prompt += "    unittest.main()\n\n"
+    prompt += "Print only the Python code and end with the comment ""End of Code."" "
+    prompt += "Do not print anything except the Python code and Strictly follow the mentioned format."
 
-    if include_doc and docstring:
-        metadata_sections.append(f"### Docstring:\n\"\"\"\n{docstring}\n\"\"\"\n\n")
+    return prompt
 
-    if include_examples and examples:
-        limited_examples = examples[:3]
-        example_str = "\n".join(limited_examples)
-        metadata_sections.append(f"### Example Usage:\n{example_str}\n\n")
-
-    if include_source and source_code:
-        metadata_sections.append(f"### Source Code:\n```python\n{source_code}\n```\n")
-
-    closing = "\nNow write a complete unit test using pytest:\n```python\n"
-
-    full_prompt = base_prompt + "".join(metadata_sections) + closing
-
-    # Estimate token count and trim if needed
-    tokens = estimate_tokens(full_prompt)
-
-    if tokens > MAX_TOKENS:
-        print(f"⚠️ Trimming prompt for {qualified_name} (initial tokens: {tokens})")
-
-        # Trim examples
-        metadata_sections = [s for s in metadata_sections if not s.startswith("### Example Usage")]
-        tokens = estimate_tokens(base_prompt + "".join(metadata_sections) + closing)
-
-        # Truncate docstring to first 20 lines
-        if tokens > MAX_TOKENS and include_doc and docstring:
-            doc_lines = docstring.splitlines()
-            truncated = "\n".join(doc_lines[:20]) + "\n... (truncated)"
-            metadata_sections = [
-                s if not s.startswith("### Docstring") else f"### Docstring:\n\"\"\"\n{truncated}\n\"\"\"\n\n"
-                for s in metadata_sections
-            ]
-            tokens = estimate_tokens(base_prompt + "".join(metadata_sections) + closing)
-
-        # Remove source code if still too long
-        if tokens > MAX_TOKENS and include_source and source_code:
-            metadata_sections = [s for s in metadata_sections if not s.startswith("### Source Code")]
-            metadata_sections.append(
-                "# Note: Source code omitted due to size. Use docstring and signature for test.\n\n"
-            )
-
-    return base_prompt + "".join(metadata_sections) + closing
-
-
-def generate_prompts_from_json(json_path: str, out_dir: Optional[str] = None) -> List[str]:
+def generate_prompts_from_json(json_path: str, no_of_tests: int, out_dir: Optional[str] = None) -> List[str]:
     """
     Reads API metadata from a JSON file and generates prompts.
     """
@@ -96,7 +64,7 @@ def generate_prompts_from_json(json_path: str, out_dir: Optional[str] = None) ->
     prompts = []
     for package_name, items in metadata.items():
         for item in items:
-            prompt = build_prompt(item)
+            prompt = build_prompt(item, no_of_tests)
             prompts.append(prompt)
 
             if out_dir:
@@ -107,13 +75,16 @@ def generate_prompts_from_json(json_path: str, out_dir: Optional[str] = None) ->
 
     return prompts
 
+
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(description="Generate LLM prompts from API metadata JSON.")
     parser.add_argument("--json", required=True, help="Path to JSON file with API metadata.")
     parser.add_argument("--out", help="Optional: Output directory to save prompt text files.")
+    parser.add_argument("--no_of_tests", type=int, required=True, help="Number of unit tests to generate.")
     args = parser.parse_args()
 
-    generate_prompts_from_json(args.json, args.out)
+    generate_prompts_from_json(args.json, args.no_of_tests, args.out)
 
-#How to run: generate_prompt.py --json documentations/help_emoji.json --out prompts/
+# How to run:
+# python generate_prompt.py --json documentations/help_emoji.json --out prompts/ --no_of_tests 5

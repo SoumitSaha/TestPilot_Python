@@ -2,7 +2,7 @@ from generate_prompt import generate_prompts_from_json
 
 json_path = "documentations/help_emoji.json"
 
-prompts = generate_prompts_from_json(json_path)
+prompts = generate_prompts_from_json(json_path, 5)
 
 print(prompts[0])
 
