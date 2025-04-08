@@ -1,0 +1,129 @@
+Base_Prompt:
+
+You need to write __NO_OF_TESTS__ unit tests of __QUALIFIED_NAME__ of pypi module __MODULE_NAME__.
+The method signature: 
+__FUNC_SIG__
+
+Maintain the following format:
+
+import __MODULE_NAME__
+import unittest
+
+class Test__MODULE_NAME__Module(unittest.TestCase):
+    def test_0(self):
+        # Write code to test the __QUALIFIED_NAME__ method
+        pass
+
+    def test_1(self):
+        # Write code to test the __QUALIFIED_NAME__ method
+        pass
+
+    # Continue up to __NO_OF_TESTS__ test cases
+
+if __name__ == '__main__':
+    unittest.main()
+
+Print only the Python code and end with the comment "End of Code". Do not print anything except the Python code and Strictly follow the mentioned format.
+
+
+
+Prompt_with_func_body:
+
+You need to write __NO_OF_TESTS__ unit tests of __QUALIFIED_NAME__ of pypi module __MODULE_NAME__.
+The method signature: 
+__FUNC_SIG__
+The method body:
+__FUNC_BODY__
+
+Maintain the following format:
+
+import __MODULE_NAME__
+import unittest
+
+class Test__MODULE_NAME__Module(unittest.TestCase):
+    def test_0(self):
+        # Write code to test the __QUALIFIED_NAME__ method
+        pass
+
+    def test_1(self):
+        # Write code to test the __QUALIFIED_NAME__ method
+        pass
+
+    # Continue up to __NO_OF_TESTS__ test cases
+
+if __name__ == '__main__':
+    unittest.main()
+
+Print only the Python code and end with the comment "End of Code". Do not print anything except the Python code and Strictly follow the mentioned format.
+
+
+Prompt_with_func_example:
+
+You need to write __NO_OF_TESTS__ unit tests of __QUALIFIED_NAME__ of pypi module __MODULE_NAME__.
+The method signature: 
+__FUNC_SIG__
+Sample Usage of the method:
+__FUNC_EXAMPLE__
+
+Maintain the following format:
+
+import __MODULE_NAME__
+import unittest
+
+class Test__MODULE_NAME__Module(unittest.TestCase):
+    def test_0(self):
+        # Write code to test the __QUALIFIED_NAME__ method
+        pass
+
+    def test_1(self):
+        # Write code to test the __QUALIFIED_NAME__ method
+        pass
+
+    # Continue up to __NO_OF_TESTS__ test cases
+
+if __name__ == '__main__':
+    unittest.main()
+
+Print only the Python code and end with the comment "End of Code". Do not print anything except the Python code and Strictly follow the mentioned format.
+
+
+Prompt_with_func_docstring:
+
+You need to write __NO_OF_TESTS__ unit tests of __QUALIFIED_NAME__ of pypi module __MODULE_NAME__.
+The method signature: 
+__FUNC_SIG__
+The method docstring:
+__FUNC_DOCSTRING__
+
+Maintain the following format:
+
+import __MODULE_NAME__
+import unittest
+
+class Test__MODULE_NAME__Module(unittest.TestCase):
+    def test_0(self):
+        # Write code to test the __QUALIFIED_NAME__ method
+        pass
+
+    def test_1(self):
+        # Write code to test the __QUALIFIED_NAME__ method
+        pass
+
+    # Continue up to __NO_OF_TESTS__ test cases
+
+if __name__ == '__main__':
+    unittest.main()
+
+Print only the Python code and end with the comment "End of Code". Do not print anything except the Python code and Strictly follow the mentioned format.
+
+
+
+Refined_Prompt:
+
+__TEST_CODE__
+
+When we run the code following error occurs:
+__TEST_ERROR__
+
+Fix the error.
+Print only the Python code and end with the comment "End of Code". Do not print anything except the Python code and Strictly follow the mentioned format.

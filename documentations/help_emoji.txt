@@ -1,0 +1,529 @@
+
+emoji.analyze(string: str, non_emoji: bool = False, join_emoji: bool = True) -> Iterator[emoji.tokenizer.Token]
+-------
+
+Find unicode emoji in a string. Yield each emoji as a named tuple
+:class:`Token` ``(chars, EmojiMatch)`` or :class:`Token` ``(chars, EmojiMatchZWJNonRGI)``.
+If ``non_emoji`` is True, also yield all other characters as
+:class:`Token` ``(char, char)`` .
+
+:param string: String to analyze
+:param non_emoji: If True also yield all non-emoji characters as Token(char, char)
+:param join_emoji: If True, multiple EmojiMatch are merged into a single
+    EmojiMatchZWJNonRGI if they are separated only by a ZWJ.
+
+
+emoji.demojize(string: str, delimiters: Tuple[str, str] = (':', ':'), language: str = 'en', version: Optional[float] = None, handle_version: Union[str, Callable[[str, Dict[str, str]], str], NoneType] = None) -> str
+--------
+
+Replace Unicode emoji in a string with emoji shortcodes. Useful for storage.
+    >>> import emoji
+    >>> print(emoji.emojize("Python is fun :thumbs_up:"))
+    Python is fun 👍
+    >>> print(emoji.demojize("Python is fun 👍"))
+    Python is fun :thumbs_up:
+    >>> print(emoji.demojize("icode is tricky 😯", delimiters=("__", "__")))
+    Unicode is tricky __hushed_face__
+
+:param string: String contains Unicode characters. MUST BE UNICODE.
+:param delimiters: (optional) User delimiters other than ``_DEFAULT_DELIMITER``
+:param language: Choose language of emoji name: language code 'es', 'de', etc. or 'alias'
+    to use English aliases
+:param version: (optional) Max version. If set to an Emoji Version,
+    all emoji above this version will be removed.
+:param handle_version: (optional) Replace the emoji above ``version``
+    instead of removing it. handle_version can be either a string or a
+    callable ``handle_version(emj: str, data: dict) -> str``; If it is
+    a callable, it's passed the Unicode emoji and the data dict from
+    :data:`EMOJI_DATA` and must return a replacement string  to be used.
+    The passed data is in the form of::
+
+        handle_version('\U0001F6EB', {
+            'en' : ':airplane_departure:',
+            'status' : fully_qualified,
+            'E' : 1,
+            'alias' : [':flight_departure:'],
+            'de': ':abflug:',
+            'es': ':avión_despegando:',
+            ...
+        })
+
+
+emoji.distinct_emoji_list(string: str) -> List[str]
+-------------------
+
+Returns distinct list of emojis from the string.
+
+
+emoji.emoji_count(string: str, unique: bool = False) -> int
+-----------
+
+Returns the count of emojis in a string.
+
+:param unique: (optional) True if count only unique emojis
+
+
+emoji.emoji_list(string: str) -> List[emoji.core._EmojiListReturn]
+----------
+
+Returns the location and emoji in list of dict format.
+    >>> emoji.emoji_list("Hi, I am fine. 😁")
+    [{'match_start': 15, 'match_end': 16, 'emoji': '😁'}]
+
+
+emoji.emojize(string: str, delimiters: Tuple[str, str] = (':', ':'), variant: Optional[Literal['text_type', 'emoji_type']] = None, language: str = 'en', version: Optional[float] = None, handle_version: Union[str, Callable[[str, Dict[str, str]], str], NoneType] = None) -> str
+-------
+
+Replace emoji names in a string with Unicode codes.
+    >>> import emoji
+    >>> print(emoji.emojize("Python is fun :thumbsup:", language='alias'))
+    Python is fun 👍
+    >>> print(emoji.emojize("Python is fun :thumbs_up:"))
+    Python is fun 👍
+    >>> print(emoji.emojize("Python is fun {thumbs_up}", delimiters = ("{", "}")))
+    Python is fun 👍
+    >>> print(emoji.emojize("Python is fun :red_heart:", variant="text_type"))
+    Python is fun ❤
+    >>> print(emoji.emojize("Python is fun :red_heart:", variant="emoji_type"))
+    Python is fun ❤️ # red heart, not black heart
+
+:param string: String contains emoji names.
+:param delimiters: (optional) Use delimiters other than _DEFAULT_DELIMITER. Each delimiter
+    should contain at least one character that is not part of a-zA-Z0-9 and ``_-&.()!?#*+,``.
+    See ``emoji.core._EMOJI_NAME_PATTERN`` for the regular expression of unsafe characters.
+:param variant: (optional) Choose variation selector between "base"(None), VS-15 ("text_type") and VS-16 ("emoji_type")
+:param language: Choose language of emoji name: language code 'es', 'de', etc. or 'alias'
+    to use English aliases
+:param version: (optional) Max version. If set to an Emoji Version,
+    all emoji above this version will be ignored.
+:param handle_version: (optional) Replace the emoji above ``version``
+    instead of ignoring it. handle_version can be either a string or a
+    callable; If it is a callable, it's passed the Unicode emoji and the
+    data dict from :data:`EMOJI_DATA` and must return a replacement string
+    to be used::
+
+        handle_version('\U0001F6EB', {
+            'en' : ':airplane_departure:',
+            'status' : fully_qualified,
+            'E' : 1,
+            'alias' : [':flight_departure:'],
+            'de': ':abflug:',
+            'es': ':avión_despegando:',
+            ...
+        })
+
+:raises ValueError: if ``variant`` is neither None, 'text_type' or 'emoji_type'
+
+
+emoji.is_emoji(string: str) -> bool
+--------
+
+Returns True if the string is a single emoji, and it is "recommended for
+general interchange" by Unicode.org.
+
+
+emoji.load_from_json(key: str)
+--------------
+
+Load values from the file 'emoji_{key}.json' into EMOJI_DATA
+
+
+emoji.purely_emoji(string: str) -> bool
+------------
+
+Returns True if the string contains only emojis.
+This might not imply that `is_emoji` for all the characters, for example,
+if the string contains variation selectors.
+
+
+emoji.replace_emoji(string: str, replace: Union[str, Callable[[str, Dict[str, str]], str]] = '', version: float = -1) -> str
+-------------
+
+Replace Unicode emoji in a customizable string.
+
+:param string: String contains Unicode characters. MUST BE UNICODE.
+:param replace: (optional) replace can be either a string or a callable;
+    If it is a callable, it's passed the Unicode emoji and the data dict from
+    :data:`EMOJI_DATA` and must return a replacement string to be used.
+    replace(str, dict) -> str
+:param version: (optional) Max version. If set to an Emoji Version,
+    only emoji above this version will be replaced.
+
+
+emoji.version(string: str) -> float
+-------
+
+Returns the Emoji Version of the emoji.
+
+See https://www.unicode.org/reports/tr51/#Versioning for more information.
+    >>> emoji.version("😁")
+    0.6
+    >>> emoji.version(":butterfly:")
+    3
+
+:param string: An emoji or a text containing an emoji
+:raises ValueError: if ``string`` does not contain an emoji
+
+
+emoji.core.TypedDict(typename, fields=None, /, *, total=True, **kwargs)
+---------
+
+A simple typed namespace. At runtime it is equivalent to a plain dict.
+
+TypedDict creates a dictionary type that expects all of its
+instances to have a certain set of keys, where each key is
+associated with a value of a consistent type. This expectation
+is not checked at runtime but is only enforced by type checkers.
+Usage::
+
+    class Point2D(TypedDict):
+        x: int
+        y: int
+        label: str
+
+    a: Point2D = {'x': 1, 'y': 2, 'label': 'good'}  # OK
+    b: Point2D = {'z': 3, 'label': 'bad'}           # Fails type check
+
+    assert Point2D(x=1, y=2, label='first') == dict(x=1, y=2, label='first')
+
+The type info can be accessed via the Point2D.__annotations__ dict, and
+the Point2D.__required_keys__ and Point2D.__optional_keys__ frozensets.
+TypedDict supports two additional equivalent forms::
+
+    Point2D = TypedDict('Point2D', x=int, y=int, label=str)
+    Point2D = TypedDict('Point2D', {'x': int, 'y': int, 'label': str})
+
+By default, all keys must be present in a TypedDict. It is possible
+to override this by specifying totality.
+Usage::
+
+    class point2D(TypedDict, total=False):
+        x: int
+        y: int
+
+This means that a point2D TypedDict can have any of the keys omitted.A type
+checker is only expected to support a literal False or True as the value of
+the total argument. True is the default, and makes all items defined in the
+class body be required.
+
+The class syntax is only supported in Python 3.6+, while two other
+syntax forms work for Python 2.7 and 3.2+
+
+
+emoji.core.analyze(string: str, non_emoji: bool = False, join_emoji: bool = True) -> Iterator[emoji.tokenizer.Token]
+-------
+
+Find unicode emoji in a string. Yield each emoji as a named tuple
+:class:`Token` ``(chars, EmojiMatch)`` or :class:`Token` ``(chars, EmojiMatchZWJNonRGI)``.
+If ``non_emoji`` is True, also yield all other characters as
+:class:`Token` ``(char, char)`` .
+
+:param string: String to analyze
+:param non_emoji: If True also yield all non-emoji characters as Token(char, char)
+:param join_emoji: If True, multiple EmojiMatch are merged into a single
+    EmojiMatchZWJNonRGI if they are separated only by a ZWJ.
+
+
+emoji.core.demojize(string: str, delimiters: Tuple[str, str] = (':', ':'), language: str = 'en', version: Optional[float] = None, handle_version: Union[str, Callable[[str, Dict[str, str]], str], NoneType] = None) -> str
+--------
+
+Replace Unicode emoji in a string with emoji shortcodes. Useful for storage.
+    >>> import emoji
+    >>> print(emoji.emojize("Python is fun :thumbs_up:"))
+    Python is fun 👍
+    >>> print(emoji.demojize("Python is fun 👍"))
+    Python is fun :thumbs_up:
+    >>> print(emoji.demojize("icode is tricky 😯", delimiters=("__", "__")))
+    Unicode is tricky __hushed_face__
+
+:param string: String contains Unicode characters. MUST BE UNICODE.
+:param delimiters: (optional) User delimiters other than ``_DEFAULT_DELIMITER``
+:param language: Choose language of emoji name: language code 'es', 'de', etc. or 'alias'
+    to use English aliases
+:param version: (optional) Max version. If set to an Emoji Version,
+    all emoji above this version will be removed.
+:param handle_version: (optional) Replace the emoji above ``version``
+    instead of removing it. handle_version can be either a string or a
+    callable ``handle_version(emj: str, data: dict) -> str``; If it is
+    a callable, it's passed the Unicode emoji and the data dict from
+    :data:`EMOJI_DATA` and must return a replacement string  to be used.
+    The passed data is in the form of::
+
+        handle_version('\U0001F6EB', {
+            'en' : ':airplane_departure:',
+            'status' : fully_qualified,
+            'E' : 1,
+            'alias' : [':flight_departure:'],
+            'de': ':abflug:',
+            'es': ':avión_despegando:',
+            ...
+        })
+
+
+emoji.core.distinct_emoji_list(string: str) -> List[str]
+-------------------
+
+Returns distinct list of emojis from the string.
+
+
+emoji.core.emoji_count(string: str, unique: bool = False) -> int
+-----------
+
+Returns the count of emojis in a string.
+
+:param unique: (optional) True if count only unique emojis
+
+
+emoji.core.emoji_list(string: str) -> List[emoji.core._EmojiListReturn]
+----------
+
+Returns the location and emoji in list of dict format.
+    >>> emoji.emoji_list("Hi, I am fine. 😁")
+    [{'match_start': 15, 'match_end': 16, 'emoji': '😁'}]
+
+
+emoji.core.emojize(string: str, delimiters: Tuple[str, str] = (':', ':'), variant: Optional[Literal['text_type', 'emoji_type']] = None, language: str = 'en', version: Optional[float] = None, handle_version: Union[str, Callable[[str, Dict[str, str]], str], NoneType] = None) -> str
+-------
+
+Replace emoji names in a string with Unicode codes.
+    >>> import emoji
+    >>> print(emoji.emojize("Python is fun :thumbsup:", language='alias'))
+    Python is fun 👍
+    >>> print(emoji.emojize("Python is fun :thumbs_up:"))
+    Python is fun 👍
+    >>> print(emoji.emojize("Python is fun {thumbs_up}", delimiters = ("{", "}")))
+    Python is fun 👍
+    >>> print(emoji.emojize("Python is fun :red_heart:", variant="text_type"))
+    Python is fun ❤
+    >>> print(emoji.emojize("Python is fun :red_heart:", variant="emoji_type"))
+    Python is fun ❤️ # red heart, not black heart
+
+:param string: String contains emoji names.
+:param delimiters: (optional) Use delimiters other than _DEFAULT_DELIMITER. Each delimiter
+    should contain at least one character that is not part of a-zA-Z0-9 and ``_-&.()!?#*+,``.
+    See ``emoji.core._EMOJI_NAME_PATTERN`` for the regular expression of unsafe characters.
+:param variant: (optional) Choose variation selector between "base"(None), VS-15 ("text_type") and VS-16 ("emoji_type")
+:param language: Choose language of emoji name: language code 'es', 'de', etc. or 'alias'
+    to use English aliases
+:param version: (optional) Max version. If set to an Emoji Version,
+    all emoji above this version will be ignored.
+:param handle_version: (optional) Replace the emoji above ``version``
+    instead of ignoring it. handle_version can be either a string or a
+    callable; If it is a callable, it's passed the Unicode emoji and the
+    data dict from :data:`EMOJI_DATA` and must return a replacement string
+    to be used::
+
+        handle_version('\U0001F6EB', {
+            'en' : ':airplane_departure:',
+            'status' : fully_qualified,
+            'E' : 1,
+            'alias' : [':flight_departure:'],
+            'de': ':abflug:',
+            'es': ':avión_despegando:',
+            ...
+        })
+
+:raises ValueError: if ``variant`` is neither None, 'text_type' or 'emoji_type'
+
+
+emoji.core.filter_tokens(matches: Iterator[emoji.tokenizer.Token], emoji_only: bool, join_emoji: bool) -> Iterator[emoji.tokenizer.Token]
+-------------
+
+Filters the output of `tokenize()`
+
+:param matches: An iterable of tuples of the form ``(match_str, result)``
+    where ``result`` is either an EmojiMatch or a string.
+:param emoji_only: If True, only EmojiMatch are returned in the output.
+    If False all characters are returned
+:param join_emoji: If True, multiple EmojiMatch are merged into
+    a single :class:`EmojiMatchZWJNonRGI` if they are separated only by a ZWJ.
+
+:return: An iterable of tuples :class:`Token` ``(char, char)``,
+    :class:`Token` ``(chars, EmojiMatch)`` or :class:`Token` ``(chars, EmojiMatchZWJNonRGI)``
+
+
+emoji.core.is_emoji(string: str) -> bool
+--------
+
+Returns True if the string is a single emoji, and it is "recommended for
+general interchange" by Unicode.org.
+
+
+emoji.core.purely_emoji(string: str) -> bool
+------------
+
+Returns True if the string contains only emojis.
+This might not imply that `is_emoji` for all the characters, for example,
+if the string contains variation selectors.
+
+
+emoji.core.replace_emoji(string: str, replace: Union[str, Callable[[str, Dict[str, str]], str]] = '', version: float = -1) -> str
+-------------
+
+Replace Unicode emoji in a customizable string.
+
+:param string: String contains Unicode characters. MUST BE UNICODE.
+:param replace: (optional) replace can be either a string or a callable;
+    If it is a callable, it's passed the Unicode emoji and the data dict from
+    :data:`EMOJI_DATA` and must return a replacement string to be used.
+    replace(str, dict) -> str
+:param version: (optional) Max version. If set to an Emoji Version,
+    only emoji above this version will be replaced.
+
+
+emoji.core.tokenize(string: str, keep_zwj: bool) -> Iterator[emoji.tokenizer.Token]
+--------
+
+Finds unicode emoji in a string. Yields all normal characters as a named
+tuple :class:`Token` ``(char, char)`` and all emoji as :class:`Token` ``(chars, EmojiMatch)``.
+
+:param string: String contains unicode characters. MUST BE UNICODE.
+:param keep_zwj: Should ZWJ-characters (``\u200D``) that join non-RGI emoji be
+    skipped or should be yielded as normal characters
+:return: An iterable of tuples :class:`Token` ``(char, char)`` or :class:`Token` ``(chars, EmojiMatch)``
+
+
+emoji.core.version(string: str) -> float
+-------
+
+Returns the Emoji Version of the emoji.
+
+See https://www.unicode.org/reports/tr51/#Versioning for more information.
+    >>> emoji.version("😁")
+    0.6
+    >>> emoji.version(":butterfly:")
+    3
+
+:param string: An emoji or a text containing an emoji
+:raises ValueError: if ``string`` does not contain an emoji
+
+
+emoji.tokenizer.NamedTuple(typename, fields=None, /, **kwargs)
+----------
+
+Typed version of namedtuple.
+
+Usage in Python versions >= 3.6::
+
+    class Employee(NamedTuple):
+        name: str
+        id: int
+
+This is equivalent to::
+
+    Employee = collections.namedtuple('Employee', ['name', 'id'])
+
+The resulting class has an extra __annotations__ attribute, giving a
+dict that maps field names to types.  (The field names are also in
+the _fields attribute, which is part of the namedtuple API.)
+Alternative equivalent keyword syntax is also accepted::
+
+    Employee = NamedTuple('Employee', name=str, id=int)
+
+In Python versions <= 3.5 use::
+
+    Employee = NamedTuple('Employee', [('name', str), ('id', int)])
+
+
+emoji.tokenizer.filter_tokens(matches: Iterator[emoji.tokenizer.Token], emoji_only: bool, join_emoji: bool) -> Iterator[emoji.tokenizer.Token]
+-------------
+
+Filters the output of `tokenize()`
+
+:param matches: An iterable of tuples of the form ``(match_str, result)``
+    where ``result`` is either an EmojiMatch or a string.
+:param emoji_only: If True, only EmojiMatch are returned in the output.
+    If False all characters are returned
+:param join_emoji: If True, multiple EmojiMatch are merged into
+    a single :class:`EmojiMatchZWJNonRGI` if they are separated only by a ZWJ.
+
+:return: An iterable of tuples :class:`Token` ``(char, char)``,
+    :class:`Token` ``(chars, EmojiMatch)`` or :class:`Token` ``(chars, EmojiMatchZWJNonRGI)``
+
+
+emoji.tokenizer.get_search_tree() -> Dict[str, Any]
+---------------
+
+Generate a search tree for demojize().
+Example of a search tree::
+
+    EMOJI_DATA =
+    {'a': {'en': ':Apple:'},
+    'b': {'en': ':Bus:'},
+    'ba': {'en': ':Bat:'},
+    'band': {'en': ':Beatles:'},
+    'bandit': {'en': ':Outlaw:'},
+    'bank': {'en': ':BankOfEngland:'},
+    'bb': {'en': ':BB-gun:'},
+    'c': {'en': ':Car:'}}
+
+    _SEARCH_TREE =
+    {'a': {'data': {'en': ':Apple:'}},
+    'b': {'a': {'data': {'en': ':Bat:'},
+                'n': {'d': {'data': {'en': ':Beatles:'},
+                            'i': {'t': {'data': {'en': ':Outlaw:'}}}},
+                    'k': {'data': {'en': ':BankOfEngland:'}}}},
+        'b': {'data': {'en': ':BB-gun:'}},
+        'data': {'en': ':Bus:'}},
+    'c': {'data': {'en': ':Car:'}}}
+
+               _SEARCH_TREE
+             /     |        ⧵
+           /       |          ⧵
+        a          b             c
+        |        / |  ⧵          |
+        |       /  |    ⧵        |
+    :Apple:   ba  :Bus:  bb     :Car:
+             /  ⧵         |
+            /    ⧵        |
+          :Bat:    ban     :BB-gun:
+                 /     ⧵
+                /       ⧵
+             band       bank
+            /   ⧵         |
+           /     ⧵        |
+        bandi :Beatles:  :BankOfEngland:
+           |
+        bandit
+           |
+       :Outlaw:
+
+
+emoji.tokenizer.tokenize(string: str, keep_zwj: bool) -> Iterator[emoji.tokenizer.Token]
+--------
+
+Finds unicode emoji in a string. Yields all normal characters as a named
+tuple :class:`Token` ``(char, char)`` and all emoji as :class:`Token` ``(chars, EmojiMatch)``.
+
+:param string: String contains unicode characters. MUST BE UNICODE.
+:param keep_zwj: Should ZWJ-characters (``\u200D``) that join non-RGI emoji be
+    skipped or should be yielded as normal characters
+:return: An iterable of tuples :class:`Token` ``(char, char)`` or :class:`Token` ``(chars, EmojiMatch)``
+
+
+emoji.unicode_codes.load_from_json(key: str)
+--------------
+
+Load values from the file 'emoji_{key}.json' into EMOJI_DATA
+
+
+emoji.unicode_codes.lru_cache(maxsize=128, typed=False)
+---------
+
+Least-recently-used cache decorator.
+
+If *maxsize* is set to None, the LRU features are disabled and the cache
+can grow without bound.
+
+If *typed* is True, arguments of different types will be cached separately.
+For example, f(3.0) and f(3) will be treated as distinct calls with
+distinct results.
+
+Arguments to the cached function must be hashable.
+
+View the cache statistics named tuple (hits, misses, maxsize, currsize)
+with f.cache_info().  Clear the cache and statistics with f.cache_clear().
+Access the underlying function with f.__wrapped__.
+
+See:  https://en.wikipedia.org/wiki/Cache_replacement_policies#Least_recently_used_(LRU)
+
