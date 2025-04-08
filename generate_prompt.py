@@ -54,7 +54,6 @@ def build_base_prompt(item: Dict, no_of_tests: int) -> str:
 
     return prompt
 
-
 def build_prompt_with_func_body(item: Dict, no_of_tests: int) -> str:
     """
     Builds a prompt with the function body, following the specified format with placeholders replaced by metadata.
@@ -91,10 +90,85 @@ def build_prompt_with_func_body(item: Dict, no_of_tests: int) -> str:
 
     return prompt
 
+def build_prompt_with_func_example(item: Dict, no_of_tests: int) -> str:
+    """
+    Builds a prompt with a sample usage example of the method, following the specified format.
+    """
+    qualified_name = item.get("qualified_name", "unknown")
+    module_name = item.get("module", "unknown")
+    func_sig = item.get("signature", "")
+
+    examples = item.get("examples", [])
+    if not examples:
+        func_example = "Example Not Found for this Function"
+    else:
+        func_example = "\n".join(examples)
+
+    formatted_qualified_name = qualified_name.replace(".", "_")
+
+    prompt = (
+        f"You need to write {no_of_tests} unit tests of {qualified_name} of pypi module {module_name}.\n"
+        f"The method signature: \n{func_sig}\n"
+        f"Sample Usage of the method:\n{func_example}\n\n"
+        "Maintain the following format:\n\n"
+        f"import {module_name}\n"
+        "import unittest\n\n"
+        f"class Test{module_name}Module(unittest.TestCase):\n"
+    )
+
+    # Generate tests
+    for i in range(no_of_tests):
+        prompt += f"    def test_{formatted_qualified_name}_{i}(self):\n"
+        prompt += f"        # Write code to test the {qualified_name} method\n"
+        prompt += f"        pass\n\n"
+
+    prompt += "\nif __name__ == '__main__':\n"
+    prompt += "    unittest.main()\n\n"
+    prompt += "Print only the Python code and end with the comment \"End of Code\". "
+    prompt += "Do not print anything except the Python code and Strictly follow the mentioned format."
+
+    return prompt
+
+def build_prompt_with_func_docstring(item: Dict, no_of_tests: int) -> str:
+    """
+    Builds a prompt with the function docstring, following the specified format with placeholders replaced by metadata.
+    """
+    qualified_name = item.get("qualified_name", "unknown")
+    module_name = item.get("module", "unknown")
+    func_sig = item.get("signature", "")
+
+    func_docstring = clean_docstring(item.get("docstring", ""))
+    if not func_docstring:
+        func_docstring = "Docstring Not Found for this Function"
+
+    formatted_qualified_name = qualified_name.replace(".", "_")
+
+    prompt = (
+        f"You need to write {no_of_tests} unit tests of {qualified_name} of pypi module {module_name}.\n"
+        f"The method signature: \n{func_sig}\n"
+        f"The method docstring:\n{func_docstring}\n\n"
+        "Maintain the following format:\n\n"
+        f"import {module_name}\n"
+        "import unittest\n\n"
+        f"class Test{module_name}Module(unittest.TestCase):\n"
+    )
+
+    # Generate tests
+    for i in range(no_of_tests):
+        prompt += f"    def test_{formatted_qualified_name}_{i}(self):\n"
+        prompt += f"        # Write code to test the {qualified_name} method\n"
+        prompt += f"        pass\n\n"
+
+    prompt += "\nif __name__ == '__main__':\n"
+    prompt += "    unittest.main()\n\n"
+    prompt += "Print only the Python code and end with the comment \"End of Code\". "
+    prompt += "Do not print anything except the Python code and Strictly follow the mentioned format."
+
+    return prompt
 
 def generate_prompts_from_json(json_path: str, no_of_tests: int, out_dir: Optional[str] = None) -> List[Dict[str, str]]:
     """
-    Reads API metadata from a JSON file and generates both base and function-body prompts, storing them in a dictionary.
+    Reads API metadata from a JSON file and generates all prompt variations.
     """
     with open(json_path, "r") as f:
         metadata = json.load(f)
@@ -102,14 +176,18 @@ def generate_prompts_from_json(json_path: str, no_of_tests: int, out_dir: Option
     prompts = []
     for package_name, items in metadata.items():
         for item in items:
-            # Generate the base prompt and prompt with function body
+            # Generate the four prompt variants
             base_prompt = build_base_prompt(item, no_of_tests)
             prompt_with_func_body = build_prompt_with_func_body(item, no_of_tests)
+            prompt_with_func_example = build_prompt_with_func_example(item, no_of_tests)
+            prompt_with_func_docstring = build_prompt_with_func_docstring(item, no_of_tests)
 
-            # Store both prompts in a dictionary for each function
+            # Store all prompts in a dictionary for each function
             prompt_data = {
                 "base_prompt": base_prompt,
                 "prompt_with_func_body": prompt_with_func_body,
+                "prompt_with_func_example": prompt_with_func_example,
+                "prompt_with_func_docstring": prompt_with_func_docstring,
             }
             prompts.append(prompt_data)
 
@@ -121,9 +199,12 @@ def generate_prompts_from_json(json_path: str, no_of_tests: int, out_dir: Option
                     f_out.write(base_prompt)
                 with open(os.path.join(out_dir, f"prompt_{filename}_with_func_body.txt"), "w") as f_out:
                     f_out.write(prompt_with_func_body)
+                with open(os.path.join(out_dir, f"prompt_{filename}_with_func_example.txt"), "w") as f_out:
+                    f_out.write(prompt_with_func_example)
+                with open(os.path.join(out_dir, f"prompt_{filename}_with_func_docstring.txt"), "w") as f_out:
+                    f_out.write(prompt_with_func_docstring)
 
     return prompts
-
 
 if __name__ == "__main__":
     import argparse
