@@ -49,7 +49,7 @@ def build_base_prompt(item: Dict, no_of_tests: int) -> str:
 
     prompt += "\nif __name__ == '__main__':\n"
     prompt += "    unittest.main()\n\n"
-    prompt += "Print only the Python code and end with the comment \"End of Code.\" "
+    prompt += "Print only the Python code and end with the comment \"End of Code\". "
     prompt += "Do not print anything except the Python code and Strictly follow the mentioned format."
 
     return prompt
@@ -86,15 +86,15 @@ def build_prompt_with_func_body(item: Dict, no_of_tests: int) -> str:
 
     prompt += "\nif __name__ == '__main__':\n"
     prompt += "    unittest.main()\n\n"
-    prompt += "Print only the Python code and end with the comment \"End of Code.\" "
+    prompt += "Print only the Python code and end with the comment \"End of Code\". "
     prompt += "Do not print anything except the Python code and Strictly follow the mentioned format."
 
     return prompt
 
 
-def generate_prompts_from_json(json_path: str, no_of_tests: int, out_dir: Optional[str] = None) -> List[str]:
+def generate_prompts_from_json(json_path: str, no_of_tests: int, out_dir: Optional[str] = None) -> List[Dict[str, str]]:
     """
-    Reads API metadata from a JSON file and generates both base and function-body prompts.
+    Reads API metadata from a JSON file and generates both base and function-body prompts, storing them in a dictionary.
     """
     with open(json_path, "r") as f:
         metadata = json.load(f)
@@ -106,9 +106,12 @@ def generate_prompts_from_json(json_path: str, no_of_tests: int, out_dir: Option
             base_prompt = build_base_prompt(item, no_of_tests)
             prompt_with_func_body = build_prompt_with_func_body(item, no_of_tests)
 
-            # Add both prompts to the list
-            prompts.append(base_prompt)
-            prompts.append(prompt_with_func_body)
+            # Store both prompts in a dictionary for each function
+            prompt_data = {
+                "base_prompt": base_prompt,
+                "prompt_with_func_body": prompt_with_func_body,
+            }
+            prompts.append(prompt_data)
 
             # Optionally save them as text files
             if out_dir:
