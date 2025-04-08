@@ -2,8 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="0b6d6564-dbfd-40b0-a2f6-224f60fdc83d" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/generate_prompt.py" beforeDir="false" afterPath="$PROJECT_DIR$/generate_prompt.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/prompt_listing.py" beforeDir="false" afterPath="$PROJECT_DIR$/prompt_listing.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -14,7 +15,7 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
-  <component name="RunManager" selected="Python.generate_prompt">
+  <component name="RunManager" selected="Python.prompt_listing">
     <configuration name="generate_prompt" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="TestPilot_Python" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -101,11 +102,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.prompt_listing" />
         <item itemvalue="Python tests.Python tests for test_emoji_generatedByGpt4.test_analyze_mixed_text_and_emoji" />
         <item itemvalue="Python tests.Python tests for test_emoji_generatedByGpt4.test_analyze_with_non_emoji" />
         <item itemvalue="Python tests.Python tests for test_emoji_generatedByGpt4.test_analyze_basic_emoji_only" />
         <item itemvalue="Python.generate_prompt" />
-        <item itemvalue="Python.prompt_listing" />
       </list>
     </recent_temporary>
   </component>

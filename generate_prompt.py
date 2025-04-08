@@ -20,18 +20,18 @@ def clean_source_code(source_code: str) -> str:
         return ""
     return source_code.replace("```", "INLINE_BACKTICK").strip().replace("INLINE_BACKTICK", "```")
 
-def build_prompt(item: Dict, no_of_tests: int) -> str:
+def build_base_prompt(item: Dict, no_of_tests: int) -> str:
     """
-    Builds a prompt following the specified format with placeholders replaced by metadata.
+    Builds the base prompt following the specified format with placeholders replaced by metadata.
     """
     qualified_name = item.get("qualified_name", "unknown")
     module_name = item.get("module", "unknown")
     func_sig = item.get("signature", "")
 
     # Format the qualified name to replace '.' with '_'
-    formatted_qualified_name = qualified_name.replace(".", "_") # Example: "emoji.config" -> "emoji_config"
+    formatted_qualified_name = qualified_name.replace(".", "_")
 
-    # Format prompt with placeholders
+    # Format base prompt with placeholders
     prompt = (
         f"You need to write {no_of_tests} unit tests of {qualified_name} of pypi module {module_name}.\n"
         f"The method signature: \n{func_sig}\n\n"
@@ -49,14 +49,52 @@ def build_prompt(item: Dict, no_of_tests: int) -> str:
 
     prompt += "\nif __name__ == '__main__':\n"
     prompt += "    unittest.main()\n\n"
-    prompt += "Print only the Python code and end with the comment ""End of Code."" "
+    prompt += "Print only the Python code and end with the comment \"End of Code.\" "
     prompt += "Do not print anything except the Python code and Strictly follow the mentioned format."
 
     return prompt
 
+
+def build_prompt_with_func_body(item: Dict, no_of_tests: int) -> str:
+    """
+    Builds a prompt with the function body, following the specified format with placeholders replaced by metadata.
+    """
+    qualified_name = item.get("qualified_name", "unknown")
+    module_name = item.get("module", "unknown")
+    func_sig = item.get("signature", "")
+    func_body = clean_source_code(item.get("source_code", ""))
+
+    # Format the qualified name to replace '.' with '_'
+    formatted_qualified_name = qualified_name.replace(".", "_")
+
+    # Format prompt with function body
+    prompt = (
+        f"You need to write {no_of_tests} unit tests of {qualified_name} of pypi module {module_name}.\n"
+        f"The method signature: \n{func_sig}\n"
+        f"The method body:\n{func_body}\n\n"
+        "Maintain the following format:\n\n"
+        f"import {module_name}\n"
+        "import unittest\n\n"
+        f"class Test{module_name}Module(unittest.TestCase):\n"
+    )
+
+    # Generate tests
+    for i in range(no_of_tests):
+        prompt += f"    def test_{formatted_qualified_name}_{i}(self):\n"
+        prompt += f"        # Write code to test the {qualified_name} method\n"
+        prompt += f"        pass\n\n"
+
+    prompt += "\nif __name__ == '__main__':\n"
+    prompt += "    unittest.main()\n\n"
+    prompt += "Print only the Python code and end with the comment \"End of Code.\" "
+    prompt += "Do not print anything except the Python code and Strictly follow the mentioned format."
+
+    return prompt
+
+
 def generate_prompts_from_json(json_path: str, no_of_tests: int, out_dir: Optional[str] = None) -> List[str]:
     """
-    Reads API metadata from a JSON file and generates prompts.
+    Reads API metadata from a JSON file and generates both base and function-body prompts.
     """
     with open(json_path, "r") as f:
         metadata = json.load(f)
@@ -64,14 +102,22 @@ def generate_prompts_from_json(json_path: str, no_of_tests: int, out_dir: Option
     prompts = []
     for package_name, items in metadata.items():
         for item in items:
-            prompt = build_prompt(item, no_of_tests)
-            prompts.append(prompt)
+            # Generate the base prompt and prompt with function body
+            base_prompt = build_base_prompt(item, no_of_tests)
+            prompt_with_func_body = build_prompt_with_func_body(item, no_of_tests)
 
+            # Add both prompts to the list
+            prompts.append(base_prompt)
+            prompts.append(prompt_with_func_body)
+
+            # Optionally save them as text files
             if out_dir:
                 os.makedirs(out_dir, exist_ok=True)
                 filename = item["qualified_name"].replace(".", "_")
-                with open(os.path.join(out_dir, f"prompt_{filename}.txt"), "w") as f_out:
-                    f_out.write(prompt)
+                with open(os.path.join(out_dir, f"prompt_{filename}_base.txt"), "w") as f_out:
+                    f_out.write(base_prompt)
+                with open(os.path.join(out_dir, f"prompt_{filename}_with_func_body.txt"), "w") as f_out:
+                    f_out.write(prompt_with_func_body)
 
     return prompts
 
