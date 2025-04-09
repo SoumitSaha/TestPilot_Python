@@ -81,7 +81,7 @@ def build_prompt_with_func_body(item: Dict, no_of_tests: int, module_name: str) 
 
     # Generate tests
     for i in range(no_of_tests):
-        prompt += f"    def test_{formatted_qualified_name}_{i}(self):\n"
+        prompt += f"    def test_{formatted_qualified_name}_funcBody_{i}(self):\n"
         prompt += f"        # Write code to test the {qualified_name} method\n"
         prompt += f"        pass\n\n"
 
@@ -124,7 +124,7 @@ def build_prompt_with_func_example(item: Dict, no_of_tests: int, module_name: st
 
     # Generate tests
     for i in range(no_of_tests):
-        prompt += f"    def test_{formatted_qualified_name}_{i}(self):\n"
+        prompt += f"    def test_{formatted_qualified_name}_example_{i}(self):\n"
         prompt += f"        # Write code to test the {qualified_name} method\n"
         prompt += f"        pass\n\n"
 
@@ -165,7 +165,7 @@ def build_prompt_with_func_docstring(item: Dict, no_of_tests: int, module_name: 
 
     # Generate tests
     for i in range(no_of_tests):
-        prompt += f"    def test_{formatted_qualified_name}_{i}(self):\n"
+        prompt += f"    def test_{formatted_qualified_name}_docstring_{i}(self):\n"
         prompt += f"        # Write code to test the {qualified_name} method\n"
         prompt += f"        pass\n\n"
 

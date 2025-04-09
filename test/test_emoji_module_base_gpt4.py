@@ -2,6 +2,28 @@ import emoji
 import unittest
 
 class TestemojiModule(unittest.TestCase):
+    # ========== Test for emoji_demojize =============
+    def test_emoji_demojize_0(self):
+        result = emoji.demojize("I love 🍕!")
+        self.assertEqual(result, "I love :pizza:!")
+
+    def test_emoji_demojize_1(self):
+        result = emoji.demojize("Hello 👋", delimiters=("~", "~"))
+        self.assertEqual(result, "Hello ~waving_hand~")
+
+    def test_emoji_demojize_2(self):
+        result = emoji.demojize("Python is awesome 🐍💻", language="en")
+        self.assertEqual(result, "Python is awesome :snake::laptop:")
+
+    def test_emoji_demojize_3(self):
+        result = emoji.demojize("Good morning ☀️", version=1.0)
+        self.assertEqual(result, "Good morning :sun:")
+
+    def test_emoji_demojize_4(self):
+        result = emoji.demojize("I am happy 😀", handle_version=None)
+        self.assertEqual(result, "I am happy :grinning_face:")
+
+    # ========== Test for emoji_core_demojize =============
     def test_emoji_core_demojize_0(self):
         result = emoji.core.demojize("Hello 😊")
         self.assertEqual(result, "Hello :smiling_face_with_smiling_eyes:")
