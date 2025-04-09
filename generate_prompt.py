@@ -33,7 +33,7 @@ def build_base_prompt(item: Dict, no_of_tests: int) -> str:
 
     # Format base prompt with placeholders
     prompt = (
-        f"You need to write {no_of_tests} unit tests of {qualified_name} of pypi module {module_name}.\n"
+        f"You are a Python developer. You need to write {no_of_tests} unit tests of {qualified_name} of pypi module {module_name}.\n"
         f"The method signature: \n{func_sig}\n\n"
         "Maintain the following format:\n\n"
         f"import {module_name}\n"
@@ -68,7 +68,7 @@ def build_prompt_with_func_body(item: Dict, no_of_tests: int) -> str:
 
     # Format prompt with function body
     prompt = (
-        f"You need to write {no_of_tests} unit tests of {qualified_name} of pypi module {module_name}.\n"
+        f"You are a Python developer. You need to write {no_of_tests} unit tests of {qualified_name} of pypi module {module_name}.\n"
         f"The method signature: \n{func_sig}\n"
         f"The method body:\n{func_body}\n\n"
         "Maintain the following format:\n\n"
@@ -107,7 +107,7 @@ def build_prompt_with_func_example(item: Dict, no_of_tests: int) -> str:
     formatted_qualified_name = qualified_name.replace(".", "_")
 
     prompt = (
-        f"You need to write {no_of_tests} unit tests of {qualified_name} of pypi module {module_name}.\n"
+        f"You are a Python developer. You need to write {no_of_tests} unit tests of {qualified_name} of pypi module {module_name}.\n"
         f"The method signature: \n{func_sig}\n"
         f"Sample Usage of the method:\n{func_example}\n\n"
         "Maintain the following format:\n\n"
@@ -144,7 +144,7 @@ def build_prompt_with_func_docstring(item: Dict, no_of_tests: int) -> str:
     formatted_qualified_name = qualified_name.replace(".", "_")
 
     prompt = (
-        f"You need to write {no_of_tests} unit tests of {qualified_name} of pypi module {module_name}.\n"
+        f"You are a Python developer. You need to write {no_of_tests} unit tests of {qualified_name} of pypi module {module_name}.\n"
         f"The method signature: \n{func_sig}\n"
         f"The method docstring:\n{func_docstring}\n\n"
         "Maintain the following format:\n\n"
