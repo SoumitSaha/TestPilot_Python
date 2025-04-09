@@ -2,6 +2,7 @@ import json
 import os
 from typing import Dict, List, Optional
 
+
 def clean_docstring(docstring: str) -> str:
     """
     Cleans the docstring by removing excessive newlines and trimming unnecessary spaces.
@@ -12,6 +13,7 @@ def clean_docstring(docstring: str) -> str:
     docstring = docstring.replace("```", "INLINE_BACKTICK")
     return "\n".join(line.strip() for line in docstring.strip().splitlines()).replace("INLINE_BACKTICK", "```")
 
+
 def clean_source_code(source_code: str) -> str:
     """
     Cleans the source code by removing excessive spaces and avoiding redundant backticks.
@@ -20,12 +22,12 @@ def clean_source_code(source_code: str) -> str:
         return ""
     return source_code.replace("```", "INLINE_BACKTICK").strip().replace("INLINE_BACKTICK", "```")
 
-def build_base_prompt(item: Dict, no_of_tests: int) -> str:
+
+def build_base_prompt(item: Dict, no_of_tests: int, module_name: str) -> str:
     """
     Builds the base prompt following the specified format with placeholders replaced by metadata.
     """
     qualified_name = item.get("qualified_name", "unknown")
-    module_name = item.get("module", "unknown")
     func_sig = item.get("signature", "")
 
     # Format the qualified name to replace '.' with '_'
@@ -49,17 +51,17 @@ def build_base_prompt(item: Dict, no_of_tests: int) -> str:
 
     prompt += "\nif __name__ == '__main__':\n"
     prompt += "    unittest.main()\n\n"
-    prompt += "Print only the Python code and end with the comment \"End of Code\". "
+    prompt += "Print only the Python code and end with the comment \"#End of Code\". "
     prompt += "Do not print anything except the Python code and Strictly follow the mentioned format."
 
     return prompt
 
-def build_prompt_with_func_body(item: Dict, no_of_tests: int) -> str:
+
+def build_prompt_with_func_body(item: Dict, no_of_tests: int, module_name: str) -> str:
     """
     Builds a prompt with the function body, following the specified format with placeholders replaced by metadata.
     """
     qualified_name = item.get("qualified_name", "unknown")
-    module_name = item.get("module", "unknown")
     func_sig = item.get("signature", "")
     func_body = clean_source_code(item.get("source_code", ""))
 
@@ -85,27 +87,31 @@ def build_prompt_with_func_body(item: Dict, no_of_tests: int) -> str:
 
     prompt += "\nif __name__ == '__main__':\n"
     prompt += "    unittest.main()\n\n"
-    prompt += "Print only the Python code and end with the comment \"End of Code\". "
+    prompt += "Print only the Python code and end with the comment \"#End of Code\". "
     prompt += "Do not print anything except the Python code and Strictly follow the mentioned format."
 
     return prompt
 
-def build_prompt_with_func_example(item: Dict, no_of_tests: int) -> str:
+
+def build_prompt_with_func_example(item: Dict, no_of_tests: int, module_name: str) -> str:
     """
     Builds a prompt with a sample usage example of the method, following the specified format.
+    If examples are not available or empty, it prints a message indicating no examples.
     """
     qualified_name = item.get("qualified_name", "unknown")
-    module_name = item.get("module", "unknown")
     func_sig = item.get("signature", "")
 
+    # Get examples from the metadata or provide a default message if examples are empty
     examples = item.get("examples", [])
-    if not examples:
+    if not examples:  # Check if examples are empty or missing
         func_example = "Example Not Found for this Function"
     else:
-        func_example = "\n".join(examples)
+        func_example = "\n".join(examples)  # Join all examples into a single string
 
+    # Format the qualified name to replace '.' with '_'
     formatted_qualified_name = qualified_name.replace(".", "_")
 
+    # Format prompt with function example
     prompt = (
         f"You are a Python developer. You need to write {no_of_tests} unit tests of {qualified_name} of pypi module {module_name}.\n"
         f"The method signature: \n{func_sig}\n"
@@ -124,25 +130,29 @@ def build_prompt_with_func_example(item: Dict, no_of_tests: int) -> str:
 
     prompt += "\nif __name__ == '__main__':\n"
     prompt += "    unittest.main()\n\n"
-    prompt += "Print only the Python code and end with the comment \"End of Code\". "
+    prompt += "Print only the Python code and end with the comment \"#End of Code\". "
     prompt += "Do not print anything except the Python code and Strictly follow the mentioned format."
 
     return prompt
 
-def build_prompt_with_func_docstring(item: Dict, no_of_tests: int) -> str:
+
+def build_prompt_with_func_docstring(item: Dict, no_of_tests: int, module_name: str) -> str:
     """
     Builds a prompt with the function docstring, following the specified format with placeholders replaced by metadata.
+    If the docstring is not available or empty, it prints a message indicating no docstring.
     """
     qualified_name = item.get("qualified_name", "unknown")
-    module_name = item.get("module", "unknown")
     func_sig = item.get("signature", "")
 
-    func_docstring = clean_docstring(item.get("docstring", ""))
-    if not func_docstring:
+    # Get docstring from the metadata or provide a default message if docstring is empty
+    func_docstring = item.get("docstring", "")
+    if not func_docstring:  # Check if docstring is empty or missing
         func_docstring = "Docstring Not Found for this Function"
 
+    # Format the qualified name to replace '.' with '_'
     formatted_qualified_name = qualified_name.replace(".", "_")
 
+    # Format prompt with function docstring
     prompt = (
         f"You are a Python developer. You need to write {no_of_tests} unit tests of {qualified_name} of pypi module {module_name}.\n"
         f"The method signature: \n{func_sig}\n"
@@ -161,14 +171,15 @@ def build_prompt_with_func_docstring(item: Dict, no_of_tests: int) -> str:
 
     prompt += "\nif __name__ == '__main__':\n"
     prompt += "    unittest.main()\n\n"
-    prompt += "Print only the Python code and end with the comment \"End of Code\". "
+    prompt += "Print only the Python code and end with the comment \"#End of Code\". "
     prompt += "Do not print anything except the Python code and Strictly follow the mentioned format."
 
     return prompt
 
+
 def generate_prompts_from_json(json_path: str, no_of_tests: int, out_dir: Optional[str] = None) -> List[Dict[str, str]]:
     """
-    Reads API metadata from a JSON file and generates all prompt variations.
+    Reads API metadata from a JSON file and generates all prompt variations, using the first key as the module name.
     """
     with open(json_path, "r") as f:
         metadata = json.load(f)
@@ -176,11 +187,13 @@ def generate_prompts_from_json(json_path: str, no_of_tests: int, out_dir: Option
     prompts = []
     for package_name, items in metadata.items():
         for item in items:
+            module_name = package_name  # Get module name from the first key (e.g., "emoji")
+
             # Generate the four prompt variants
-            base_prompt = build_base_prompt(item, no_of_tests)
-            prompt_with_func_body = build_prompt_with_func_body(item, no_of_tests)
-            prompt_with_func_example = build_prompt_with_func_example(item, no_of_tests)
-            prompt_with_func_docstring = build_prompt_with_func_docstring(item, no_of_tests)
+            base_prompt = build_base_prompt(item, no_of_tests, module_name)
+            prompt_with_func_body = build_prompt_with_func_body(item, no_of_tests, module_name)
+            prompt_with_func_example = build_prompt_with_func_example(item, no_of_tests, module_name)
+            prompt_with_func_docstring = build_prompt_with_func_docstring(item, no_of_tests, module_name)
 
             # Store all prompts in a dictionary for each function
             prompt_data = {
@@ -206,8 +219,10 @@ def generate_prompts_from_json(json_path: str, no_of_tests: int, out_dir: Option
 
     return prompts
 
+
 if __name__ == "__main__":
     import argparse
+
     parser = argparse.ArgumentParser(description="Generate LLM prompts from API metadata JSON.")
     parser.add_argument("--json", required=True, help="Path to JSON file with API metadata.")
     parser.add_argument("--out", help="Optional: Output directory to save prompt text files.")

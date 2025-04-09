@@ -2,47 +2,25 @@ import emoji
 import unittest
 
 class TestemojiModule(unittest.TestCase):
-    def test_emoji_analyze_0(self):
-        string = "Hello 👋"
-        result = list(emoji.analyze(string))
-        self.assertEqual(len(result), 2)
-        self.assertEqual(result[0].value, "Hello ")
-        self.assertEqual(result[1].value, "👋")
+    def test_emoji_core_demojize_0(self):
+        result = emoji.core.demojize("Hello 😊")
+        self.assertEqual(result, "Hello :smiling_face_with_smiling_eyes:")
 
-    def test_emoji_analyze_1(self):
-        string = "Good morning 🌞"
-        result = list(emoji.analyze(string))
-        self.assertEqual(len(result), 2)
-        self.assertEqual(result[0].value, "Good morning ")
-        self.assertEqual(result[1].value, "🌞")
+    def test_emoji_core_demojize_1(self):
+        result = emoji.core.demojize("I love coding ❤️", delimiters=(':', ':'))
+        self.assertEqual(result, "I love coding :red_heart:")
 
-    def test_emoji_analyze_2(self):
-        string = "Python is fun! 😎"
-        result = list(emoji.analyze(string, non_emoji=True))
-        self.assertEqual(len(result), 3)
-        self.assertEqual(result[0].value, "Python is fun! ")
-        self.assertEqual(result[1].value, "😎")
-        self.assertTrue(result[1].is_emoji)
+    def test_emoji_core_demojize_2(self):
+        result = emoji.core.demojize("Let's party 🎉🎊", delimiters=(':', ':'), language='en')
+        self.assertEqual(result, "Let's party :party_popper::confetti_ball:")
 
-    def test_emoji_analyze_3(self):
-        string = "Emoji test 🔥💯"
-        result = list(emoji.analyze(string, join_emoji=False))
-        self.assertEqual(len(result), 3)
-        self.assertEqual(result[0].value, "Emoji test ")
-        self.assertEqual(result[1].value, "🔥")
-        self.assertEqual(result[2].value, "💯")
+    def test_emoji_core_demojize_3(self):
+        result = emoji.core.demojize("Python is awesome 🐍", version=3.0)
+        self.assertEqual(result, "Python is awesome :snake:")
 
-    def test_emoji_analyze_4(self):
-        string = "Let's code 🤖💻"
-        result = list(emoji.analyze(string, non_emoji=True, join_emoji=False))
-        self.assertEqual(len(result), 4)
-        self.assertEqual(result[0].value, "Let's code ")
-        self.assertEqual(result[1].value, "🤖")
-        self.assertEqual(result[2].value, "💻")
-        self.assertTrue(result[1].is_emoji)
-        self.assertTrue(result[2].is_emoji)
+    def test_emoji_core_demojize_4(self):
+        result = emoji.core.demojize("Good morning 🌞", handle_version=None)
+        self.assertEqual(result, "Good morning :sun_with_face:")
 
 if __name__ == '__main__':
     unittest.main()
-
-# End of Code

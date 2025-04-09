@@ -126,4 +126,5 @@ When we run the code following error occurs:
 __TEST_ERROR__
 
 Fix the error.
-Print only the Python code and end with the comment "End of Code". Do not print anything except the Python code and Strictly follow the mentioned format.
+Print only the Python code and end with the comment "#End of Code".
+Do not print anything except the Python code and Strictly follow the mentioned format.
