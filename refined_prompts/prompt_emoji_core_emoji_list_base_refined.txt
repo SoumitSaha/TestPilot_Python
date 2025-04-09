@@ -1,0 +1,98 @@
+import emoji
+import unittest
+
+class TestemojiModule(unittest.TestCase):
+    def test_emoji_core_emoji_list_0(self):
+        # Write code to test the emoji.core.emoji_list method
+        result = emoji.emoji_list('')
+        self.assertEqual(result, [])
+
+    def test_emoji_core_emoji_list_1(self):
+        # Write code to test the emoji.core.emoji_list method
+        result = emoji.emoji_list('Hello world!')
+        self.assertEqual(result, [])
+
+    def test_emoji_core_emoji_list_2(self):
+        # Write code to test the emoji.core.emoji_list method
+        result = emoji.emoji_list('Hello world! 😃')
+        self.assertEqual(result, [{'location': 13, 'emoji': '😃'}])
+
+    def test_emoji_core_emoji_list_3(self):
+        # Write code to test the emoji.core.emoji_list method
+        result = emoji.emoji_list('😃😃😃')
+        self.assertEqual(result, [{'location': 0, 'emoji': '😃'}, {'location': 1, 'emoji': '😃'}, {'location': 2, 'emoji': '😃'}])
+
+    def test_emoji_core_emoji_list_4(self):
+        # Write code to test the emoji.core.emoji_list method
+        result = emoji.emoji_list('Hello 😃 world! 😃😃')
+        self.assertEqual(result, [{'location': 6, 'emoji': '😃'}, {'location': 14, 'emoji': '😃'}, {'location': 15, 'emoji': '😃'}])
+
+
+if __name__ == '__main__':
+    unittest.main()
+
+#End of Code
+
+When we run the code following error occurs:
+..FFF
+======================================================================
+FAIL: test_emoji_core_emoji_list_2 (__main__.TestemojiModule)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/media/soumit/New Volume/Concordia/Courses/Winter 2025/SOEN 7481 W - Software Verification and Testing/Project/TestPilot_Python/LLM_Responses/response_emoji_core_emoji_list_base_gpt4.py", line 18, in test_emoji_core_emoji_list_2
+    self.assertEqual(result, [{'location': 13, 'emoji': '😃'}])
+AssertionError: Lists differ: [{'match_start': 13, 'match_end': 14, 'emoji': '😃'}] != [{'location': 13, 'emoji': '😃'}]
+
+First differing element 0:
+{'match_start': 13, 'match_end': 14, 'emoji': '😃'}
+{'location': 13, 'emoji': '😃'}
+
+- [{'emoji': '😃', 'match_end': 14, 'match_start': 13}]
++ [{'emoji': '😃', 'location': 13}]
+
+======================================================================
+FAIL: test_emoji_core_emoji_list_3 (__main__.TestemojiModule)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/media/soumit/New Volume/Concordia/Courses/Winter 2025/SOEN 7481 W - Software Verification and Testing/Project/TestPilot_Python/LLM_Responses/response_emoji_core_emoji_list_base_gpt4.py", line 23, in test_emoji_core_emoji_list_3
+    self.assertEqual(result, [{'location': 0, 'emoji': '😃'}, {'location': 1, 'emoji': '😃'}, {'location': 2, 'emoji': '😃'}])
+AssertionError: Lists differ: [{'match_start': 0, 'match_end': 1, 'emoji':[101 chars]'😃'}] != [{'location': 0, 'emoji': '😃'}, {'location':[44 chars]'😃'}]
+
+First differing element 0:
+{'match_start': 0, 'match_end': 1, 'emoji': '😃'}
+{'location': 0, 'emoji': '😃'}
+
+- [{'emoji': '😃', 'match_end': 1, 'match_start': 0},
+-  {'emoji': '😃', 'match_end': 2, 'match_start': 1},
+-  {'emoji': '😃', 'match_end': 3, 'match_start': 2}]
++ [{'emoji': '😃', 'location': 0},
++  {'emoji': '😃', 'location': 1},
++  {'emoji': '😃', 'location': 2}]
+
+======================================================================
+FAIL: test_emoji_core_emoji_list_4 (__main__.TestemojiModule)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/media/soumit/New Volume/Concordia/Courses/Winter 2025/SOEN 7481 W - Software Verification and Testing/Project/TestPilot_Python/LLM_Responses/response_emoji_core_emoji_list_base_gpt4.py", line 28, in test_emoji_core_emoji_list_4
+    self.assertEqual(result, [{'location': 6, 'emoji': '😃'}, {'location': 14, 'emoji': '😃'}, {'location': 15, 'emoji': '😃'}])
+AssertionError: Lists differ: [{'match_start': 6, 'match_end': 7, 'emoji':[105 chars]'😃'}] != [{'location': 6, 'emoji': '😃'}, {'location':[46 chars]'😃'}]
+
+First differing element 0:
+{'match_start': 6, 'match_end': 7, 'emoji': '😃'}
+{'location': 6, 'emoji': '😃'}
+
+- [{'emoji': '😃', 'match_end': 7, 'match_start': 6},
+-  {'emoji': '😃', 'match_end': 16, 'match_start': 15},
+-  {'emoji': '😃', 'match_end': 17, 'match_start': 16}]
++ [{'emoji': '😃', 'location': 6},
++  {'emoji': '😃', 'location': 14},
++  {'emoji': '😃', 'location': 15}]
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.004s
+
+FAILED (failures=3)
+
+Fix the error.
+Print only the Python code and end with the comment "#End of Code".
+Do not print anything except the Python code and Strictly follow the mentioned format.
