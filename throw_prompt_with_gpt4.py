@@ -1,10 +1,8 @@
 import os
 import openai
-from openai import OpenAI
 import tiktoken
 from dotenv import load_dotenv
 import utility
-
 
 def load_api_key():
     load_dotenv()
@@ -15,7 +13,6 @@ def load_source_content(source_file):
     content = None
     with open(source_file, "r") as f:
         content = f.read()
-        f.close()
     return content
 
 def send_message_to_openai(message, model):
@@ -27,21 +24,18 @@ def send_message_to_openai(message, model):
     response = "exceptional case"
     is_success = False
     max_attempts = 5
-    client = OpenAI()
     while max_attempts > 0:
         try:
-            response = client.chat.completions.create(
-                model = model,  # The name of the OpenAI chatbot model to use
-                # The conversation history up to this point, as a list of dictionaries
-                messages = message,
-                # The maximum number of tokens (words or subwords) in the generated response
-                max_tokens = max(1, 8000 - num_tokens),
-                # The "creativity" of the generated response (higher temperature = more creative)
-                temperature=0.7,
+            response = openai.ChatCompletion.create(
+                model=model,  # The name of the OpenAI chatbot model to use
+                messages=message,  # The conversation history up to this point, as a list of dictionaries
+                max_tokens=max(1, 8000 - num_tokens),  # The maximum number of tokens (words or subwords) in the generated response
+                temperature=0.7,  # The "creativity" of the generated response (higher temperature = more creative)
             )
             is_success = True
             break
-        except:
+        except Exception as e:
+            print(f"Error: {e}")
             max_attempts -= 1
             continue
 
@@ -54,12 +48,13 @@ def send_message_to_openai(message, model):
             return choice.text
 
     # If no response with text is found, return the first response's content (which may be empty)
-    return response.choices[0].message.content
+    return response.choices[0].message['content']
 
 def generate_using_OPENAI(content, model, target_lang):
     message = [
         {"role": "system", "content": "You are a helpful assistant."},
-        {"role": "user", "content": content}]
+        {"role": "user", "content": content}
+    ]
     response = send_message_to_openai(message, model).replace(f"```{target_lang.lower()}", "").replace(f"```cpp", "").replace("```", "")
     return response
 
@@ -78,8 +73,8 @@ if __name__ == "__main__":
     try:
         with open(prompt_file, "r") as f:
             content = f.read()
-            f.close()
-    except:
+    except Exception as e:
+        print(f"Error: {e}")
         print("Invalid Prompt File. Program exit.")
         exit()
 
@@ -88,7 +83,6 @@ if __name__ == "__main__":
     os.makedirs(response_dir, exist_ok=True)
     with open(fname, "w") as f:
         f.write(response)
-        f.close()
 
 # How to use this file:
 # python throw_prompt_with_gpt4.py --prompt_file prompts/prompt_emoji_core_demojize_base.txt --response_dir LLM_Responses --response_file response_emoji_core_demojize_base_gpt4.py
