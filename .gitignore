@@ -12,6 +12,9 @@ __pycache__/
 doc_text/
 #documentations/
 prompts/
+.pytest_cache/
+.coverage
+.idea
 
 *.zip
 .idea/inspectionProfiles/profiles_settings.xml
