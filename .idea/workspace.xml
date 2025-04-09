@@ -3,13 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="0b6d6564-dbfd-40b0-a2f6-224f60fdc83d" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/documentations/help_emoji.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/generate_prompt.py" beforeDir="false" afterPath="$PROJECT_DIR$/generate_prompt.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test_emoji_generatedByGpt4.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test_emoji_module_base_gpt4.py" beforeDir="false" afterPath="$PROJECT_DIR$/test/test_emoji_module_base_gpt4.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test_emoji_module_docstring.py" beforeDir="false" afterPath="$PROJECT_DIR$/test/test_emoji_module_docstring_gpt4.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test_emoji_module_example_gpt4.py" beforeDir="false" afterPath="$PROJECT_DIR$/test/test_emoji_module_example_gpt4.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test_emoji_module_funcBody_gpt4.py" beforeDir="false" afterPath="$PROJECT_DIR$/test/test_emoji_module_funcBody_gpt4.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -32,7 +25,7 @@
       <recent name="$PROJECT_DIR$/test" />
     </key>
   </component>
-  <component name="RunManager" selected="Python tests.Python tests for test_emoji_module_base_gpt4.TestemojiModule">
+  <component name="RunManager" selected="Python tests.Python tests for response_emoji_version_with_docstring_gpt4.TestemojiModule">
     <configuration name="count_examples" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="TestPilot_Python" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -54,68 +47,68 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="Python tests for test_emoji_module_base_gpt4.TestemojiModule" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
+    <configuration name="Python tests for response_emoji_version_base_gpt4.TestemojiModule" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
       <module name="TestPilot_Python" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/test" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/LLM_Responses" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;test_emoji_module_base_gpt4.TestemojiModule&quot;" />
+      <option name="_new_target" value="&quot;response_emoji_version_base_gpt4.TestemojiModule&quot;" />
       <option name="_new_targetType" value="&quot;PYTHON&quot;" />
       <method v="2" />
     </configuration>
-    <configuration name="Python tests for test.test_emoji_module_docstring_gpt4.TestemojiModule" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
+    <configuration name="Python tests for response_emoji_version_with_docstring_gpt4.TestemojiModule" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
       <module name="TestPilot_Python" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/test" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/LLM_Responses" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;test.test_emoji_module_docstring_gpt4.TestemojiModule&quot;" />
+      <option name="_new_target" value="&quot;response_emoji_version_with_docstring_gpt4.TestemojiModule&quot;" />
       <option name="_new_targetType" value="&quot;PYTHON&quot;" />
       <method v="2" />
     </configuration>
-    <configuration name="Python tests in test_emoji_module_base_gpt4.py" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
+    <configuration name="Python tests for response_emoji_version_with_example_gpt4.TestemojiModule" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
       <module name="TestPilot_Python" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/LLM_Responses" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;$PROJECT_DIR$/test/test_emoji_module_base_gpt4.py&quot;" />
-      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <option name="_new_target" value="&quot;response_emoji_version_with_example_gpt4.TestemojiModule&quot;" />
+      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
       <method v="2" />
     </configuration>
-    <configuration name="Python tests in test_emoji_module_funcBody_gpt4.py" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
+    <configuration name="Python tests for response_emoji_version_with_funcBody_gpt4.TestemojiModule" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
       <module name="TestPilot_Python" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/LLM_Responses" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;$PROJECT_DIR$/test/test_emoji_module_funcBody_gpt4.py&quot;" />
-      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <option name="_new_target" value="&quot;response_emoji_version_with_funcBody_gpt4.TestemojiModule&quot;" />
+      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
       <method v="2" />
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python tests.Python tests for test_emoji_module_base_gpt4.TestemojiModule" />
-        <item itemvalue="Python tests.Python tests in test_emoji_module_funcBody_gpt4.py" />
-        <item itemvalue="Python tests.Python tests for test.test_emoji_module_docstring_gpt4.TestemojiModule" />
-        <item itemvalue="Python tests.Python tests in test_emoji_module_base_gpt4.py" />
+        <item itemvalue="Python tests.Python tests for response_emoji_version_with_docstring_gpt4.TestemojiModule" />
+        <item itemvalue="Python tests.Python tests for response_emoji_version_with_example_gpt4.TestemojiModule" />
+        <item itemvalue="Python tests.Python tests for response_emoji_version_with_funcBody_gpt4.TestemojiModule" />
+        <item itemvalue="Python tests.Python tests for response_emoji_version_base_gpt4.TestemojiModule" />
         <item itemvalue="Python.count_examples" />
       </list>
     </recent_temporary>
