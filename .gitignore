@@ -19,4 +19,5 @@ prompts/
 .idea/modules.xml
 .idea/TestPilot_Python.iml
 .idea/vcs.xml
+*.xml
 documentations/help_Faker.json
