@@ -17,7 +17,7 @@ def throw(prompt, response_file):
     if os.path.exists(response_file):
         pass
     else:
-        response = get_response_from_GPT4.generate_using_OPENAI(prompt, "gpt-4")
+        response = get_response_from_GPT4.generate_using_OPENAI(prompt, "gpt-4o-mini")
         with open(response_file, "w") as f:
             print(response, file=f)
             f.close()

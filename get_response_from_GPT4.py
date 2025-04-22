@@ -57,7 +57,7 @@ def generate_using_OPENAI(content, model, sys_msg="You are a professional Python
     ]
     response = send_message_to_openai(message, model)
     response = utility.get_longest_code_snippet(response)
-    return utility.get_longest_code_snippet(response)
+    return response
 
 if __name__ == "__main__":
     import argparse

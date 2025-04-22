@@ -8,6 +8,13 @@ import Constants
 import json
 import re
 
+# def find_best_test_files(response_dir, refined_response_dir, module):
+#     prompt_types = ["base", "with_func_body", "with_func_docstring", "with_func_example"]
+#     best_file_for_each_type = {}
+#     for type in prompt_types:
+#         if os.path.exists()
+#     pass
+
 def extract_code_snippets(text):
     """
     Extracts all code snippets enclosed in triple backticks from the text.
@@ -20,6 +27,8 @@ def extract_code_snippets(text):
         # If no backticks, treat the entire text as a code snippet if it looks like code
         if looks_like_code(text):
             code_blocks.append(text.strip())
+        else:
+            code_blocks.append("")
 
     return code_blocks
 
