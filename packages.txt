@@ -1,5 +1,5 @@
 emoji
 pyfiglet
 shortuuid
-faker
 pytz
+yarl

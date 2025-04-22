@@ -21,3 +21,4 @@ shortuuid==1.0.13
 faker==37.0.0
 pytz==2025.1
 tiktoken==0.7.0
+yarl==1.20.0

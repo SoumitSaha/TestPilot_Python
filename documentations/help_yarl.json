@@ -1,0 +1,2916 @@
+{
+  "yarl": [
+    {
+      "type": "function",
+      "qualified_name": "yarl.cache_clear",
+      "module": "yarl",
+      "signature": "() -> None",
+      "parameters": {},
+      "returns": "None",
+      "return_description": null,
+      "raises": [],
+      "decorators": [
+        "rewrite_module"
+      ],
+      "examples": [],
+      "docstring": "Clear all LRU caches.",
+      "source_code": "@rewrite_module\ndef cache_clear() -> None:\n    \"\"\"Clear all LRU caches.\"\"\"\n    _idna_encode.cache_clear()\n    _idna_decode.cache_clear()\n    _encode_host.cache_clear()\n"
+    },
+    {
+      "type": "function",
+      "qualified_name": "yarl.cache_configure",
+      "module": "yarl",
+      "signature": "(*, idna_encode_size: Optional[int] = 256, idna_decode_size: Optional[int] = 256, ip_address_size: Union[int, NoneType, yarl._url.UndefinedType] = <UndefinedType._singleton: 0>, host_validate_size: Union[int, NoneType, yarl._url.UndefinedType] = <UndefinedType._singleton: 0>, encode_host_size: Union[int, NoneType, yarl._url.UndefinedType] = <UndefinedType._singleton: 0>) -> None",
+      "parameters": {
+        "idna_encode_size": {
+          "default": "256",
+          "annotation": "typing.Optional[int]",
+          "kind": "KEYWORD_ONLY",
+          "description": null
+        },
+        "idna_decode_size": {
+          "default": "256",
+          "annotation": "typing.Optional[int]",
+          "kind": "KEYWORD_ONLY",
+          "description": null
+        },
+        "ip_address_size": {
+          "default": "UndefinedType._singleton",
+          "annotation": "typing.Union[int, NoneType, yarl._url.UndefinedType]",
+          "kind": "KEYWORD_ONLY",
+          "description": null
+        },
+        "host_validate_size": {
+          "default": "UndefinedType._singleton",
+          "annotation": "typing.Union[int, NoneType, yarl._url.UndefinedType]",
+          "kind": "KEYWORD_ONLY",
+          "description": null
+        },
+        "encode_host_size": {
+          "default": "UndefinedType._singleton",
+          "annotation": "typing.Union[int, NoneType, yarl._url.UndefinedType]",
+          "kind": "KEYWORD_ONLY",
+          "description": null
+        }
+      },
+      "returns": "None",
+      "return_description": null,
+      "raises": [],
+      "decorators": [
+        "rewrite_module"
+      ],
+      "examples": [],
+      "docstring": "Configure LRU cache sizes.",
+      "source_code": "@rewrite_module\ndef cache_configure(\n    *,\n    idna_encode_size: Union[int, None] = _DEFAULT_IDNA_SIZE,\n    idna_decode_size: Union[int, None] = _DEFAULT_IDNA_SIZE,\n    ip_address_size: Union[int, None, UndefinedType] = UNDEFINED,\n    host_validate_size: Union[int, None, UndefinedType] = UNDEFINED,\n    encode_host_size: Union[int, None, UndefinedType] = UNDEFINED,\n) -> None:\n    \"\"\"Configure LRU cache sizes.\"\"\"\n    global _idna_decode, _idna_encode, _encode_host\n    # ip_address_size, host_validate_size are no longer\n    # used, but are kept for backwards compatibility.\n    if ip_address_size is not UNDEFINED or host_validate_size is not UNDEFINED:\n        warnings.warn(\n            \"cache_configure() no longer accepts the \"\n            \"ip_address_size or host_validate_size arguments, \"\n            \"they are used to set the encode_host_size instead \"\n            \"and will be removed in the future\",\n            DeprecationWarning,\n            stacklevel=2,\n        )\n\n    if encode_host_size is not None:\n        for size in (ip_address_size, host_validate_size):\n            if size is None:\n                encode_host_size = None\n            elif encode_host_size is UNDEFINED:\n                if size is not UNDEFINED:\n                    encode_host_size = size\n            elif size is not UNDEFINED:\n                if TYPE_CHECKING:\n                    assert isinstance(size, int)\n                    assert isinstance(encode_host_size, int)\n                encode_host_size = max(size, encode_host_size)\n        if encode_host_size is UNDEFINED:\n            encode_host_size = _DEFAULT_ENCODE_SIZE\n\n    _encode_host = lru_cache(encode_host_size)(_encode_host.__wrapped__)\n    _idna_decode = lru_cache(idna_decode_size)(_idna_decode.__wrapped__)\n    _idna_encode = lru_cache(idna_encode_size)(_idna_encode.__wrapped__)\n"
+    },
+    {
+      "type": "function",
+      "qualified_name": "yarl.cache_info",
+      "module": "yarl",
+      "signature": "() -> yarl._url.CacheInfo",
+      "parameters": {},
+      "returns": "<class 'yarl._url.CacheInfo'>",
+      "return_description": null,
+      "raises": [],
+      "decorators": [
+        "rewrite_module"
+      ],
+      "examples": [],
+      "docstring": "Report cache statistics.",
+      "source_code": "@rewrite_module\ndef cache_info() -> CacheInfo:\n    \"\"\"Report cache statistics.\"\"\"\n    return {\n        \"idna_encode\": _idna_encode.cache_info(),\n        \"idna_decode\": _idna_decode.cache_info(),\n        \"ip_address\": _encode_host.cache_info(),\n        \"host_validate\": _encode_host.cache_info(),\n        \"encode_host\": _encode_host.cache_info(),\n    }\n"
+    },
+    {
+      "type": "function",
+      "qualified_name": "yarl._parse.lru_cache",
+      "module": "yarl._parse",
+      "signature": "(maxsize=128, typed=False)",
+      "parameters": {
+        "maxsize": {
+          "default": "128",
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "typed": {
+          "default": "False",
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": null,
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Least-recently-used cache decorator.\n\nIf *maxsize* is set to None, the LRU features are disabled and the cache\ncan grow without bound.\n\nIf *typed* is True, arguments of different types will be cached separately.\nFor example, f(3.0) and f(3) will be treated as distinct calls with\ndistinct results.\n\nArguments to the cached function must be hashable.\n\nView the cache statistics named tuple (hits, misses, maxsize, currsize)\nwith f.cache_info().  Clear the cache and statistics with f.cache_clear().\nAccess the underlying function with f.__wrapped__.\n\nSee:  https://en.wikipedia.org/wiki/Cache_replacement_policies#Least_recently_used_(LRU)",
+      "source_code": "def lru_cache(maxsize=128, typed=False):\n    \"\"\"Least-recently-used cache decorator.\n\n    If *maxsize* is set to None, the LRU features are disabled and the cache\n    can grow without bound.\n\n    If *typed* is True, arguments of different types will be cached separately.\n    For example, f(3.0) and f(3) will be treated as distinct calls with\n    distinct results.\n\n    Arguments to the cached function must be hashable.\n\n    View the cache statistics named tuple (hits, misses, maxsize, currsize)\n    with f.cache_info().  Clear the cache and statistics with f.cache_clear().\n    Access the underlying function with f.__wrapped__.\n\n    See:  https://en.wikipedia.org/wiki/Cache_replacement_policies#Least_recently_used_(LRU)\n\n    \"\"\"\n\n    # Users should only access the lru_cache through its public API:\n    #       cache_info, cache_clear, and f.__wrapped__\n    # The internals of the lru_cache are encapsulated for thread safety and\n    # to allow the implementation to change (including a possible C version).\n\n    if isinstance(maxsize, int):\n        # Negative maxsize is treated as 0\n        if maxsize < 0:\n            maxsize = 0\n    elif callable(maxsize) and isinstance(typed, bool):\n        # The user_function was passed in directly via the maxsize argument\n        user_function, maxsize = maxsize, 128\n        wrapper = _lru_cache_wrapper(user_function, maxsize, typed, _CacheInfo)\n        wrapper.cache_parameters = lambda : {'maxsize': maxsize, 'typed': typed}\n        return update_wrapper(wrapper, user_function)\n    elif maxsize is not None:\n        raise TypeError(\n            'Expected first argument to be an integer, a callable, or None')\n\n    def decorating_function(user_function):\n        wrapper = _lru_cache_wrapper(user_function, maxsize, typed, _CacheInfo)\n        wrapper.cache_parameters = lambda : {'maxsize': maxsize, 'typed': typed}\n        return update_wrapper(wrapper, user_function)\n\n    return decorating_function\n"
+    },
+    {
+      "type": "function",
+      "qualified_name": "yarl._parse.query_to_pairs",
+      "module": "yarl._parse",
+      "signature": "(query_string: str) -> list[tuple[str, str]]",
+      "parameters": {
+        "query_string": {
+          "default": null,
+          "annotation": "<class 'str'>",
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": "list[tuple[str, str]]",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Parse a query given as a string argument.\n\nWorks like urllib.parse.parse_qsl with keep empty values.",
+      "source_code": "def query_to_pairs(query_string: str) -> list[tuple[str, str]]:\n    \"\"\"Parse a query given as a string argument.\n\n    Works like urllib.parse.parse_qsl with keep empty values.\n    \"\"\"\n    pairs: list[tuple[str, str]] = []\n    if not query_string:\n        return pairs\n    for k_v in query_string.split(\"&\"):\n        k, _, v = k_v.partition(\"=\")\n        pairs.append((UNQUOTER_PLUS(k), UNQUOTER_PLUS(v)))\n    return pairs\n"
+    },
+    {
+      "type": "function",
+      "qualified_name": "yarl._parse.split_url",
+      "module": "yarl._parse",
+      "signature": "(url: str) -> tuple[str, str, str, str, str]",
+      "parameters": {
+        "url": {
+          "default": null,
+          "annotation": "<class 'str'>",
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": "tuple[str, str, str, str, str]",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Split URL into parts.",
+      "source_code": "def split_url(url: str) -> SplitURLType:\n    \"\"\"Split URL into parts.\"\"\"\n    # Adapted from urllib.parse.urlsplit\n    # Only lstrip url as some applications rely on preserving trailing space.\n    # (https://url.spec.whatwg.org/#concept-basic-url-parser would strip both)\n    url = url.lstrip(WHATWG_C0_CONTROL_OR_SPACE)\n    for b in UNSAFE_URL_BYTES_TO_REMOVE:\n        if b in url:\n            url = url.replace(b, \"\")\n\n    scheme = netloc = query = fragment = \"\"\n    i = url.find(\":\")\n    if i > 0 and url[0] in scheme_chars:\n        for c in url[1:i]:\n            if c not in scheme_chars:\n                break\n        else:\n            scheme, url = url[:i].lower(), url[i + 1 :]\n    has_hash = \"#\" in url\n    has_question_mark = \"?\" in url\n    if url[:2] == \"//\":\n        delim = len(url)  # position of end of domain part of url, default is end\n        if has_hash and has_question_mark:\n            delim_chars = \"/?#\"\n        elif has_question_mark:\n            delim_chars = \"/?\"\n        elif has_hash:\n            delim_chars = \"/#\"\n        else:\n            delim_chars = \"/\"\n        for c in delim_chars:  # look for delimiters; the order is NOT important\n            wdelim = url.find(c, 2)  # find first of this delim\n            if wdelim >= 0 and wdelim < delim:  # if found\n                delim = wdelim  # use earliest delim position\n        netloc = url[2:delim]\n        url = url[delim:]\n        has_left_bracket = \"[\" in netloc\n        has_right_bracket = \"]\" in netloc\n        if (has_left_bracket and not has_right_bracket) or (\n            has_right_bracket and not has_left_bracket\n        ):\n            raise ValueError(\"Invalid IPv6 URL\")\n        if has_left_bracket:\n            bracketed_host = netloc.partition(\"[\")[2].partition(\"]\")[0]\n            # Valid bracketed hosts are defined in\n            # https://www.rfc-editor.org/rfc/rfc3986#page-49\n            # https://url.spec.whatwg.org/\n            if bracketed_host[0] == \"v\":\n                if not re.match(r\"\\Av[a-fA-F0-9]+\\..+\\Z\", bracketed_host):\n                    raise ValueError(\"IPvFuture address is invalid\")\n            elif \":\" not in bracketed_host:\n                raise ValueError(\"An IPv4 address cannot be in brackets\")\n    if has_hash:\n        url, _, fragment = url.partition(\"#\")\n    if has_question_mark:\n        url, _, query = url.partition(\"?\")\n    if netloc and not netloc.isascii():\n        _check_netloc(netloc)\n    return scheme, netloc, url, query, fragment\n"
+    },
+    {
+      "type": "function",
+      "qualified_name": "yarl._parse.unsplit_result",
+      "module": "yarl._parse",
+      "signature": "(scheme: str, netloc: str, url: str, query: str, fragment: str) -> str",
+      "parameters": {
+        "scheme": {
+          "default": null,
+          "annotation": "<class 'str'>",
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "netloc": {
+          "default": null,
+          "annotation": "<class 'str'>",
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "url": {
+          "default": null,
+          "annotation": "<class 'str'>",
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "query": {
+          "default": null,
+          "annotation": "<class 'str'>",
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "fragment": {
+          "default": null,
+          "annotation": "<class 'str'>",
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": "<class 'str'>",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Unsplit a URL without any normalization.",
+      "source_code": "def unsplit_result(\n    scheme: str, netloc: str, url: str, query: str, fragment: str\n) -> str:\n    \"\"\"Unsplit a URL without any normalization.\"\"\"\n    if netloc or (scheme and scheme in USES_AUTHORITY) or url[:2] == \"//\":\n        if url and url[:1] != \"/\":\n            url = f\"{scheme}://{netloc}/{url}\" if scheme else f\"{scheme}:{url}\"\n        else:\n            url = f\"{scheme}://{netloc}{url}\" if scheme else f\"//{netloc}{url}\"\n    elif scheme:\n        url = f\"{scheme}:{url}\"\n    if query:\n        url = f\"{url}?{query}\"\n    return f\"{url}#{fragment}\" if fragment else url\n"
+    },
+    {
+      "type": "function",
+      "qualified_name": "yarl._path.normalize_path",
+      "module": "yarl._path",
+      "signature": "(path: str) -> str",
+      "parameters": {
+        "path": {
+          "default": null,
+          "annotation": "<class 'str'>",
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": "<class 'str'>",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "",
+      "source_code": "def normalize_path(path: str) -> str:\n    # Drop '.' and '..' from str path\n    prefix = \"\"\n    if path and path[0] == \"/\":\n        # preserve the \"/\" root element of absolute paths, copying it to the\n        # normalised output as per sections 5.2.4 and 6.2.2.3 of rfc3986.\n        prefix = \"/\"\n        path = path[1:]\n\n    segments = path.split(\"/\")\n    return prefix + \"/\".join(normalize_path_segments(segments))\n"
+    },
+    {
+      "type": "function",
+      "qualified_name": "yarl._path.normalize_path_segments",
+      "module": "yarl._path",
+      "signature": "(segments: collections.abc.Sequence[str]) -> list[str]",
+      "parameters": {
+        "segments": {
+          "default": null,
+          "annotation": "collections.abc.Sequence[str]",
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": "list[str]",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Drop '.' and '..' from a sequence of str segments",
+      "source_code": "def normalize_path_segments(segments: Sequence[str]) -> list[str]:\n    \"\"\"Drop '.' and '..' from a sequence of str segments\"\"\"\n\n    resolved_path: list[str] = []\n\n    for seg in segments:\n        if seg == \"..\":\n            # ignore any .. segments that would otherwise cause an\n            # IndexError when popped from resolved_path if\n            # resolving for rfc3986\n            with suppress(IndexError):\n                resolved_path.pop()\n        elif seg != \".\":\n            resolved_path.append(seg)\n\n    if segments and segments[-1] in (\".\", \"..\"):\n        # do some post-processing here.\n        # if the last segment was a relative dir,\n        # then we need to append the trailing '/'\n        resolved_path.append(\"\")\n\n    return resolved_path\n"
+    },
+    {
+      "type": "function",
+      "qualified_name": "yarl._query.get_str_query",
+      "module": "yarl._query",
+      "signature": "(*args: Any, **kwargs: Any) -> Optional[str]",
+      "parameters": {
+        "args": {
+          "default": null,
+          "annotation": "typing.Any",
+          "kind": "VAR_POSITIONAL",
+          "description": null
+        },
+        "kwargs": {
+          "default": null,
+          "annotation": "typing.Any",
+          "kind": "VAR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": "typing.Optional[str]",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Return a query string from supported args.",
+      "source_code": "def get_str_query(*args: Any, **kwargs: Any) -> Union[str, None]:\n    \"\"\"Return a query string from supported args.\"\"\"\n    query: Union[str, Mapping[str, QueryVariable], None]\n    if kwargs:\n        if args:\n            msg = \"Either kwargs or single query parameter must be present\"\n            raise ValueError(msg)\n        query = kwargs\n    elif len(args) == 1:\n        query = args[0]\n    else:\n        raise ValueError(\"Either kwargs or single query parameter must be present\")\n\n    if query is None:\n        return None\n    if not query:\n        return \"\"\n    if type(query) is dict:\n        return get_str_query_from_sequence_iterable(query.items())\n    if type(query) is str or isinstance(query, str):\n        return QUERY_QUOTER(query)\n    if isinstance(query, Mapping):\n        return get_str_query_from_sequence_iterable(query.items())\n    if isinstance(query, (bytes, bytearray, memoryview)):  # type: ignore[unreachable]\n        msg = \"Invalid query type: bytes, bytearray and memoryview are forbidden\"\n        raise TypeError(msg)\n    if isinstance(query, Sequence):\n        # We don't expect sequence values if we're given a list of pairs\n        # already; only mappings like builtin `dict` which can't have the\n        # same key pointing to multiple values are allowed to use\n        # `_query_seq_pairs`.\n        return get_str_query_from_iterable(query)\n    raise TypeError(\n        \"Invalid query type: only str, mapping or \"\n        \"sequence of (key, value) pairs is allowed\"\n    )\n"
+    },
+    {
+      "type": "function",
+      "qualified_name": "yarl._query.get_str_query_from_iterable",
+      "module": "yarl._query",
+      "signature": "(items: collections.abc.Iterable[tuple[typing.Union[str, multidict._multidict.istr], typing.Union[str, typing.SupportsInt, float]]]) -> str",
+      "parameters": {
+        "items": {
+          "default": null,
+          "annotation": "collections.abc.Iterable[tuple[typing.Union[str, multidict._multidict.istr], typing.Union[str, typing.SupportsInt, float]]]",
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": "<class 'str'>",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Return a query string from an iterable.\n\nThe iterable must contain (key, value) pairs.\n\nThe values are not allowed to be sequences, only single values are\nallowed. For sequences, use `_get_str_query_from_sequence_iterable`.",
+      "source_code": "def get_str_query_from_iterable(\n    items: Iterable[tuple[Union[str, istr], SimpleQuery]],\n) -> str:\n    \"\"\"Return a query string from an iterable.\n\n    The iterable must contain (key, value) pairs.\n\n    The values are not allowed to be sequences, only single values are\n    allowed. For sequences, use `_get_str_query_from_sequence_iterable`.\n    \"\"\"\n    quoter = QUERY_PART_QUOTER\n    # A listcomp is used since listcomps are inlined on CPython 3.12+ and\n    # they are a bit faster than a generator expression.\n    pairs = [\n        f\"{quoter(k)}={quoter(v if type(v) is str else query_var(v))}\" for k, v in items\n    ]\n    return \"&\".join(pairs)\n"
+    },
+    {
+      "type": "function",
+      "qualified_name": "yarl._query.get_str_query_from_sequence_iterable",
+      "module": "yarl._query",
+      "signature": "(items: collections.abc.Iterable[tuple[typing.Union[str, multidict._multidict.istr], typing.Union[str, typing.SupportsInt, float, collections.abc.Sequence[typing.Union[str, typing.SupportsInt, float]]]]]) -> str",
+      "parameters": {
+        "items": {
+          "default": null,
+          "annotation": "collections.abc.Iterable[tuple[typing.Union[str, multidict._multidict.istr], typing.Union[str, typing.SupportsInt, float, collections.abc.Sequence[typing.Union[str, typing.SupportsInt, float]]]]]",
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": "<class 'str'>",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Return a query string from a sequence of (key, value) pairs.\n\nvalue is a single value or a sequence of values for the key\n\nThe sequence of values must be a list or tuple.",
+      "source_code": "def get_str_query_from_sequence_iterable(\n    items: Iterable[tuple[Union[str, istr], QueryVariable]],\n) -> str:\n    \"\"\"Return a query string from a sequence of (key, value) pairs.\n\n    value is a single value or a sequence of values for the key\n\n    The sequence of values must be a list or tuple.\n    \"\"\"\n    quoter = QUERY_PART_QUOTER\n    pairs = [\n        f\"{quoter(k)}={quoter(v if type(v) is str else query_var(v))}\"\n        for k, val in items\n        for v in (\n            val if type(val) is not str and isinstance(val, (list, tuple)) else (val,)\n        )\n    ]\n    return \"&\".join(pairs)\n"
+    },
+    {
+      "type": "function",
+      "qualified_name": "yarl._query.query_var",
+      "module": "yarl._query",
+      "signature": "(v: Union[str, SupportsInt, float]) -> str",
+      "parameters": {
+        "v": {
+          "default": null,
+          "annotation": "typing.Union[str, typing.SupportsInt, float]",
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": "<class 'str'>",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Convert a query variable to a string.",
+      "source_code": "def query_var(v: SimpleQuery) -> str:\n    \"\"\"Convert a query variable to a string.\"\"\"\n    cls = type(v)\n    if cls is int:  # Fast path for non-subclassed int\n        return str(v)\n    if isinstance(v, str):\n        return v\n    if isinstance(v, float):\n        if math.isinf(v):\n            raise ValueError(\"float('inf') is not supported\")\n        if math.isnan(v):\n            raise ValueError(\"float('nan') is not supported\")\n        return str(float(v))\n    if cls is not bool and isinstance(v, SupportsInt):\n        return str(int(v))\n    raise TypeError(\n        \"Invalid variable type: value \"\n        \"should be str, int or float, got {!r} \"\n        \"of type {}\".format(v, cls)\n    )\n"
+    },
+    {
+      "type": "function",
+      "qualified_name": "yarl._quoters.human_quote",
+      "module": "yarl._quoters",
+      "signature": "(s: Optional[str], unsafe: str) -> Optional[str]",
+      "parameters": {
+        "s": {
+          "default": null,
+          "annotation": "typing.Optional[str]",
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "unsafe": {
+          "default": null,
+          "annotation": "<class 'str'>",
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": "typing.Optional[str]",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "",
+      "source_code": "def human_quote(s: Union[str, None], unsafe: str) -> Union[str, None]:\n    if not s:\n        return s\n    for c in \"%\" + unsafe:\n        if c in s:\n            s = s.replace(c, f\"%{ord(c):02X}\")\n    if s.isprintable():\n        return s\n    return \"\".join(c if c.isprintable() else quote(c) for c in s)\n"
+    },
+    {
+      "type": "function",
+      "qualified_name": "yarl._quoters.quote",
+      "module": "yarl._quoters",
+      "signature": "(string, safe='/', encoding=None, errors=None)",
+      "parameters": {
+        "string": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "safe": {
+          "default": "/",
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "encoding": {
+          "default": "None",
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "errors": {
+          "default": "None",
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": null,
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "quote('abc def') -> 'abc%20def'\n\nEach part of a URL, e.g. the path info, the query, etc., has a\ndifferent set of reserved characters that must be quoted. The\nquote function offers a cautious (not minimal) way to quote a\nstring for most of these parts.\n\nRFC 3986 Uniform Resource Identifier (URI): Generic Syntax lists\nthe following (un)reserved characters.\n\nunreserved    = ALPHA / DIGIT / \"-\" / \".\" / \"_\" / \"~\"\nreserved      = gen-delims / sub-delims\ngen-delims    = \":\" / \"/\" / \"?\" / \"#\" / \"[\" / \"]\" / \"@\"\nsub-delims    = \"!\" / \"$\" / \"&\" / \"'\" / \"(\" / \")\"\n              / \"*\" / \"+\" / \",\" / \";\" / \"=\"\n\nEach of the reserved characters is reserved in some component of a URL,\nbut not necessarily in all of them.\n\nThe quote function %-escapes all characters that are neither in the\nunreserved chars (\"always safe\") nor the additional chars set via the\nsafe arg.\n\nThe default for the safe arg is '/'. The character is reserved, but in\ntypical usage the quote function is being called on a path where the\nexisting slash characters are to be preserved.\n\nPython 3.7 updates from using RFC 2396 to RFC 3986 to quote URL strings.\nNow, \"~\" is included in the set of unreserved characters.\n\nstring and safe may be either str or bytes objects. encoding and errors\nmust not be specified if string is a bytes object.\n\nThe optional encoding and errors parameters specify how to deal with\nnon-ASCII characters, as accepted by the str.encode method.\nBy default, encoding='utf-8' (characters are encoded with UTF-8), and\nerrors='strict' (unsupported characters raise a UnicodeEncodeError).",
+      "source_code": "def quote(string, safe='/', encoding=None, errors=None):\n    \"\"\"quote('abc def') -> 'abc%20def'\n\n    Each part of a URL, e.g. the path info, the query, etc., has a\n    different set of reserved characters that must be quoted. The\n    quote function offers a cautious (not minimal) way to quote a\n    string for most of these parts.\n\n    RFC 3986 Uniform Resource Identifier (URI): Generic Syntax lists\n    the following (un)reserved characters.\n\n    unreserved    = ALPHA / DIGIT / \"-\" / \".\" / \"_\" / \"~\"\n    reserved      = gen-delims / sub-delims\n    gen-delims    = \":\" / \"/\" / \"?\" / \"#\" / \"[\" / \"]\" / \"@\"\n    sub-delims    = \"!\" / \"$\" / \"&\" / \"'\" / \"(\" / \")\"\n                  / \"*\" / \"+\" / \",\" / \";\" / \"=\"\n\n    Each of the reserved characters is reserved in some component of a URL,\n    but not necessarily in all of them.\n\n    The quote function %-escapes all characters that are neither in the\n    unreserved chars (\"always safe\") nor the additional chars set via the\n    safe arg.\n\n    The default for the safe arg is '/'. The character is reserved, but in\n    typical usage the quote function is being called on a path where the\n    existing slash characters are to be preserved.\n\n    Python 3.7 updates from using RFC 2396 to RFC 3986 to quote URL strings.\n    Now, \"~\" is included in the set of unreserved characters.\n\n    string and safe may be either str or bytes objects. encoding and errors\n    must not be specified if string is a bytes object.\n\n    The optional encoding and errors parameters specify how to deal with\n    non-ASCII characters, as accepted by the str.encode method.\n    By default, encoding='utf-8' (characters are encoded with UTF-8), and\n    errors='strict' (unsupported characters raise a UnicodeEncodeError).\n    \"\"\"\n    if isinstance(string, str):\n        if not string:\n            return string\n        if encoding is None:\n            encoding = 'utf-8'\n        if errors is None:\n            errors = 'strict'\n        string = string.encode(encoding, errors)\n    else:\n        if encoding is not None:\n            raise TypeError(\"quote() doesn't support 'encoding' for bytes\")\n        if errors is not None:\n            raise TypeError(\"quote() doesn't support 'errors' for bytes\")\n    return quote_from_bytes(string, safe)\n"
+    },
+    {
+      "type": "function",
+      "qualified_name": "yarl._quoting_py.cast",
+      "module": "yarl._quoting_py",
+      "signature": "(typ, val)",
+      "parameters": {
+        "typ": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "val": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": null,
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Cast a value to a type.\n\nThis returns the value unchanged.  To the type checker this\nsignals that the return value has the designated type, but at\nruntime we intentionally don't check anything (we want this\nto be as fast as possible).",
+      "source_code": "def cast(typ, val):\n    \"\"\"Cast a value to a type.\n\n    This returns the value unchanged.  To the type checker this\n    signals that the return value has the designated type, but at\n    runtime we intentionally don't check anything (we want this\n    to be as fast as possible).\n    \"\"\"\n    return val\n"
+    },
+    {
+      "type": "function",
+      "qualified_name": "yarl._quoting_py.overload",
+      "module": "yarl._quoting_py",
+      "signature": "(func)",
+      "parameters": {
+        "func": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": null,
+      "return_description": null,
+      "raises": [],
+      "decorators": [
+        "overload",
+        "overload",
+        "overload",
+        "overload",
+        "overload",
+        "overload"
+      ],
+      "examples": [],
+      "docstring": "Decorator for overloaded functions/methods.\n\nIn a stub file, place two or more stub definitions for the same\nfunction in a row, each decorated with @overload.  For example:\n\n  @overload\n  def utf8(value: None) -> None: ...\n  @overload\n  def utf8(value: bytes) -> bytes: ...\n  @overload\n  def utf8(value: str) -> bytes: ...\n\nIn a non-stub file (i.e. a regular .py file), do the same but\nfollow it with an implementation.  The implementation should *not*\nbe decorated with @overload.  For example:\n\n  @overload\n  def utf8(value: None) -> None: ...\n  @overload\n  def utf8(value: bytes) -> bytes: ...\n  @overload\n  def utf8(value: str) -> bytes: ...\n  def utf8(value):\n      # implementation goes here",
+      "source_code": "def overload(func):\n    \"\"\"Decorator for overloaded functions/methods.\n\n    In a stub file, place two or more stub definitions for the same\n    function in a row, each decorated with @overload.  For example:\n\n      @overload\n      def utf8(value: None) -> None: ...\n      @overload\n      def utf8(value: bytes) -> bytes: ...\n      @overload\n      def utf8(value: str) -> bytes: ...\n\n    In a non-stub file (i.e. a regular .py file), do the same but\n    follow it with an implementation.  The implementation should *not*\n    be decorated with @overload.  For example:\n\n      @overload\n      def utf8(value: None) -> None: ...\n      @overload\n      def utf8(value: bytes) -> bytes: ...\n      @overload\n      def utf8(value: str) -> bytes: ...\n      def utf8(value):\n          # implementation goes here\n    \"\"\"\n    return _overload_dummy\n"
+    },
+    {
+      "type": "function",
+      "qualified_name": "yarl._url.TypedDict",
+      "module": "yarl._url",
+      "signature": "(typename, fields=None, /, *, total=True, **kwargs)",
+      "parameters": {
+        "typename": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_ONLY",
+          "description": null
+        },
+        "fields": {
+          "default": "None",
+          "annotation": null,
+          "kind": "POSITIONAL_ONLY",
+          "description": null
+        },
+        "total": {
+          "default": "True",
+          "annotation": null,
+          "kind": "KEYWORD_ONLY",
+          "description": null
+        },
+        "kwargs": {
+          "default": null,
+          "annotation": null,
+          "kind": "VAR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": null,
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "A simple typed namespace. At runtime it is equivalent to a plain dict.\n\nTypedDict creates a dictionary type that expects all of its\ninstances to have a certain set of keys, where each key is\nassociated with a value of a consistent type. This expectation\nis not checked at runtime but is only enforced by type checkers.\nUsage::\n\n    class Point2D(TypedDict):\n        x: int\n        y: int\n        label: str\n\n    a: Point2D = {'x': 1, 'y': 2, 'label': 'good'}  # OK\n    b: Point2D = {'z': 3, 'label': 'bad'}           # Fails type check\n\n    assert Point2D(x=1, y=2, label='first') == dict(x=1, y=2, label='first')\n\nThe type info can be accessed via the Point2D.__annotations__ dict, and\nthe Point2D.__required_keys__ and Point2D.__optional_keys__ frozensets.\nTypedDict supports two additional equivalent forms::\n\n    Point2D = TypedDict('Point2D', x=int, y=int, label=str)\n    Point2D = TypedDict('Point2D', {'x': int, 'y': int, 'label': str})\n\nBy default, all keys must be present in a TypedDict. It is possible\nto override this by specifying totality.\nUsage::\n\n    class point2D(TypedDict, total=False):\n        x: int\n        y: int\n\nThis means that a point2D TypedDict can have any of the keys omitted.A type\nchecker is only expected to support a literal False or True as the value of\nthe total argument. True is the default, and makes all items defined in the\nclass body be required.\n\nThe class syntax is only supported in Python 3.6+, while two other\nsyntax forms work for Python 2.7 and 3.2+",
+      "source_code": "def TypedDict(typename, fields=None, /, *, total=True, **kwargs):\n    \"\"\"A simple typed namespace. At runtime it is equivalent to a plain dict.\n\n    TypedDict creates a dictionary type that expects all of its\n    instances to have a certain set of keys, where each key is\n    associated with a value of a consistent type. This expectation\n    is not checked at runtime but is only enforced by type checkers.\n    Usage::\n\n        class Point2D(TypedDict):\n            x: int\n            y: int\n            label: str\n\n        a: Point2D = {'x': 1, 'y': 2, 'label': 'good'}  # OK\n        b: Point2D = {'z': 3, 'label': 'bad'}           # Fails type check\n\n        assert Point2D(x=1, y=2, label='first') == dict(x=1, y=2, label='first')\n\n    The type info can be accessed via the Point2D.__annotations__ dict, and\n    the Point2D.__required_keys__ and Point2D.__optional_keys__ frozensets.\n    TypedDict supports two additional equivalent forms::\n\n        Point2D = TypedDict('Point2D', x=int, y=int, label=str)\n        Point2D = TypedDict('Point2D', {'x': int, 'y': int, 'label': str})\n\n    By default, all keys must be present in a TypedDict. It is possible\n    to override this by specifying totality.\n    Usage::\n\n        class point2D(TypedDict, total=False):\n            x: int\n            y: int\n\n    This means that a point2D TypedDict can have any of the keys omitted.A type\n    checker is only expected to support a literal False or True as the value of\n    the total argument. True is the default, and makes all items defined in the\n    class body be required.\n\n    The class syntax is only supported in Python 3.6+, while two other\n    syntax forms work for Python 2.7 and 3.2+\n    \"\"\"\n    if fields is None:\n        fields = kwargs\n    elif kwargs:\n        raise TypeError(\"TypedDict takes either a dict or keyword arguments,\"\n                        \" but not both\")\n\n    ns = {'__annotations__': dict(fields)}\n    try:\n        # Setting correct module is necessary to make typed dict classes pickleable.\n        ns['__module__'] = sys._getframe(1).f_globals.get('__name__', '__main__')\n    except (AttributeError, ValueError):\n        pass\n\n    return _TypedDictMeta(typename, (), ns, total=total)\n"
+    },
+    {
+      "type": "function",
+      "qualified_name": "yarl._url.cache_clear",
+      "module": "yarl._url",
+      "signature": "() -> None",
+      "parameters": {},
+      "returns": "None",
+      "return_description": null,
+      "raises": [],
+      "decorators": [
+        "rewrite_module"
+      ],
+      "examples": [],
+      "docstring": "Clear all LRU caches.",
+      "source_code": "@rewrite_module\ndef cache_clear() -> None:\n    \"\"\"Clear all LRU caches.\"\"\"\n    _idna_encode.cache_clear()\n    _idna_decode.cache_clear()\n    _encode_host.cache_clear()\n"
+    },
+    {
+      "type": "function",
+      "qualified_name": "yarl._url.cache_configure",
+      "module": "yarl._url",
+      "signature": "(*, idna_encode_size: Optional[int] = 256, idna_decode_size: Optional[int] = 256, ip_address_size: Union[int, NoneType, yarl._url.UndefinedType] = <UndefinedType._singleton: 0>, host_validate_size: Union[int, NoneType, yarl._url.UndefinedType] = <UndefinedType._singleton: 0>, encode_host_size: Union[int, NoneType, yarl._url.UndefinedType] = <UndefinedType._singleton: 0>) -> None",
+      "parameters": {
+        "idna_encode_size": {
+          "default": "256",
+          "annotation": "typing.Optional[int]",
+          "kind": "KEYWORD_ONLY",
+          "description": null
+        },
+        "idna_decode_size": {
+          "default": "256",
+          "annotation": "typing.Optional[int]",
+          "kind": "KEYWORD_ONLY",
+          "description": null
+        },
+        "ip_address_size": {
+          "default": "UndefinedType._singleton",
+          "annotation": "typing.Union[int, NoneType, yarl._url.UndefinedType]",
+          "kind": "KEYWORD_ONLY",
+          "description": null
+        },
+        "host_validate_size": {
+          "default": "UndefinedType._singleton",
+          "annotation": "typing.Union[int, NoneType, yarl._url.UndefinedType]",
+          "kind": "KEYWORD_ONLY",
+          "description": null
+        },
+        "encode_host_size": {
+          "default": "UndefinedType._singleton",
+          "annotation": "typing.Union[int, NoneType, yarl._url.UndefinedType]",
+          "kind": "KEYWORD_ONLY",
+          "description": null
+        }
+      },
+      "returns": "None",
+      "return_description": null,
+      "raises": [],
+      "decorators": [
+        "rewrite_module"
+      ],
+      "examples": [],
+      "docstring": "Configure LRU cache sizes.",
+      "source_code": "@rewrite_module\ndef cache_configure(\n    *,\n    idna_encode_size: Union[int, None] = _DEFAULT_IDNA_SIZE,\n    idna_decode_size: Union[int, None] = _DEFAULT_IDNA_SIZE,\n    ip_address_size: Union[int, None, UndefinedType] = UNDEFINED,\n    host_validate_size: Union[int, None, UndefinedType] = UNDEFINED,\n    encode_host_size: Union[int, None, UndefinedType] = UNDEFINED,\n) -> None:\n    \"\"\"Configure LRU cache sizes.\"\"\"\n    global _idna_decode, _idna_encode, _encode_host\n    # ip_address_size, host_validate_size are no longer\n    # used, but are kept for backwards compatibility.\n    if ip_address_size is not UNDEFINED or host_validate_size is not UNDEFINED:\n        warnings.warn(\n            \"cache_configure() no longer accepts the \"\n            \"ip_address_size or host_validate_size arguments, \"\n            \"they are used to set the encode_host_size instead \"\n            \"and will be removed in the future\",\n            DeprecationWarning,\n            stacklevel=2,\n        )\n\n    if encode_host_size is not None:\n        for size in (ip_address_size, host_validate_size):\n            if size is None:\n                encode_host_size = None\n            elif encode_host_size is UNDEFINED:\n                if size is not UNDEFINED:\n                    encode_host_size = size\n            elif size is not UNDEFINED:\n                if TYPE_CHECKING:\n                    assert isinstance(size, int)\n                    assert isinstance(encode_host_size, int)\n                encode_host_size = max(size, encode_host_size)\n        if encode_host_size is UNDEFINED:\n            encode_host_size = _DEFAULT_ENCODE_SIZE\n\n    _encode_host = lru_cache(encode_host_size)(_encode_host.__wrapped__)\n    _idna_decode = lru_cache(idna_decode_size)(_idna_decode.__wrapped__)\n    _idna_encode = lru_cache(idna_encode_size)(_idna_encode.__wrapped__)\n"
+    },
+    {
+      "type": "function",
+      "qualified_name": "yarl._url.cache_info",
+      "module": "yarl._url",
+      "signature": "() -> yarl._url.CacheInfo",
+      "parameters": {},
+      "returns": "<class 'yarl._url.CacheInfo'>",
+      "return_description": null,
+      "raises": [],
+      "decorators": [
+        "rewrite_module"
+      ],
+      "examples": [],
+      "docstring": "Report cache statistics.",
+      "source_code": "@rewrite_module\ndef cache_info() -> CacheInfo:\n    \"\"\"Report cache statistics.\"\"\"\n    return {\n        \"idna_encode\": _idna_encode.cache_info(),\n        \"idna_decode\": _idna_decode.cache_info(),\n        \"ip_address\": _encode_host.cache_info(),\n        \"host_validate\": _encode_host.cache_info(),\n        \"encode_host\": _encode_host.cache_info(),\n    }\n"
+    },
+    {
+      "type": "function",
+      "qualified_name": "yarl._url.from_parts_uncached",
+      "module": "yarl._url",
+      "signature": "(scheme: str, netloc: str, path: str, query: str, fragment: str) -> 'URL'",
+      "parameters": {
+        "scheme": {
+          "default": null,
+          "annotation": "<class 'str'>",
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "netloc": {
+          "default": null,
+          "annotation": "<class 'str'>",
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "path": {
+          "default": null,
+          "annotation": "<class 'str'>",
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "query": {
+          "default": null,
+          "annotation": "<class 'str'>",
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "fragment": {
+          "default": null,
+          "annotation": "<class 'str'>",
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": "URL",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Create a new URL from parts.",
+      "source_code": "def from_parts_uncached(\n    scheme: str, netloc: str, path: str, query: str, fragment: str\n) -> \"URL\":\n    \"\"\"Create a new URL from parts.\"\"\"\n    self = object.__new__(URL)\n    self._scheme = scheme\n    self._netloc = netloc\n    self._path = path\n    self._query = query\n    self._fragment = fragment\n    self._cache = {}\n    return self\n"
+    },
+    {
+      "type": "function",
+      "qualified_name": "yarl._url.get_str_query",
+      "module": "yarl._url",
+      "signature": "(*args: Any, **kwargs: Any) -> Optional[str]",
+      "parameters": {
+        "args": {
+          "default": null,
+          "annotation": "typing.Any",
+          "kind": "VAR_POSITIONAL",
+          "description": null
+        },
+        "kwargs": {
+          "default": null,
+          "annotation": "typing.Any",
+          "kind": "VAR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": "typing.Optional[str]",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Return a query string from supported args.",
+      "source_code": "def get_str_query(*args: Any, **kwargs: Any) -> Union[str, None]:\n    \"\"\"Return a query string from supported args.\"\"\"\n    query: Union[str, Mapping[str, QueryVariable], None]\n    if kwargs:\n        if args:\n            msg = \"Either kwargs or single query parameter must be present\"\n            raise ValueError(msg)\n        query = kwargs\n    elif len(args) == 1:\n        query = args[0]\n    else:\n        raise ValueError(\"Either kwargs or single query parameter must be present\")\n\n    if query is None:\n        return None\n    if not query:\n        return \"\"\n    if type(query) is dict:\n        return get_str_query_from_sequence_iterable(query.items())\n    if type(query) is str or isinstance(query, str):\n        return QUERY_QUOTER(query)\n    if isinstance(query, Mapping):\n        return get_str_query_from_sequence_iterable(query.items())\n    if isinstance(query, (bytes, bytearray, memoryview)):  # type: ignore[unreachable]\n        msg = \"Invalid query type: bytes, bytearray and memoryview are forbidden\"\n        raise TypeError(msg)\n    if isinstance(query, Sequence):\n        # We don't expect sequence values if we're given a list of pairs\n        # already; only mappings like builtin `dict` which can't have the\n        # same key pointing to multiple values are allowed to use\n        # `_query_seq_pairs`.\n        return get_str_query_from_iterable(query)\n    raise TypeError(\n        \"Invalid query type: only str, mapping or \"\n        \"sequence of (key, value) pairs is allowed\"\n    )\n"
+    },
+    {
+      "type": "function",
+      "qualified_name": "yarl._url.get_str_query_from_iterable",
+      "module": "yarl._url",
+      "signature": "(items: collections.abc.Iterable[tuple[typing.Union[str, multidict._multidict.istr], typing.Union[str, typing.SupportsInt, float]]]) -> str",
+      "parameters": {
+        "items": {
+          "default": null,
+          "annotation": "collections.abc.Iterable[tuple[typing.Union[str, multidict._multidict.istr], typing.Union[str, typing.SupportsInt, float]]]",
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": "<class 'str'>",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Return a query string from an iterable.\n\nThe iterable must contain (key, value) pairs.\n\nThe values are not allowed to be sequences, only single values are\nallowed. For sequences, use `_get_str_query_from_sequence_iterable`.",
+      "source_code": "def get_str_query_from_iterable(\n    items: Iterable[tuple[Union[str, istr], SimpleQuery]],\n) -> str:\n    \"\"\"Return a query string from an iterable.\n\n    The iterable must contain (key, value) pairs.\n\n    The values are not allowed to be sequences, only single values are\n    allowed. For sequences, use `_get_str_query_from_sequence_iterable`.\n    \"\"\"\n    quoter = QUERY_PART_QUOTER\n    # A listcomp is used since listcomps are inlined on CPython 3.12+ and\n    # they are a bit faster than a generator expression.\n    pairs = [\n        f\"{quoter(k)}={quoter(v if type(v) is str else query_var(v))}\" for k, v in items\n    ]\n    return \"&\".join(pairs)\n"
+    },
+    {
+      "type": "function",
+      "qualified_name": "yarl._url.get_str_query_from_sequence_iterable",
+      "module": "yarl._url",
+      "signature": "(items: collections.abc.Iterable[tuple[typing.Union[str, multidict._multidict.istr], typing.Union[str, typing.SupportsInt, float, collections.abc.Sequence[typing.Union[str, typing.SupportsInt, float]]]]]) -> str",
+      "parameters": {
+        "items": {
+          "default": null,
+          "annotation": "collections.abc.Iterable[tuple[typing.Union[str, multidict._multidict.istr], typing.Union[str, typing.SupportsInt, float, collections.abc.Sequence[typing.Union[str, typing.SupportsInt, float]]]]]",
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": "<class 'str'>",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Return a query string from a sequence of (key, value) pairs.\n\nvalue is a single value or a sequence of values for the key\n\nThe sequence of values must be a list or tuple.",
+      "source_code": "def get_str_query_from_sequence_iterable(\n    items: Iterable[tuple[Union[str, istr], QueryVariable]],\n) -> str:\n    \"\"\"Return a query string from a sequence of (key, value) pairs.\n\n    value is a single value or a sequence of values for the key\n\n    The sequence of values must be a list or tuple.\n    \"\"\"\n    quoter = QUERY_PART_QUOTER\n    pairs = [\n        f\"{quoter(k)}={quoter(v if type(v) is str else query_var(v))}\"\n        for k, val in items\n        for v in (\n            val if type(val) is not str and isinstance(val, (list, tuple)) else (val,)\n        )\n    ]\n    return \"&\".join(pairs)\n"
+    },
+    {
+      "type": "function",
+      "qualified_name": "yarl._url.human_quote",
+      "module": "yarl._url",
+      "signature": "(s: Optional[str], unsafe: str) -> Optional[str]",
+      "parameters": {
+        "s": {
+          "default": null,
+          "annotation": "typing.Optional[str]",
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "unsafe": {
+          "default": null,
+          "annotation": "<class 'str'>",
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": "typing.Optional[str]",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "",
+      "source_code": "def human_quote(s: Union[str, None], unsafe: str) -> Union[str, None]:\n    if not s:\n        return s\n    for c in \"%\" + unsafe:\n        if c in s:\n            s = s.replace(c, f\"%{ord(c):02X}\")\n    if s.isprintable():\n        return s\n    return \"\".join(c if c.isprintable() else quote(c) for c in s)\n"
+    },
+    {
+      "type": "function",
+      "qualified_name": "yarl._url.ip_address",
+      "module": "yarl._url",
+      "signature": "(address)",
+      "parameters": {
+        "address": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": null,
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Take an IP string/int and return an object of the correct type.\n\nArgs:\n    address: A string or integer, the IP address.  Either IPv4 or\n      IPv6 addresses may be supplied; integers less than 2**32 will\n      be considered to be IPv4 by default.\n\nReturns:\n    An IPv4Address or IPv6Address object.\n\nRaises:\n    ValueError: if the *address* passed isn't either a v4 or a v6\n      address",
+      "source_code": "def ip_address(address):\n    \"\"\"Take an IP string/int and return an object of the correct type.\n\n    Args:\n        address: A string or integer, the IP address.  Either IPv4 or\n          IPv6 addresses may be supplied; integers less than 2**32 will\n          be considered to be IPv4 by default.\n\n    Returns:\n        An IPv4Address or IPv6Address object.\n\n    Raises:\n        ValueError: if the *address* passed isn't either a v4 or a v6\n          address\n\n    \"\"\"\n    try:\n        return IPv4Address(address)\n    except (AddressValueError, NetmaskValueError):\n        pass\n\n    try:\n        return IPv6Address(address)\n    except (AddressValueError, NetmaskValueError):\n        pass\n\n    raise ValueError(f'{address!r} does not appear to be an IPv4 or IPv6 address')\n"
+    },
+    {
+      "type": "function",
+      "qualified_name": "yarl._url.lru_cache",
+      "module": "yarl._url",
+      "signature": "(maxsize=128, typed=False)",
+      "parameters": {
+        "maxsize": {
+          "default": "128",
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "typed": {
+          "default": "False",
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": null,
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Least-recently-used cache decorator.\n\nIf *maxsize* is set to None, the LRU features are disabled and the cache\ncan grow without bound.\n\nIf *typed* is True, arguments of different types will be cached separately.\nFor example, f(3.0) and f(3) will be treated as distinct calls with\ndistinct results.\n\nArguments to the cached function must be hashable.\n\nView the cache statistics named tuple (hits, misses, maxsize, currsize)\nwith f.cache_info().  Clear the cache and statistics with f.cache_clear().\nAccess the underlying function with f.__wrapped__.\n\nSee:  https://en.wikipedia.org/wiki/Cache_replacement_policies#Least_recently_used_(LRU)",
+      "source_code": "def lru_cache(maxsize=128, typed=False):\n    \"\"\"Least-recently-used cache decorator.\n\n    If *maxsize* is set to None, the LRU features are disabled and the cache\n    can grow without bound.\n\n    If *typed* is True, arguments of different types will be cached separately.\n    For example, f(3.0) and f(3) will be treated as distinct calls with\n    distinct results.\n\n    Arguments to the cached function must be hashable.\n\n    View the cache statistics named tuple (hits, misses, maxsize, currsize)\n    with f.cache_info().  Clear the cache and statistics with f.cache_clear().\n    Access the underlying function with f.__wrapped__.\n\n    See:  https://en.wikipedia.org/wiki/Cache_replacement_policies#Least_recently_used_(LRU)\n\n    \"\"\"\n\n    # Users should only access the lru_cache through its public API:\n    #       cache_info, cache_clear, and f.__wrapped__\n    # The internals of the lru_cache are encapsulated for thread safety and\n    # to allow the implementation to change (including a possible C version).\n\n    if isinstance(maxsize, int):\n        # Negative maxsize is treated as 0\n        if maxsize < 0:\n            maxsize = 0\n    elif callable(maxsize) and isinstance(typed, bool):\n        # The user_function was passed in directly via the maxsize argument\n        user_function, maxsize = maxsize, 128\n        wrapper = _lru_cache_wrapper(user_function, maxsize, typed, _CacheInfo)\n        wrapper.cache_parameters = lambda : {'maxsize': maxsize, 'typed': typed}\n        return update_wrapper(wrapper, user_function)\n    elif maxsize is not None:\n        raise TypeError(\n            'Expected first argument to be an integer, a callable, or None')\n\n    def decorating_function(user_function):\n        wrapper = _lru_cache_wrapper(user_function, maxsize, typed, _CacheInfo)\n        wrapper.cache_parameters = lambda : {'maxsize': maxsize, 'typed': typed}\n        return update_wrapper(wrapper, user_function)\n\n    return decorating_function\n"
+    },
+    {
+      "type": "function",
+      "qualified_name": "yarl._url.normalize_path",
+      "module": "yarl._url",
+      "signature": "(path: str) -> str",
+      "parameters": {
+        "path": {
+          "default": null,
+          "annotation": "<class 'str'>",
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": "<class 'str'>",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "",
+      "source_code": "def normalize_path(path: str) -> str:\n    # Drop '.' and '..' from str path\n    prefix = \"\"\n    if path and path[0] == \"/\":\n        # preserve the \"/\" root element of absolute paths, copying it to the\n        # normalised output as per sections 5.2.4 and 6.2.2.3 of rfc3986.\n        prefix = \"/\"\n        path = path[1:]\n\n    segments = path.split(\"/\")\n    return prefix + \"/\".join(normalize_path_segments(segments))\n"
+    },
+    {
+      "type": "function",
+      "qualified_name": "yarl._url.normalize_path_segments",
+      "module": "yarl._url",
+      "signature": "(segments: collections.abc.Sequence[str]) -> list[str]",
+      "parameters": {
+        "segments": {
+          "default": null,
+          "annotation": "collections.abc.Sequence[str]",
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": "list[str]",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Drop '.' and '..' from a sequence of str segments",
+      "source_code": "def normalize_path_segments(segments: Sequence[str]) -> list[str]:\n    \"\"\"Drop '.' and '..' from a sequence of str segments\"\"\"\n\n    resolved_path: list[str] = []\n\n    for seg in segments:\n        if seg == \"..\":\n            # ignore any .. segments that would otherwise cause an\n            # IndexError when popped from resolved_path if\n            # resolving for rfc3986\n            with suppress(IndexError):\n                resolved_path.pop()\n        elif seg != \".\":\n            resolved_path.append(seg)\n\n    if segments and segments[-1] in (\".\", \"..\"):\n        # do some post-processing here.\n        # if the last segment was a relative dir,\n        # then we need to append the trailing '/'\n        resolved_path.append(\"\")\n\n    return resolved_path\n"
+    },
+    {
+      "type": "function",
+      "qualified_name": "yarl._url.overload",
+      "module": "yarl._url",
+      "signature": "(func)",
+      "parameters": {
+        "func": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": null,
+      "return_description": null,
+      "raises": [],
+      "decorators": [
+        "overload",
+        "overload",
+        "overload",
+        "overload",
+        "overload",
+        "overload"
+      ],
+      "examples": [],
+      "docstring": "Decorator for overloaded functions/methods.\n\nIn a stub file, place two or more stub definitions for the same\nfunction in a row, each decorated with @overload.  For example:\n\n  @overload\n  def utf8(value: None) -> None: ...\n  @overload\n  def utf8(value: bytes) -> bytes: ...\n  @overload\n  def utf8(value: str) -> bytes: ...\n\nIn a non-stub file (i.e. a regular .py file), do the same but\nfollow it with an implementation.  The implementation should *not*\nbe decorated with @overload.  For example:\n\n  @overload\n  def utf8(value: None) -> None: ...\n  @overload\n  def utf8(value: bytes) -> bytes: ...\n  @overload\n  def utf8(value: str) -> bytes: ...\n  def utf8(value):\n      # implementation goes here",
+      "source_code": "def overload(func):\n    \"\"\"Decorator for overloaded functions/methods.\n\n    In a stub file, place two or more stub definitions for the same\n    function in a row, each decorated with @overload.  For example:\n\n      @overload\n      def utf8(value: None) -> None: ...\n      @overload\n      def utf8(value: bytes) -> bytes: ...\n      @overload\n      def utf8(value: str) -> bytes: ...\n\n    In a non-stub file (i.e. a regular .py file), do the same but\n    follow it with an implementation.  The implementation should *not*\n    be decorated with @overload.  For example:\n\n      @overload\n      def utf8(value: None) -> None: ...\n      @overload\n      def utf8(value: bytes) -> bytes: ...\n      @overload\n      def utf8(value: str) -> bytes: ...\n      def utf8(value):\n          # implementation goes here\n    \"\"\"\n    return _overload_dummy\n"
+    },
+    {
+      "type": "function",
+      "qualified_name": "yarl._url.query_to_pairs",
+      "module": "yarl._url",
+      "signature": "(query_string: str) -> list[tuple[str, str]]",
+      "parameters": {
+        "query_string": {
+          "default": null,
+          "annotation": "<class 'str'>",
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": "list[tuple[str, str]]",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Parse a query given as a string argument.\n\nWorks like urllib.parse.parse_qsl with keep empty values.",
+      "source_code": "def query_to_pairs(query_string: str) -> list[tuple[str, str]]:\n    \"\"\"Parse a query given as a string argument.\n\n    Works like urllib.parse.parse_qsl with keep empty values.\n    \"\"\"\n    pairs: list[tuple[str, str]] = []\n    if not query_string:\n        return pairs\n    for k_v in query_string.split(\"&\"):\n        k, _, v = k_v.partition(\"=\")\n        pairs.append((UNQUOTER_PLUS(k), UNQUOTER_PLUS(v)))\n    return pairs\n"
+    },
+    {
+      "type": "function",
+      "qualified_name": "yarl._url.rewrite_module",
+      "module": "yarl._url",
+      "signature": "(obj: ~_T) -> ~_T",
+      "parameters": {
+        "obj": {
+          "default": null,
+          "annotation": "~_T",
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": "~_T",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "",
+      "source_code": "def rewrite_module(obj: _T) -> _T:\n    obj.__module__ = \"yarl\"\n    return obj\n"
+    },
+    {
+      "type": "function",
+      "qualified_name": "yarl._url.split_url",
+      "module": "yarl._url",
+      "signature": "(url: str) -> tuple[str, str, str, str, str]",
+      "parameters": {
+        "url": {
+          "default": null,
+          "annotation": "<class 'str'>",
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": "tuple[str, str, str, str, str]",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Split URL into parts.",
+      "source_code": "def split_url(url: str) -> SplitURLType:\n    \"\"\"Split URL into parts.\"\"\"\n    # Adapted from urllib.parse.urlsplit\n    # Only lstrip url as some applications rely on preserving trailing space.\n    # (https://url.spec.whatwg.org/#concept-basic-url-parser would strip both)\n    url = url.lstrip(WHATWG_C0_CONTROL_OR_SPACE)\n    for b in UNSAFE_URL_BYTES_TO_REMOVE:\n        if b in url:\n            url = url.replace(b, \"\")\n\n    scheme = netloc = query = fragment = \"\"\n    i = url.find(\":\")\n    if i > 0 and url[0] in scheme_chars:\n        for c in url[1:i]:\n            if c not in scheme_chars:\n                break\n        else:\n            scheme, url = url[:i].lower(), url[i + 1 :]\n    has_hash = \"#\" in url\n    has_question_mark = \"?\" in url\n    if url[:2] == \"//\":\n        delim = len(url)  # position of end of domain part of url, default is end\n        if has_hash and has_question_mark:\n            delim_chars = \"/?#\"\n        elif has_question_mark:\n            delim_chars = \"/?\"\n        elif has_hash:\n            delim_chars = \"/#\"\n        else:\n            delim_chars = \"/\"\n        for c in delim_chars:  # look for delimiters; the order is NOT important\n            wdelim = url.find(c, 2)  # find first of this delim\n            if wdelim >= 0 and wdelim < delim:  # if found\n                delim = wdelim  # use earliest delim position\n        netloc = url[2:delim]\n        url = url[delim:]\n        has_left_bracket = \"[\" in netloc\n        has_right_bracket = \"]\" in netloc\n        if (has_left_bracket and not has_right_bracket) or (\n            has_right_bracket and not has_left_bracket\n        ):\n            raise ValueError(\"Invalid IPv6 URL\")\n        if has_left_bracket:\n            bracketed_host = netloc.partition(\"[\")[2].partition(\"]\")[0]\n            # Valid bracketed hosts are defined in\n            # https://www.rfc-editor.org/rfc/rfc3986#page-49\n            # https://url.spec.whatwg.org/\n            if bracketed_host[0] == \"v\":\n                if not re.match(r\"\\Av[a-fA-F0-9]+\\..+\\Z\", bracketed_host):\n                    raise ValueError(\"IPvFuture address is invalid\")\n            elif \":\" not in bracketed_host:\n                raise ValueError(\"An IPv4 address cannot be in brackets\")\n    if has_hash:\n        url, _, fragment = url.partition(\"#\")\n    if has_question_mark:\n        url, _, query = url.partition(\"?\")\n    if netloc and not netloc.isascii():\n        _check_netloc(netloc)\n    return scheme, netloc, url, query, fragment\n"
+    },
+    {
+      "type": "function",
+      "qualified_name": "yarl._url.unsplit_result",
+      "module": "yarl._url",
+      "signature": "(scheme: str, netloc: str, url: str, query: str, fragment: str) -> str",
+      "parameters": {
+        "scheme": {
+          "default": null,
+          "annotation": "<class 'str'>",
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "netloc": {
+          "default": null,
+          "annotation": "<class 'str'>",
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "url": {
+          "default": null,
+          "annotation": "<class 'str'>",
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "query": {
+          "default": null,
+          "annotation": "<class 'str'>",
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "fragment": {
+          "default": null,
+          "annotation": "<class 'str'>",
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": "<class 'str'>",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Unsplit a URL without any normalization.",
+      "source_code": "def unsplit_result(\n    scheme: str, netloc: str, url: str, query: str, fragment: str\n) -> str:\n    \"\"\"Unsplit a URL without any normalization.\"\"\"\n    if netloc or (scheme and scheme in USES_AUTHORITY) or url[:2] == \"//\":\n        if url and url[:1] != \"/\":\n            url = f\"{scheme}://{netloc}/{url}\" if scheme else f\"{scheme}:{url}\"\n        else:\n            url = f\"{scheme}://{netloc}{url}\" if scheme else f\"//{netloc}{url}\"\n    elif scheme:\n        url = f\"{scheme}:{url}\"\n    if query:\n        url = f\"{url}?{query}\"\n    return f\"{url}#{fragment}\" if fragment else url\n"
+    },
+    {
+      "type": "class",
+      "qualified_name": "yarl.URL",
+      "module": "yarl",
+      "signature": "(self, /, *args, **kwargs)",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "",
+      "source_code": null
+    },
+    {
+      "type": "class",
+      "qualified_name": "yarl._parse.SplitURLType",
+      "module": "yarl._parse",
+      "signature": "(self, /, *args, **kwargs)",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Built-in immutable sequence.\n\nIf no argument is given, the constructor returns an empty tuple.\nIf iterable is specified the tuple is initialized from iterable's items.\n\nIf the argument is a tuple, the return value is the same object.",
+      "source_code": null
+    },
+    {
+      "type": "class",
+      "qualified_name": "yarl._path.Sequence",
+      "module": "yarl._path",
+      "signature": "(self, /, *args, **kwargs)",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "All the operations on a read-only sequence.\n\nConcrete subclasses must override __new__ or __init__,\n__getitem__, and __len__.",
+      "source_code": null
+    },
+    {
+      "type": "class",
+      "qualified_name": "yarl._path.suppress",
+      "module": "yarl._path",
+      "signature": "(self, *exceptions)",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Context manager to suppress specified exceptions\n\nAfter the exception is suppressed, execution proceeds with the next\nstatement following the with statement.\n\n     with suppress(FileNotFoundError):\n         os.remove(somefile)\n     # Execution still resumes here if the file was already removed",
+      "source_code": "class suppress(AbstractContextManager):\n    \"\"\"Context manager to suppress specified exceptions\n\n    After the exception is suppressed, execution proceeds with the next\n    statement following the with statement.\n\n         with suppress(FileNotFoundError):\n             os.remove(somefile)\n         # Execution still resumes here if the file was already removed\n    \"\"\"\n\n    def __init__(self, *exceptions):\n        self._exceptions = exceptions\n\n    def __enter__(self):\n        pass\n\n    def __exit__(self, exctype, excinst, exctb):\n        # Unlike isinstance and issubclass, CPython exception handling\n        # currently only looks at the concrete type hierarchy (ignoring\n        # the instance and subclass checking hooks). While Guido considers\n        # that a bug rather than a feature, it's a fairly hard one to fix\n        # due to various internal implementation details. suppress provides\n        # the simpler issubclass based semantics, rather than trying to\n        # exactly reproduce the limitations of the CPython interpreter.\n        #\n        # See http://bugs.python.org/issue12029 for more details\n        return exctype is not None and issubclass(exctype, self._exceptions)\n"
+    },
+    {
+      "type": "class",
+      "qualified_name": "yarl._query.Iterable",
+      "module": "yarl._query",
+      "signature": "(self, /, *args, **kwargs)",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "",
+      "source_code": null
+    },
+    {
+      "type": "class",
+      "qualified_name": "yarl._query.Mapping",
+      "module": "yarl._query",
+      "signature": "(self, /, *args, **kwargs)",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "A Mapping is a generic container for associating key/value\npairs.\n\nThis class provides concrete generic implementations of all\nmethods except for __getitem__, __iter__, and __len__.",
+      "source_code": null
+    },
+    {
+      "type": "class",
+      "qualified_name": "yarl._query.Sequence",
+      "module": "yarl._query",
+      "signature": "(self, /, *args, **kwargs)",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "All the operations on a read-only sequence.\n\nConcrete subclasses must override __new__ or __init__,\n__getitem__, and __len__.",
+      "source_code": null
+    },
+    {
+      "type": "class",
+      "qualified_name": "yarl._query.SupportsInt",
+      "module": "yarl._query",
+      "signature": "(self, *args, **kwargs)",
+      "return_description": null,
+      "raises": [],
+      "decorators": [
+        "runtime_checkable",
+        "abstractmethod"
+      ],
+      "examples": [],
+      "docstring": "An ABC with one abstract method __int__.",
+      "source_code": "@runtime_checkable\nclass SupportsInt(Protocol):\n    \"\"\"An ABC with one abstract method __int__.\"\"\"\n    __slots__ = ()\n\n    @abstractmethod\n    def __int__(self) -> int:\n        pass\n"
+    },
+    {
+      "type": "class",
+      "qualified_name": "yarl._query.istr",
+      "module": "yarl._query",
+      "signature": "(self, /, *args, **kwargs)",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "istr class implementation",
+      "source_code": null
+    },
+    {
+      "type": "class",
+      "qualified_name": "yarl._quoting_py.utf8_decoder",
+      "module": "yarl._quoting_py",
+      "signature": "(self, errors='strict')",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "This subclass of IncrementalDecoder can be used as the baseclass for an\nincremental decoder if the decoder must be able to handle incomplete\nbyte sequences.",
+      "source_code": "class IncrementalDecoder(codecs.BufferedIncrementalDecoder):\n    _buffer_decode = codecs.utf_8_decode\n"
+    },
+    {
+      "type": "class",
+      "qualified_name": "yarl._url.CacheInfo",
+      "module": "yarl._url",
+      "signature": "(self, /, *args, **kwargs)",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Host encoding cache.",
+      "source_code": "class CacheInfo(TypedDict):\n    \"\"\"Host encoding cache.\"\"\"\n\n    idna_encode: _CacheInfo\n    idna_decode: _CacheInfo\n    ip_address: _CacheInfo\n    host_validate: _CacheInfo\n    encode_host: _CacheInfo\n"
+    },
+    {
+      "type": "class",
+      "qualified_name": "yarl._url.Enum",
+      "module": "yarl._url",
+      "signature": "(self, /, *args, **kwargs)",
+      "return_description": null,
+      "raises": [],
+      "decorators": [
+        "classmethod",
+        "DynamicClassAttribute",
+        "DynamicClassAttribute"
+      ],
+      "examples": [],
+      "docstring": "Generic enumeration.\n\nDerive from this class to define new enumerations.",
+      "source_code": "class Enum(metaclass=EnumMeta):\n    \"\"\"\n    Generic enumeration.\n\n    Derive from this class to define new enumerations.\n    \"\"\"\n    def __new__(cls, value):\n        # all enum instances are actually created during class construction\n        # without calling this method; this method is called by the metaclass'\n        # __call__ (i.e. Color(3) ), and by pickle\n        if type(value) is cls:\n            # For lookups like Color(Color.RED)\n            return value\n        # by-value search for a matching enum member\n        # see if it's in the reverse mapping (for hashable values)\n        try:\n            return cls._value2member_map_[value]\n        except KeyError:\n            # Not found, no need to do long O(n) search\n            pass\n        except TypeError:\n            # not there, now do long search -- O(n) behavior\n            for member in cls._member_map_.values():\n                if member._value_ == value:\n                    return member\n        # still not found -- try _missing_ hook\n        try:\n            exc = None\n            result = cls._missing_(value)\n        except Exception as e:\n            exc = e\n            result = None\n        try:\n            if isinstance(result, cls):\n                return result\n            else:\n                ve_exc = ValueError(\"%r is not a valid %s\" % (value, cls.__qualname__))\n                if result is None and exc is None:\n                    raise ve_exc\n                elif exc is None:\n                    exc = TypeError(\n                            'error in %s._missing_: returned %r instead of None or a valid member'\n                            % (cls.__name__, result)\n                            )\n                if not isinstance(exc, ValueError):\n                    exc.__context__ = ve_exc\n                raise exc\n        finally:\n            # ensure all variables that could hold an exception are destroyed\n            exc = None\n            ve_exc = None\n\n    def _generate_next_value_(name, start, count, last_values):\n        \"\"\"\n        Generate the next value when not given.\n\n        name: the name of the member\n        start: the initial start value or None\n        count: the number of existing members\n        last_value: the last value assigned or None\n        \"\"\"\n        for last_value in reversed(last_values):\n            try:\n                return last_value + 1\n            except TypeError:\n                pass\n        else:\n            return start\n\n    @classmethod\n    def _missing_(cls, value):\n        return None\n\n    def __repr__(self):\n        return \"<%s.%s: %r>\" % (\n                self.__class__.__name__, self._name_, self._value_)\n\n    def __str__(self):\n        return \"%s.%s\" % (self.__class__.__name__, self._name_)\n\n    def __dir__(self):\n        \"\"\"\n        Returns all members and all public methods\n        \"\"\"\n        added_behavior = [\n                m\n                for cls in self.__class__.mro()\n                for m in cls.__dict__\n                if m[0] != '_' and m not in self._member_map_\n                ] + [m for m in self.__dict__ if m[0] != '_']\n        return (['__class__', '__doc__', '__module__'] + added_behavior)\n\n    def __format__(self, format_spec):\n        \"\"\"\n        Returns format using actual value type unless __str__ has been overridden.\n        \"\"\"\n        # mixed-in Enums should use the mixed-in type's __format__, otherwise\n        # we can get strange results with the Enum name showing up instead of\n        # the value\n\n        # pure Enum branch, or branch with __str__ explicitly overridden\n        str_overridden = type(self).__str__ not in (Enum.__str__, Flag.__str__)\n        if self._member_type_ is object or str_overridden:\n            cls = str\n            val = str(self)\n        # mix-in branch\n        else:\n            cls = self._member_type_\n            val = self._value_\n        return cls.__format__(val, format_spec)\n\n    def __hash__(self):\n        return hash(self._name_)\n\n    def __reduce_ex__(self, proto):\n        return self.__class__, (self._value_, )\n\n    # DynamicClassAttribute is used to provide access to the `name` and\n    # `value` properties of enum members while keeping some measure of\n    # protection from modification, while still allowing for an enumeration\n    # to have members named `name` and `value`.  This works because enumeration\n    # members are not set directly on the enum class -- __getattr__ is\n    # used to look them up.\n\n    @DynamicClassAttribute\n    def name(self):\n        \"\"\"The name of the Enum member.\"\"\"\n        return self._name_\n\n    @DynamicClassAttribute\n    def value(self):\n        \"\"\"The value of the Enum member.\"\"\"\n        return self._value_\n"
+    },
+    {
+      "type": "class",
+      "qualified_name": "yarl._url.Mapping",
+      "module": "yarl._url",
+      "signature": "(self, /, *args, **kwargs)",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "A Mapping is a generic container for associating key/value\npairs.\n\nThis class provides concrete generic implementations of all\nmethods except for __getitem__, __iter__, and __len__.",
+      "source_code": null
+    },
+    {
+      "type": "class",
+      "qualified_name": "yarl._url.MultiDict",
+      "module": "yarl._url",
+      "signature": "(self, /, *args, **kwargs)",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Dictionary with the support for duplicate keys.",
+      "source_code": null
+    },
+    {
+      "type": "class",
+      "qualified_name": "yarl._url.MultiDictProxy",
+      "module": "yarl._url",
+      "signature": "(self, /, *args, **kwargs)",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Read-only proxy for MultiDict instance.",
+      "source_code": null
+    },
+    {
+      "type": "class",
+      "qualified_name": "yarl._url.Sequence",
+      "module": "yarl._url",
+      "signature": "(self, /, *args, **kwargs)",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "All the operations on a read-only sequence.\n\nConcrete subclasses must override __new__ or __init__,\n__getitem__, and __len__.",
+      "source_code": null
+    },
+    {
+      "type": "class",
+      "qualified_name": "yarl._url.SplitResult",
+      "module": "yarl._url",
+      "signature": "(self, /, *args, **kwargs)",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "SplitResult(scheme, netloc, path, query, fragment)\n\nA 5-tuple that contains the different components of a URL. Similar to\nParseResult, but does not split params.",
+      "source_code": "class SplitResult(_SplitResultBase, _NetlocResultMixinStr):\n    __slots__ = ()\n    def geturl(self):\n        return urlunsplit(self)\n"
+    },
+    {
+      "type": "class",
+      "qualified_name": "yarl._url.SplitURLType",
+      "module": "yarl._url",
+      "signature": "(self, /, *args, **kwargs)",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Built-in immutable sequence.\n\nIf no argument is given, the constructor returns an empty tuple.\nIf iterable is specified the tuple is initialized from iterable's items.\n\nIf the argument is a tuple, the return value is the same object.",
+      "source_code": null
+    },
+    {
+      "type": "class",
+      "qualified_name": "yarl._url.TypeVar",
+      "module": "yarl._url",
+      "signature": "(self, name, *constraints, bound=None, covariant=False, contravariant=False)",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Type variable.\n\nUsage::\n\n  T = TypeVar('T')  # Can be anything\n  A = TypeVar('A', str, bytes)  # Must be str or bytes\n\nType variables exist primarily for the benefit of static type\ncheckers.  They serve as the parameters for generic types as well\nas for generic function definitions.  See class Generic for more\ninformation on generic types.  Generic functions work as follows:\n\n  def repeat(x: T, n: int) -> List[T]:\n      '''Return a list containing n references to x.'''\n      return [x]*n\n\n  def longest(x: A, y: A) -> A:\n      '''Return the longest of two strings.'''\n      return x if len(x) >= len(y) else y\n\nThe latter example's signature is essentially the overloading\nof (str, str) -> str and (bytes, bytes) -> bytes.  Also note\nthat if the arguments are instances of some subclass of str,\nthe return type is still plain str.\n\nAt runtime, isinstance(x, T) and issubclass(C, T) will raise TypeError.\n\nType variables defined with covariant=True or contravariant=True\ncan be used to declare covariant or contravariant generic types.\nSee PEP 484 for more details. By default generic types are invariant\nin all type variables.\n\nType variables can be introspected. e.g.:\n\n  T.__name__ == 'T'\n  T.__constraints__ == ()\n  T.__covariant__ == False\n  T.__contravariant__ = False\n  A.__constraints__ == (str, bytes)\n\nNote that only type variables defined in global scope can be pickled.",
+      "source_code": "class TypeVar( _Final, _Immutable, _TypeVarLike, _root=True):\n    \"\"\"Type variable.\n\n    Usage::\n\n      T = TypeVar('T')  # Can be anything\n      A = TypeVar('A', str, bytes)  # Must be str or bytes\n\n    Type variables exist primarily for the benefit of static type\n    checkers.  They serve as the parameters for generic types as well\n    as for generic function definitions.  See class Generic for more\n    information on generic types.  Generic functions work as follows:\n\n      def repeat(x: T, n: int) -> List[T]:\n          '''Return a list containing n references to x.'''\n          return [x]*n\n\n      def longest(x: A, y: A) -> A:\n          '''Return the longest of two strings.'''\n          return x if len(x) >= len(y) else y\n\n    The latter example's signature is essentially the overloading\n    of (str, str) -> str and (bytes, bytes) -> bytes.  Also note\n    that if the arguments are instances of some subclass of str,\n    the return type is still plain str.\n\n    At runtime, isinstance(x, T) and issubclass(C, T) will raise TypeError.\n\n    Type variables defined with covariant=True or contravariant=True\n    can be used to declare covariant or contravariant generic types.\n    See PEP 484 for more details. By default generic types are invariant\n    in all type variables.\n\n    Type variables can be introspected. e.g.:\n\n      T.__name__ == 'T'\n      T.__constraints__ == ()\n      T.__covariant__ == False\n      T.__contravariant__ = False\n      A.__constraints__ == (str, bytes)\n\n    Note that only type variables defined in global scope can be pickled.\n    \"\"\"\n\n    __slots__ = ('__name__', '__bound__', '__constraints__',\n                 '__covariant__', '__contravariant__', '__dict__')\n\n    def __init__(self, name, *constraints, bound=None,\n                 covariant=False, contravariant=False):\n        self.__name__ = name\n        super().__init__(bound, covariant, contravariant)\n        if constraints and bound is not None:\n            raise TypeError(\"Constraints cannot be combined with bound=...\")\n        if constraints and len(constraints) == 1:\n            raise TypeError(\"A single constraint is not allowed\")\n        msg = \"TypeVar(name, constraint, ...): constraints must be types.\"\n        self.__constraints__ = tuple(_type_check(t, msg) for t in constraints)\n        try:\n            def_mod = sys._getframe(1).f_globals.get('__name__', '__main__')  # for pickling\n        except (AttributeError, ValueError):\n            def_mod = None\n        if def_mod != 'typing':\n            self.__module__ = def_mod\n"
+    },
+    {
+      "type": "class",
+      "qualified_name": "yarl._url.URL",
+      "module": "yarl._url",
+      "signature": "(self, /, *args, **kwargs)",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "",
+      "source_code": null
+    },
+    {
+      "type": "class",
+      "qualified_name": "yarl._url.UndefinedType",
+      "module": "yarl._url",
+      "signature": "(self, /, *args, **kwargs)",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Singleton type for use with not set sentinel values.",
+      "source_code": "class UndefinedType(Enum):\n    \"\"\"Singleton type for use with not set sentinel values.\"\"\"\n\n    _singleton = 0\n"
+    },
+    {
+      "type": "class",
+      "qualified_name": "yarl._url.cached_property",
+      "module": "yarl._url",
+      "signature": "(self, /, *args, **kwargs)",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "under_cached_property(wrapped)\nUse as a class method decorator.  It operates almost exactly like\n    the Python `@property` decorator, but it puts the result of the\n    method it decorates into the instance dict after the first call,\n    effectively replacing the function it decorates with an instance\n    variable.  It is, in Python parlance, a data descriptor.\n\n    ",
+      "source_code": null
+    },
+    {
+      "type": "method",
+      "qualified_name": "yarl.URL.extend_query",
+      "module": "yarl",
+      "signature": "(self, *args: Any, **kwargs: Any) -> 'URL'",
+      "parameters": {
+        "self": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "args": {
+          "default": null,
+          "annotation": "typing.Any",
+          "kind": "VAR_POSITIONAL",
+          "description": null
+        },
+        "kwargs": {
+          "default": null,
+          "annotation": "typing.Any",
+          "kind": "VAR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": "URL",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [
+        ">>> url = URL('http://example.com/?a=1&b=2')",
+        ">>> url.extend_query(a=3, c=4)"
+      ],
+      "docstring": "Return a new URL with query part combined with the existing.\n\nThis method will not remove existing query parameters.\n\nExample:\n>>> url = URL('http://example.com/?a=1&b=2')\n>>> url.extend_query(a=3, c=4)\nURL('http://example.com/?a=1&b=2&a=3&c=4')",
+      "source_code": "    def extend_query(self, *args: Any, **kwargs: Any) -> \"URL\":\n        \"\"\"Return a new URL with query part combined with the existing.\n\n        This method will not remove existing query parameters.\n\n        Example:\n        >>> url = URL('http://example.com/?a=1&b=2')\n        >>> url.extend_query(a=3, c=4)\n        URL('http://example.com/?a=1&b=2&a=3&c=4')\n        \"\"\"\n        if not (new_query := get_str_query(*args, **kwargs)):\n            return self\n        if query := self._query:\n            # both strings are already encoded so we can use a simple\n            # string join\n            query += new_query if query[-1] == \"&\" else f\"&{new_query}\"\n        else:\n            query = new_query\n        return from_parts_uncached(\n            self._scheme, self._netloc, self._path, query, self._fragment\n        )\n"
+    },
+    {
+      "type": "method",
+      "qualified_name": "yarl.URL.human_repr",
+      "module": "yarl",
+      "signature": "(self) -> str",
+      "parameters": {
+        "self": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": "<class 'str'>",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Return decoded human readable string for URL representation.",
+      "source_code": "    def human_repr(self) -> str:\n        \"\"\"Return decoded human readable string for URL representation.\"\"\"\n        user = human_quote(self.user, \"#/:?@[]\")\n        password = human_quote(self.password, \"#/:?@[]\")\n        if (host := self.host) and \":\" in host:\n            host = f\"[{host}]\"\n        path = human_quote(self.path, \"#?\")\n        if TYPE_CHECKING:\n            assert path is not None\n        query_string = \"&\".join(\n            \"{}={}\".format(human_quote(k, \"#&+;=\"), human_quote(v, \"#&+;=\"))\n            for k, v in self.query.items()\n        )\n        fragment = human_quote(self.fragment, \"\")\n        if TYPE_CHECKING:\n            assert fragment is not None\n        netloc = make_netloc(user, password, host, self.explicit_port)\n        return unsplit_result(self._scheme, netloc, path, query_string, fragment)\n"
+    },
+    {
+      "type": "method",
+      "qualified_name": "yarl.URL.is_absolute",
+      "module": "yarl",
+      "signature": "(self) -> bool",
+      "parameters": {
+        "self": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": "<class 'bool'>",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "A check for absolute URLs.\n\nReturn True for absolute ones (having scheme or starting\nwith //), False otherwise.\n\nIs is preferred to call the .absolute property instead\nas it is cached.",
+      "source_code": "    def is_absolute(self) -> bool:\n        \"\"\"A check for absolute URLs.\n\n        Return True for absolute ones (having scheme or starting\n        with //), False otherwise.\n\n        Is is preferred to call the .absolute property instead\n        as it is cached.\n        \"\"\"\n        return self.absolute\n"
+    },
+    {
+      "type": "method",
+      "qualified_name": "yarl.URL.is_default_port",
+      "module": "yarl",
+      "signature": "(self) -> bool",
+      "parameters": {
+        "self": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": "<class 'bool'>",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "A check for default port.\n\nReturn True if port is default for specified scheme,\ne.g. 'http://python.org' or 'http://python.org:80', False\notherwise.\n\nReturn False for relative URLs.",
+      "source_code": "    def is_default_port(self) -> bool:\n        \"\"\"A check for default port.\n\n        Return True if port is default for specified scheme,\n        e.g. 'http://python.org' or 'http://python.org:80', False\n        otherwise.\n\n        Return False for relative URLs.\n\n        \"\"\"\n        if (explicit := self.explicit_port) is None:\n            # If the explicit port is None, then the URL must be\n            # using the default port unless its a relative URL\n            # which does not have an implicit port / default port\n            return self._netloc != \"\"\n        return explicit == DEFAULT_PORTS.get(self._scheme)\n"
+    },
+    {
+      "type": "method",
+      "qualified_name": "yarl.URL.join",
+      "module": "yarl",
+      "signature": "(self, url: 'URL') -> 'URL'",
+      "parameters": {
+        "self": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "url": {
+          "default": null,
+          "annotation": "URL",
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": "URL",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Join URLs\n\nConstruct a full (\u201cabsolute\u201d) URL by combining a \u201cbase URL\u201d\n(self) with another URL (url).\n\nInformally, this uses components of the base URL, in\nparticular the addressing scheme, the network location and\n(part of) the path, to provide missing components in the\nrelative URL.",
+      "source_code": "    def join(self, url: \"URL\") -> \"URL\":\n        \"\"\"Join URLs\n\n        Construct a full (\u201cabsolute\u201d) URL by combining a \u201cbase URL\u201d\n        (self) with another URL (url).\n\n        Informally, this uses components of the base URL, in\n        particular the addressing scheme, the network location and\n        (part of) the path, to provide missing components in the\n        relative URL.\n\n        \"\"\"\n        if type(url) is not URL:\n            raise TypeError(\"url should be URL\")\n\n        scheme = url._scheme or self._scheme\n        if scheme != self._scheme or scheme not in USES_RELATIVE:\n            return url\n\n        # scheme is in uses_authority as uses_authority is a superset of uses_relative\n        if (join_netloc := url._netloc) and scheme in USES_AUTHORITY:\n            return from_parts(scheme, join_netloc, url._path, url._query, url._fragment)\n\n        orig_path = self._path\n        if join_path := url._path:\n            if join_path[0] == \"/\":\n                path = join_path\n            elif not orig_path:\n                path = f\"/{join_path}\"\n            elif orig_path[-1] == \"/\":\n                path = f\"{orig_path}{join_path}\"\n            else:\n                # \u2026\n                # and relativizing \"..\"\n                # parts[0] is / for absolute urls,\n                # this join will add a double slash there\n                path = \"/\".join([*self.parts[:-1], \"\"]) + join_path\n                # which has to be removed\n                if orig_path[0] == \"/\":\n                    path = path[1:]\n            path = normalize_path(path) if \".\" in path else path\n        else:\n            path = orig_path\n\n        return from_parts(\n            scheme,\n            self._netloc,\n            path,\n            url._query if join_path or url._query else self._query,\n            url._fragment if join_path or url._fragment else self._fragment,\n        )\n"
+    },
+    {
+      "type": "method",
+      "qualified_name": "yarl.URL.joinpath",
+      "module": "yarl",
+      "signature": "(self, *other: str, encoded: bool = False) -> 'URL'",
+      "parameters": {
+        "self": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "other": {
+          "default": null,
+          "annotation": "<class 'str'>",
+          "kind": "VAR_POSITIONAL",
+          "description": null
+        },
+        "encoded": {
+          "default": "False",
+          "annotation": "<class 'bool'>",
+          "kind": "KEYWORD_ONLY",
+          "description": null
+        }
+      },
+      "returns": "URL",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Return a new URL with the elements in other appended to the path.",
+      "source_code": "    def joinpath(self, *other: str, encoded: bool = False) -> \"URL\":\n        \"\"\"Return a new URL with the elements in other appended to the path.\"\"\"\n        return self._make_child(other, encoded=encoded)\n"
+    },
+    {
+      "type": "method",
+      "qualified_name": "yarl.URL.origin",
+      "module": "yarl",
+      "signature": "(self) -> 'URL'",
+      "parameters": {
+        "self": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": "URL",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Return an URL with scheme, host and port parts only.\n\nuser, password, path, query and fragment are removed.",
+      "source_code": "    def origin(self) -> \"URL\":\n        \"\"\"Return an URL with scheme, host and port parts only.\n\n        user, password, path, query and fragment are removed.\n\n        \"\"\"\n        # TODO: add a keyword-only option for keeping user/pass maybe?\n        return self._origin\n"
+    },
+    {
+      "type": "method",
+      "qualified_name": "yarl.URL.relative",
+      "module": "yarl",
+      "signature": "(self) -> 'URL'",
+      "parameters": {
+        "self": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": "URL",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Return a relative part of the URL.\n\nscheme, user, password, host and port are removed.",
+      "source_code": "    def relative(self) -> \"URL\":\n        \"\"\"Return a relative part of the URL.\n\n        scheme, user, password, host and port are removed.\n\n        \"\"\"\n        if not self._netloc:\n            raise ValueError(\"URL should be absolute\")\n        return from_parts(\"\", \"\", self._path, self._query, self._fragment)\n"
+    },
+    {
+      "type": "method",
+      "qualified_name": "yarl.URL.update_query",
+      "module": "yarl",
+      "signature": "(self, *args: Any, **kwargs: Any) -> 'URL'",
+      "parameters": {
+        "self": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "args": {
+          "default": null,
+          "annotation": "typing.Any",
+          "kind": "VAR_POSITIONAL",
+          "description": null
+        },
+        "kwargs": {
+          "default": null,
+          "annotation": "typing.Any",
+          "kind": "VAR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": "URL",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [
+        ">>> url = URL('http://example.com/?a=1&b=2')",
+        ">>> url.update_query(a=3, c=4)"
+      ],
+      "docstring": "Return a new URL with query part updated.\n\nThis method will overwrite existing query parameters.\n\nExample:\n>>> url = URL('http://example.com/?a=1&b=2')\n>>> url.update_query(a=3, c=4)\nURL('http://example.com/?a=3&b=2&c=4')",
+      "source_code": "    def update_query(self, *args: Any, **kwargs: Any) -> \"URL\":\n        \"\"\"Return a new URL with query part updated.\n\n        This method will overwrite existing query parameters.\n\n        Example:\n        >>> url = URL('http://example.com/?a=1&b=2')\n        >>> url.update_query(a=3, c=4)\n        URL('http://example.com/?a=3&b=2&c=4')\n        \"\"\"\n        in_query: Union[str, Mapping[str, QueryVariable], None]\n        if kwargs:\n            if args:\n                msg = \"Either kwargs or single query parameter must be present\"\n                raise ValueError(msg)\n            in_query = kwargs\n        elif len(args) == 1:\n            in_query = args[0]\n        else:\n            raise ValueError(\"Either kwargs or single query parameter must be present\")\n\n        if in_query is None:\n            query = \"\"\n        elif not in_query:\n            query = self._query\n        elif isinstance(in_query, Mapping):\n            qm: MultiDict[QueryVariable] = MultiDict(self._parsed_query)\n            qm.update(in_query)\n            query = get_str_query_from_sequence_iterable(qm.items())\n        elif isinstance(in_query, str):\n            qstr: MultiDict[str] = MultiDict(self._parsed_query)\n            qstr.update(query_to_pairs(in_query))\n            query = get_str_query_from_iterable(qstr.items())\n        elif isinstance(in_query, (bytes, bytearray, memoryview)):  # type: ignore[unreachable]\n            msg = \"Invalid query type: bytes, bytearray and memoryview are forbidden\"\n            raise TypeError(msg)\n        elif isinstance(in_query, Sequence):\n            # We don't expect sequence values if we're given a list of pairs\n            # already; only mappings like builtin `dict` which can't have the\n            # same key pointing to multiple values are allowed to use\n            # `_query_seq_pairs`.\n            qs: MultiDict[SimpleQuery] = MultiDict(self._parsed_query)\n            qs.update(in_query)\n            query = get_str_query_from_iterable(qs.items())\n        else:\n            raise TypeError(\n                \"Invalid query type: only str, mapping or \"\n                \"sequence of (key, value) pairs is allowed\"\n            )\n        return from_parts_uncached(\n            self._scheme, self._netloc, self._path, query, self._fragment\n        )\n"
+    },
+    {
+      "type": "method",
+      "qualified_name": "yarl.URL.with_fragment",
+      "module": "yarl",
+      "signature": "(self, fragment: Optional[str]) -> 'URL'",
+      "parameters": {
+        "self": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "fragment": {
+          "default": null,
+          "annotation": "typing.Optional[str]",
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": "URL",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Return a new URL with fragment replaced.\n\nAutoencode fragment if needed.\n\nClear fragment to default if None is passed.",
+      "source_code": "    def with_fragment(self, fragment: Union[str, None]) -> \"URL\":\n        \"\"\"Return a new URL with fragment replaced.\n\n        Autoencode fragment if needed.\n\n        Clear fragment to default if None is passed.\n\n        \"\"\"\n        # N.B. doesn't cleanup query/fragment\n        if fragment is None:\n            raw_fragment = \"\"\n        elif not isinstance(fragment, str):\n            raise TypeError(\"Invalid fragment type\")\n        else:\n            raw_fragment = FRAGMENT_QUOTER(fragment)\n        if self._fragment == raw_fragment:\n            return self\n        return from_parts(\n            self._scheme, self._netloc, self._path, self._query, raw_fragment\n        )\n"
+    },
+    {
+      "type": "method",
+      "qualified_name": "yarl.URL.with_host",
+      "module": "yarl",
+      "signature": "(self, host: str) -> 'URL'",
+      "parameters": {
+        "self": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "host": {
+          "default": null,
+          "annotation": "<class 'str'>",
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": "URL",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Return a new URL with host replaced.\n\nAutoencode host if needed.\n\nChanging host for relative URLs is not allowed, use .join()\ninstead.",
+      "source_code": "    def with_host(self, host: str) -> \"URL\":\n        \"\"\"Return a new URL with host replaced.\n\n        Autoencode host if needed.\n\n        Changing host for relative URLs is not allowed, use .join()\n        instead.\n\n        \"\"\"\n        # N.B. doesn't cleanup query/fragment\n        if not isinstance(host, str):\n            raise TypeError(\"Invalid host type\")\n        if not (netloc := self._netloc):\n            raise ValueError(\"host replacement is not allowed for relative URLs\")\n        if not host:\n            raise ValueError(\"host removing is not allowed\")\n        encoded_host = _encode_host(host, validate_host=True) if host else \"\"\n        port = self.explicit_port\n        netloc = make_netloc(self.raw_user, self.raw_password, encoded_host, port)\n        return from_parts(self._scheme, netloc, self._path, self._query, self._fragment)\n"
+    },
+    {
+      "type": "method",
+      "qualified_name": "yarl.URL.with_name",
+      "module": "yarl",
+      "signature": "(self, name: str, *, keep_query: bool = False, keep_fragment: bool = False) -> 'URL'",
+      "parameters": {
+        "self": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "name": {
+          "default": null,
+          "annotation": "<class 'str'>",
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "keep_query": {
+          "default": "False",
+          "annotation": "<class 'bool'>",
+          "kind": "KEYWORD_ONLY",
+          "description": null
+        },
+        "keep_fragment": {
+          "default": "False",
+          "annotation": "<class 'bool'>",
+          "kind": "KEYWORD_ONLY",
+          "description": null
+        }
+      },
+      "returns": "URL",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Return a new URL with name (last part of path) replaced.\n\nQuery and fragment parts are cleaned up.\n\nName is encoded if needed.",
+      "source_code": "    def with_name(\n        self,\n        name: str,\n        *,\n        keep_query: bool = False,\n        keep_fragment: bool = False,\n    ) -> \"URL\":\n        \"\"\"Return a new URL with name (last part of path) replaced.\n\n        Query and fragment parts are cleaned up.\n\n        Name is encoded if needed.\n\n        \"\"\"\n        # N.B. DOES cleanup query/fragment\n        if not isinstance(name, str):\n            raise TypeError(\"Invalid name type\")\n        if \"/\" in name:\n            raise ValueError(\"Slash in name is not allowed\")\n        name = PATH_QUOTER(name)\n        if name in (\".\", \"..\"):\n            raise ValueError(\". and .. values are forbidden\")\n        parts = list(self.raw_parts)\n        if netloc := self._netloc:\n            if len(parts) == 1:\n                parts.append(name)\n            else:\n                parts[-1] = name\n            parts[0] = \"\"  # replace leading '/'\n        else:\n            parts[-1] = name\n            if parts[0] == \"/\":\n                parts[0] = \"\"  # replace leading '/'\n\n        query = self._query if keep_query else \"\"\n        fragment = self._fragment if keep_fragment else \"\"\n        return from_parts(self._scheme, netloc, \"/\".join(parts), query, fragment)\n"
+    },
+    {
+      "type": "method",
+      "qualified_name": "yarl.URL.with_password",
+      "module": "yarl",
+      "signature": "(self, password: Optional[str]) -> 'URL'",
+      "parameters": {
+        "self": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "password": {
+          "default": null,
+          "annotation": "typing.Optional[str]",
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": "URL",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Return a new URL with password replaced.\n\nAutoencode password if needed.\n\nClear password if argument is None.",
+      "source_code": "    def with_password(self, password: Union[str, None]) -> \"URL\":\n        \"\"\"Return a new URL with password replaced.\n\n        Autoencode password if needed.\n\n        Clear password if argument is None.\n\n        \"\"\"\n        # N.B. doesn't cleanup query/fragment\n        if password is None:\n            pass\n        elif isinstance(password, str):\n            password = QUOTER(password)\n        else:\n            raise TypeError(\"Invalid password type\")\n        if not (netloc := self._netloc):\n            raise ValueError(\"password replacement is not allowed for relative URLs\")\n        encoded_host = self.host_subcomponent or \"\"\n        port = self.explicit_port\n        netloc = make_netloc(self.raw_user, password, encoded_host, port)\n        return from_parts(self._scheme, netloc, self._path, self._query, self._fragment)\n"
+    },
+    {
+      "type": "method",
+      "qualified_name": "yarl.URL.with_path",
+      "module": "yarl",
+      "signature": "(self, path: str, *, encoded: bool = False, keep_query: bool = False, keep_fragment: bool = False) -> 'URL'",
+      "parameters": {
+        "self": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "path": {
+          "default": null,
+          "annotation": "<class 'str'>",
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "encoded": {
+          "default": "False",
+          "annotation": "<class 'bool'>",
+          "kind": "KEYWORD_ONLY",
+          "description": null
+        },
+        "keep_query": {
+          "default": "False",
+          "annotation": "<class 'bool'>",
+          "kind": "KEYWORD_ONLY",
+          "description": null
+        },
+        "keep_fragment": {
+          "default": "False",
+          "annotation": "<class 'bool'>",
+          "kind": "KEYWORD_ONLY",
+          "description": null
+        }
+      },
+      "returns": "URL",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Return a new URL with path replaced.",
+      "source_code": "    def with_path(\n        self,\n        path: str,\n        *,\n        encoded: bool = False,\n        keep_query: bool = False,\n        keep_fragment: bool = False,\n    ) -> \"URL\":\n        \"\"\"Return a new URL with path replaced.\"\"\"\n        netloc = self._netloc\n        if not encoded:\n            path = PATH_QUOTER(path)\n            if netloc:\n                path = normalize_path(path) if \".\" in path else path\n        if path and path[0] != \"/\":\n            path = f\"/{path}\"\n        query = self._query if keep_query else \"\"\n        fragment = self._fragment if keep_fragment else \"\"\n        return from_parts(self._scheme, netloc, path, query, fragment)\n"
+    },
+    {
+      "type": "method",
+      "qualified_name": "yarl.URL.with_port",
+      "module": "yarl",
+      "signature": "(self, port: Optional[int]) -> 'URL'",
+      "parameters": {
+        "self": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "port": {
+          "default": null,
+          "annotation": "typing.Optional[int]",
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": "URL",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Return a new URL with port replaced.\n\nClear port to default if None is passed.",
+      "source_code": "    def with_port(self, port: Union[int, None]) -> \"URL\":\n        \"\"\"Return a new URL with port replaced.\n\n        Clear port to default if None is passed.\n\n        \"\"\"\n        # N.B. doesn't cleanup query/fragment\n        if port is not None:\n            if isinstance(port, bool) or not isinstance(port, int):\n                raise TypeError(f\"port should be int or None, got {type(port)}\")\n            if not (0 <= port <= 65535):\n                raise ValueError(f\"port must be between 0 and 65535, got {port}\")\n        if not (netloc := self._netloc):\n            raise ValueError(\"port replacement is not allowed for relative URLs\")\n        encoded_host = self.host_subcomponent or \"\"\n        netloc = make_netloc(self.raw_user, self.raw_password, encoded_host, port)\n        return from_parts(self._scheme, netloc, self._path, self._query, self._fragment)\n"
+    },
+    {
+      "type": "method",
+      "qualified_name": "yarl.URL.with_query",
+      "module": "yarl",
+      "signature": "(self, *args: Any, **kwargs: Any) -> 'URL'",
+      "parameters": {
+        "self": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "args": {
+          "default": null,
+          "annotation": "typing.Any",
+          "kind": "VAR_POSITIONAL",
+          "description": null
+        },
+        "kwargs": {
+          "default": null,
+          "annotation": "typing.Any",
+          "kind": "VAR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": "URL",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Return a new URL with query part replaced.\n\nAccepts any Mapping (e.g. dict, multidict.MultiDict instances)\nor str, autoencode the argument if needed.\n\nA sequence of (key, value) pairs is supported as well.\n\nIt also can take an arbitrary number of keyword arguments.\n\nClear query if None is passed.",
+      "source_code": "    def with_query(self, *args: Any, **kwargs: Any) -> \"URL\":\n        \"\"\"Return a new URL with query part replaced.\n\n        Accepts any Mapping (e.g. dict, multidict.MultiDict instances)\n        or str, autoencode the argument if needed.\n\n        A sequence of (key, value) pairs is supported as well.\n\n        It also can take an arbitrary number of keyword arguments.\n\n        Clear query if None is passed.\n\n        \"\"\"\n        # N.B. doesn't cleanup query/fragment\n        query = get_str_query(*args, **kwargs) or \"\"\n        return from_parts_uncached(\n            self._scheme, self._netloc, self._path, query, self._fragment\n        )\n"
+    },
+    {
+      "type": "method",
+      "qualified_name": "yarl.URL.with_scheme",
+      "module": "yarl",
+      "signature": "(self, scheme: str) -> 'URL'",
+      "parameters": {
+        "self": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "scheme": {
+          "default": null,
+          "annotation": "<class 'str'>",
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": "URL",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Return a new URL with scheme replaced.",
+      "source_code": "    def with_scheme(self, scheme: str) -> \"URL\":\n        \"\"\"Return a new URL with scheme replaced.\"\"\"\n        # N.B. doesn't cleanup query/fragment\n        if not isinstance(scheme, str):\n            raise TypeError(\"Invalid scheme type\")\n        lower_scheme = scheme.lower()\n        netloc = self._netloc\n        if not netloc and lower_scheme in SCHEME_REQUIRES_HOST:\n            msg = (\n                \"scheme replacement is not allowed for \"\n                f\"relative URLs for the {lower_scheme} scheme\"\n            )\n            raise ValueError(msg)\n        return from_parts(lower_scheme, netloc, self._path, self._query, self._fragment)\n"
+    },
+    {
+      "type": "method",
+      "qualified_name": "yarl.URL.with_suffix",
+      "module": "yarl",
+      "signature": "(self, suffix: str, *, keep_query: bool = False, keep_fragment: bool = False) -> 'URL'",
+      "parameters": {
+        "self": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "suffix": {
+          "default": null,
+          "annotation": "<class 'str'>",
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "keep_query": {
+          "default": "False",
+          "annotation": "<class 'bool'>",
+          "kind": "KEYWORD_ONLY",
+          "description": null
+        },
+        "keep_fragment": {
+          "default": "False",
+          "annotation": "<class 'bool'>",
+          "kind": "KEYWORD_ONLY",
+          "description": null
+        }
+      },
+      "returns": "URL",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Return a new URL with suffix (file extension of name) replaced.\n\nQuery and fragment parts are cleaned up.\n\nsuffix is encoded if needed.",
+      "source_code": "    def with_suffix(\n        self,\n        suffix: str,\n        *,\n        keep_query: bool = False,\n        keep_fragment: bool = False,\n    ) -> \"URL\":\n        \"\"\"Return a new URL with suffix (file extension of name) replaced.\n\n        Query and fragment parts are cleaned up.\n\n        suffix is encoded if needed.\n        \"\"\"\n        if not isinstance(suffix, str):\n            raise TypeError(\"Invalid suffix type\")\n        if suffix and not suffix[0] == \".\" or suffix == \".\" or \"/\" in suffix:\n            raise ValueError(f\"Invalid suffix {suffix!r}\")\n        name = self.raw_name\n        if not name:\n            raise ValueError(f\"{self!r} has an empty name\")\n        old_suffix = self.raw_suffix\n        suffix = PATH_QUOTER(suffix)\n        name = name + suffix if not old_suffix else name[: -len(old_suffix)] + suffix\n        if name in (\".\", \"..\"):\n            raise ValueError(\". and .. values are forbidden\")\n        parts = list(self.raw_parts)\n        if netloc := self._netloc:\n            if len(parts) == 1:\n                parts.append(name)\n            else:\n                parts[-1] = name\n            parts[0] = \"\"  # replace leading '/'\n        else:\n            parts[-1] = name\n            if parts[0] == \"/\":\n                parts[0] = \"\"  # replace leading '/'\n\n        query = self._query if keep_query else \"\"\n        fragment = self._fragment if keep_fragment else \"\"\n        return from_parts(self._scheme, netloc, \"/\".join(parts), query, fragment)\n"
+    },
+    {
+      "type": "method",
+      "qualified_name": "yarl.URL.with_user",
+      "module": "yarl",
+      "signature": "(self, user: Optional[str]) -> 'URL'",
+      "parameters": {
+        "self": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "user": {
+          "default": null,
+          "annotation": "typing.Optional[str]",
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": "URL",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Return a new URL with user replaced.\n\nAutoencode user if needed.\n\nClear user/password if user is None.",
+      "source_code": "    def with_user(self, user: Union[str, None]) -> \"URL\":\n        \"\"\"Return a new URL with user replaced.\n\n        Autoencode user if needed.\n\n        Clear user/password if user is None.\n\n        \"\"\"\n        # N.B. doesn't cleanup query/fragment\n        if user is None:\n            password = None\n        elif isinstance(user, str):\n            user = QUOTER(user)\n            password = self.raw_password\n        else:\n            raise TypeError(\"Invalid user type\")\n        if not (netloc := self._netloc):\n            raise ValueError(\"user replacement is not allowed for relative URLs\")\n        encoded_host = self.host_subcomponent or \"\"\n        netloc = make_netloc(user, password, encoded_host, self.explicit_port)\n        return from_parts(self._scheme, netloc, self._path, self._query, self._fragment)\n"
+    },
+    {
+      "type": "method",
+      "qualified_name": "yarl.URL.without_query_params",
+      "module": "yarl",
+      "signature": "(self, *query_params: str) -> 'URL'",
+      "parameters": {
+        "self": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "query_params": {
+          "default": null,
+          "annotation": "<class 'str'>",
+          "kind": "VAR_POSITIONAL",
+          "description": null
+        }
+      },
+      "returns": "URL",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Remove some keys from query part and return new URL.",
+      "source_code": "    def without_query_params(self, *query_params: str) -> \"URL\":\n        \"\"\"Remove some keys from query part and return new URL.\"\"\"\n        params_to_remove = set(query_params) & self.query.keys()\n        if not params_to_remove:\n            return self\n        return self.with_query(\n            tuple(\n                (name, value)\n                for name, value in self.query.items()\n                if name not in params_to_remove\n            )\n        )\n"
+    },
+    {
+      "type": "method",
+      "qualified_name": "yarl._path.Sequence.count",
+      "module": "yarl._path",
+      "signature": "(self, value)",
+      "parameters": {
+        "self": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "value": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": null,
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "S.count(value) -> integer -- return number of occurrences of value",
+      "source_code": "    def count(self, value):\n        'S.count(value) -> integer -- return number of occurrences of value'\n        return sum(1 for v in self if v is value or v == value)\n"
+    },
+    {
+      "type": "method",
+      "qualified_name": "yarl._path.Sequence.index",
+      "module": "yarl._path",
+      "signature": "(self, value, start=0, stop=None)",
+      "parameters": {
+        "self": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "value": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "start": {
+          "default": "0",
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "stop": {
+          "default": "None",
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": null,
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "S.index(value, [start, [stop]]) -> integer -- return first index of value.\nRaises ValueError if the value is not present.\n\nSupporting start and stop arguments is optional, but\nrecommended.",
+      "source_code": "    def index(self, value, start=0, stop=None):\n        '''S.index(value, [start, [stop]]) -> integer -- return first index of value.\n           Raises ValueError if the value is not present.\n\n           Supporting start and stop arguments is optional, but\n           recommended.\n        '''\n        if start is not None and start < 0:\n            start = max(len(self) + start, 0)\n        if stop is not None and stop < 0:\n            stop += len(self)\n\n        i = start\n        while stop is None or i < stop:\n            try:\n                v = self[i]\n                if v is value or v == value:\n                    return i\n            except IndexError:\n                break\n            i += 1\n        raise ValueError\n"
+    },
+    {
+      "type": "method",
+      "qualified_name": "yarl._query.Mapping.get",
+      "module": "yarl._query",
+      "signature": "(self, key, default=None)",
+      "parameters": {
+        "self": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "key": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "default": {
+          "default": "None",
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": null,
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "D.get(k[,d]) -> D[k] if k in D, else d.  d defaults to None.",
+      "source_code": "    def get(self, key, default=None):\n        'D.get(k[,d]) -> D[k] if k in D, else d.  d defaults to None.'\n        try:\n            return self[key]\n        except KeyError:\n            return default\n"
+    },
+    {
+      "type": "method",
+      "qualified_name": "yarl._query.Mapping.items",
+      "module": "yarl._query",
+      "signature": "(self)",
+      "parameters": {
+        "self": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": null,
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "D.items() -> a set-like object providing a view on D's items",
+      "source_code": "    def items(self):\n        \"D.items() -> a set-like object providing a view on D's items\"\n        return ItemsView(self)\n"
+    },
+    {
+      "type": "method",
+      "qualified_name": "yarl._query.Mapping.keys",
+      "module": "yarl._query",
+      "signature": "(self)",
+      "parameters": {
+        "self": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": null,
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "D.keys() -> a set-like object providing a view on D's keys",
+      "source_code": "    def keys(self):\n        \"D.keys() -> a set-like object providing a view on D's keys\"\n        return KeysView(self)\n"
+    },
+    {
+      "type": "method",
+      "qualified_name": "yarl._query.Mapping.values",
+      "module": "yarl._query",
+      "signature": "(self)",
+      "parameters": {
+        "self": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": null,
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "D.values() -> an object providing a view on D's values",
+      "source_code": "    def values(self):\n        \"D.values() -> an object providing a view on D's values\"\n        return ValuesView(self)\n"
+    },
+    {
+      "type": "method",
+      "qualified_name": "yarl._query.Sequence.count",
+      "module": "yarl._query",
+      "signature": "(self, value)",
+      "parameters": {
+        "self": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "value": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": null,
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "S.count(value) -> integer -- return number of occurrences of value",
+      "source_code": "    def count(self, value):\n        'S.count(value) -> integer -- return number of occurrences of value'\n        return sum(1 for v in self if v is value or v == value)\n"
+    },
+    {
+      "type": "method",
+      "qualified_name": "yarl._query.Sequence.index",
+      "module": "yarl._query",
+      "signature": "(self, value, start=0, stop=None)",
+      "parameters": {
+        "self": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "value": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "start": {
+          "default": "0",
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "stop": {
+          "default": "None",
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": null,
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "S.index(value, [start, [stop]]) -> integer -- return first index of value.\nRaises ValueError if the value is not present.\n\nSupporting start and stop arguments is optional, but\nrecommended.",
+      "source_code": "    def index(self, value, start=0, stop=None):\n        '''S.index(value, [start, [stop]]) -> integer -- return first index of value.\n           Raises ValueError if the value is not present.\n\n           Supporting start and stop arguments is optional, but\n           recommended.\n        '''\n        if start is not None and start < 0:\n            start = max(len(self) + start, 0)\n        if stop is not None and stop < 0:\n            stop += len(self)\n\n        i = start\n        while stop is None or i < stop:\n            try:\n                v = self[i]\n                if v is value or v == value:\n                    return i\n            except IndexError:\n                break\n            i += 1\n        raise ValueError\n"
+    },
+    {
+      "type": "method",
+      "qualified_name": "yarl._quoting_py.utf8_decoder.decode",
+      "module": "yarl._quoting_py",
+      "signature": "(self, input, final=False)",
+      "parameters": {
+        "self": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "input": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "final": {
+          "default": "False",
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": null,
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Decode input and returns the resulting object.",
+      "source_code": "    def decode(self, input, final=False):\n        # decode input (taking the buffer into account)\n        data = self.buffer + input\n        (result, consumed) = self._buffer_decode(data, self.errors, final)\n        # keep undecoded input until the next call\n        self.buffer = data[consumed:]\n        return result\n"
+    },
+    {
+      "type": "method",
+      "qualified_name": "yarl._quoting_py.utf8_decoder.getstate",
+      "module": "yarl._quoting_py",
+      "signature": "(self)",
+      "parameters": {
+        "self": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": null,
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Return the current state of the decoder.\n\nThis must be a (buffered_input, additional_state_info) tuple.\nbuffered_input must be a bytes object containing bytes that\nwere passed to decode() that have not yet been converted.\nadditional_state_info must be a non-negative integer\nrepresenting the state of the decoder WITHOUT yet having\nprocessed the contents of buffered_input.  In the initial state\nand after reset(), getstate() must return (b\"\", 0).",
+      "source_code": "    def getstate(self):\n        # additional state info is always 0\n        return (self.buffer, 0)\n"
+    },
+    {
+      "type": "method",
+      "qualified_name": "yarl._quoting_py.utf8_decoder.reset",
+      "module": "yarl._quoting_py",
+      "signature": "(self)",
+      "parameters": {
+        "self": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": null,
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Reset the decoder to the initial state.",
+      "source_code": "    def reset(self):\n        IncrementalDecoder.reset(self)\n        self.buffer = b\"\"\n"
+    },
+    {
+      "type": "method",
+      "qualified_name": "yarl._quoting_py.utf8_decoder.setstate",
+      "module": "yarl._quoting_py",
+      "signature": "(self, state)",
+      "parameters": {
+        "self": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "state": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": null,
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Set the current state of the decoder.\n\nstate must have been returned by getstate().  The effect of\nsetstate((b\"\", 0)) must be equivalent to reset().",
+      "source_code": "    def setstate(self, state):\n        # ignore additional state info\n        self.buffer = state[0]\n"
+    },
+    {
+      "type": "method",
+      "qualified_name": "yarl._url.Mapping.get",
+      "module": "yarl._url",
+      "signature": "(self, key, default=None)",
+      "parameters": {
+        "self": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "key": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "default": {
+          "default": "None",
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": null,
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "D.get(k[,d]) -> D[k] if k in D, else d.  d defaults to None.",
+      "source_code": "    def get(self, key, default=None):\n        'D.get(k[,d]) -> D[k] if k in D, else d.  d defaults to None.'\n        try:\n            return self[key]\n        except KeyError:\n            return default\n"
+    },
+    {
+      "type": "method",
+      "qualified_name": "yarl._url.Mapping.items",
+      "module": "yarl._url",
+      "signature": "(self)",
+      "parameters": {
+        "self": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": null,
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "D.items() -> a set-like object providing a view on D's items",
+      "source_code": "    def items(self):\n        \"D.items() -> a set-like object providing a view on D's items\"\n        return ItemsView(self)\n"
+    },
+    {
+      "type": "method",
+      "qualified_name": "yarl._url.Mapping.keys",
+      "module": "yarl._url",
+      "signature": "(self)",
+      "parameters": {
+        "self": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": null,
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "D.keys() -> a set-like object providing a view on D's keys",
+      "source_code": "    def keys(self):\n        \"D.keys() -> a set-like object providing a view on D's keys\"\n        return KeysView(self)\n"
+    },
+    {
+      "type": "method",
+      "qualified_name": "yarl._url.Mapping.values",
+      "module": "yarl._url",
+      "signature": "(self)",
+      "parameters": {
+        "self": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": null,
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "D.values() -> an object providing a view on D's values",
+      "source_code": "    def values(self):\n        \"D.values() -> an object providing a view on D's values\"\n        return ValuesView(self)\n"
+    },
+    {
+      "type": "method",
+      "qualified_name": "yarl._url.Sequence.count",
+      "module": "yarl._url",
+      "signature": "(self, value)",
+      "parameters": {
+        "self": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "value": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": null,
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "S.count(value) -> integer -- return number of occurrences of value",
+      "source_code": "    def count(self, value):\n        'S.count(value) -> integer -- return number of occurrences of value'\n        return sum(1 for v in self if v is value or v == value)\n"
+    },
+    {
+      "type": "method",
+      "qualified_name": "yarl._url.Sequence.index",
+      "module": "yarl._url",
+      "signature": "(self, value, start=0, stop=None)",
+      "parameters": {
+        "self": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "value": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "start": {
+          "default": "0",
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "stop": {
+          "default": "None",
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": null,
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "S.index(value, [start, [stop]]) -> integer -- return first index of value.\nRaises ValueError if the value is not present.\n\nSupporting start and stop arguments is optional, but\nrecommended.",
+      "source_code": "    def index(self, value, start=0, stop=None):\n        '''S.index(value, [start, [stop]]) -> integer -- return first index of value.\n           Raises ValueError if the value is not present.\n\n           Supporting start and stop arguments is optional, but\n           recommended.\n        '''\n        if start is not None and start < 0:\n            start = max(len(self) + start, 0)\n        if stop is not None and stop < 0:\n            stop += len(self)\n\n        i = start\n        while stop is None or i < stop:\n            try:\n                v = self[i]\n                if v is value or v == value:\n                    return i\n            except IndexError:\n                break\n            i += 1\n        raise ValueError\n"
+    },
+    {
+      "type": "method",
+      "qualified_name": "yarl._url.SplitResult.encode",
+      "module": "yarl._url",
+      "signature": "(self, encoding='ascii', errors='strict')",
+      "parameters": {
+        "self": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "encoding": {
+          "default": "ascii",
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "errors": {
+          "default": "strict",
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": null,
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "",
+      "source_code": "    def encode(self, encoding='ascii', errors='strict'):\n        return self._encoded_counterpart(*(x.encode(encoding, errors) for x in self))\n"
+    },
+    {
+      "type": "method",
+      "qualified_name": "yarl._url.SplitResult.geturl",
+      "module": "yarl._url",
+      "signature": "(self)",
+      "parameters": {
+        "self": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": null,
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "",
+      "source_code": "    def geturl(self):\n        return urlunsplit(self)\n"
+    },
+    {
+      "type": "method",
+      "qualified_name": "yarl._url.URL.extend_query",
+      "module": "yarl._url",
+      "signature": "(self, *args: Any, **kwargs: Any) -> 'URL'",
+      "parameters": {
+        "self": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "args": {
+          "default": null,
+          "annotation": "typing.Any",
+          "kind": "VAR_POSITIONAL",
+          "description": null
+        },
+        "kwargs": {
+          "default": null,
+          "annotation": "typing.Any",
+          "kind": "VAR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": "URL",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [
+        ">>> url = URL('http://example.com/?a=1&b=2')",
+        ">>> url.extend_query(a=3, c=4)"
+      ],
+      "docstring": "Return a new URL with query part combined with the existing.\n\nThis method will not remove existing query parameters.\n\nExample:\n>>> url = URL('http://example.com/?a=1&b=2')\n>>> url.extend_query(a=3, c=4)\nURL('http://example.com/?a=1&b=2&a=3&c=4')",
+      "source_code": "    def extend_query(self, *args: Any, **kwargs: Any) -> \"URL\":\n        \"\"\"Return a new URL with query part combined with the existing.\n\n        This method will not remove existing query parameters.\n\n        Example:\n        >>> url = URL('http://example.com/?a=1&b=2')\n        >>> url.extend_query(a=3, c=4)\n        URL('http://example.com/?a=1&b=2&a=3&c=4')\n        \"\"\"\n        if not (new_query := get_str_query(*args, **kwargs)):\n            return self\n        if query := self._query:\n            # both strings are already encoded so we can use a simple\n            # string join\n            query += new_query if query[-1] == \"&\" else f\"&{new_query}\"\n        else:\n            query = new_query\n        return from_parts_uncached(\n            self._scheme, self._netloc, self._path, query, self._fragment\n        )\n"
+    },
+    {
+      "type": "method",
+      "qualified_name": "yarl._url.URL.human_repr",
+      "module": "yarl._url",
+      "signature": "(self) -> str",
+      "parameters": {
+        "self": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": "<class 'str'>",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Return decoded human readable string for URL representation.",
+      "source_code": "    def human_repr(self) -> str:\n        \"\"\"Return decoded human readable string for URL representation.\"\"\"\n        user = human_quote(self.user, \"#/:?@[]\")\n        password = human_quote(self.password, \"#/:?@[]\")\n        if (host := self.host) and \":\" in host:\n            host = f\"[{host}]\"\n        path = human_quote(self.path, \"#?\")\n        if TYPE_CHECKING:\n            assert path is not None\n        query_string = \"&\".join(\n            \"{}={}\".format(human_quote(k, \"#&+;=\"), human_quote(v, \"#&+;=\"))\n            for k, v in self.query.items()\n        )\n        fragment = human_quote(self.fragment, \"\")\n        if TYPE_CHECKING:\n            assert fragment is not None\n        netloc = make_netloc(user, password, host, self.explicit_port)\n        return unsplit_result(self._scheme, netloc, path, query_string, fragment)\n"
+    },
+    {
+      "type": "method",
+      "qualified_name": "yarl._url.URL.is_absolute",
+      "module": "yarl._url",
+      "signature": "(self) -> bool",
+      "parameters": {
+        "self": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": "<class 'bool'>",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "A check for absolute URLs.\n\nReturn True for absolute ones (having scheme or starting\nwith //), False otherwise.\n\nIs is preferred to call the .absolute property instead\nas it is cached.",
+      "source_code": "    def is_absolute(self) -> bool:\n        \"\"\"A check for absolute URLs.\n\n        Return True for absolute ones (having scheme or starting\n        with //), False otherwise.\n\n        Is is preferred to call the .absolute property instead\n        as it is cached.\n        \"\"\"\n        return self.absolute\n"
+    },
+    {
+      "type": "method",
+      "qualified_name": "yarl._url.URL.is_default_port",
+      "module": "yarl._url",
+      "signature": "(self) -> bool",
+      "parameters": {
+        "self": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": "<class 'bool'>",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "A check for default port.\n\nReturn True if port is default for specified scheme,\ne.g. 'http://python.org' or 'http://python.org:80', False\notherwise.\n\nReturn False for relative URLs.",
+      "source_code": "    def is_default_port(self) -> bool:\n        \"\"\"A check for default port.\n\n        Return True if port is default for specified scheme,\n        e.g. 'http://python.org' or 'http://python.org:80', False\n        otherwise.\n\n        Return False for relative URLs.\n\n        \"\"\"\n        if (explicit := self.explicit_port) is None:\n            # If the explicit port is None, then the URL must be\n            # using the default port unless its a relative URL\n            # which does not have an implicit port / default port\n            return self._netloc != \"\"\n        return explicit == DEFAULT_PORTS.get(self._scheme)\n"
+    },
+    {
+      "type": "method",
+      "qualified_name": "yarl._url.URL.join",
+      "module": "yarl._url",
+      "signature": "(self, url: 'URL') -> 'URL'",
+      "parameters": {
+        "self": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "url": {
+          "default": null,
+          "annotation": "URL",
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": "URL",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Join URLs\n\nConstruct a full (\u201cabsolute\u201d) URL by combining a \u201cbase URL\u201d\n(self) with another URL (url).\n\nInformally, this uses components of the base URL, in\nparticular the addressing scheme, the network location and\n(part of) the path, to provide missing components in the\nrelative URL.",
+      "source_code": "    def join(self, url: \"URL\") -> \"URL\":\n        \"\"\"Join URLs\n\n        Construct a full (\u201cabsolute\u201d) URL by combining a \u201cbase URL\u201d\n        (self) with another URL (url).\n\n        Informally, this uses components of the base URL, in\n        particular the addressing scheme, the network location and\n        (part of) the path, to provide missing components in the\n        relative URL.\n\n        \"\"\"\n        if type(url) is not URL:\n            raise TypeError(\"url should be URL\")\n\n        scheme = url._scheme or self._scheme\n        if scheme != self._scheme or scheme not in USES_RELATIVE:\n            return url\n\n        # scheme is in uses_authority as uses_authority is a superset of uses_relative\n        if (join_netloc := url._netloc) and scheme in USES_AUTHORITY:\n            return from_parts(scheme, join_netloc, url._path, url._query, url._fragment)\n\n        orig_path = self._path\n        if join_path := url._path:\n            if join_path[0] == \"/\":\n                path = join_path\n            elif not orig_path:\n                path = f\"/{join_path}\"\n            elif orig_path[-1] == \"/\":\n                path = f\"{orig_path}{join_path}\"\n            else:\n                # \u2026\n                # and relativizing \"..\"\n                # parts[0] is / for absolute urls,\n                # this join will add a double slash there\n                path = \"/\".join([*self.parts[:-1], \"\"]) + join_path\n                # which has to be removed\n                if orig_path[0] == \"/\":\n                    path = path[1:]\n            path = normalize_path(path) if \".\" in path else path\n        else:\n            path = orig_path\n\n        return from_parts(\n            scheme,\n            self._netloc,\n            path,\n            url._query if join_path or url._query else self._query,\n            url._fragment if join_path or url._fragment else self._fragment,\n        )\n"
+    },
+    {
+      "type": "method",
+      "qualified_name": "yarl._url.URL.joinpath",
+      "module": "yarl._url",
+      "signature": "(self, *other: str, encoded: bool = False) -> 'URL'",
+      "parameters": {
+        "self": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "other": {
+          "default": null,
+          "annotation": "<class 'str'>",
+          "kind": "VAR_POSITIONAL",
+          "description": null
+        },
+        "encoded": {
+          "default": "False",
+          "annotation": "<class 'bool'>",
+          "kind": "KEYWORD_ONLY",
+          "description": null
+        }
+      },
+      "returns": "URL",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Return a new URL with the elements in other appended to the path.",
+      "source_code": "    def joinpath(self, *other: str, encoded: bool = False) -> \"URL\":\n        \"\"\"Return a new URL with the elements in other appended to the path.\"\"\"\n        return self._make_child(other, encoded=encoded)\n"
+    },
+    {
+      "type": "method",
+      "qualified_name": "yarl._url.URL.origin",
+      "module": "yarl._url",
+      "signature": "(self) -> 'URL'",
+      "parameters": {
+        "self": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": "URL",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Return an URL with scheme, host and port parts only.\n\nuser, password, path, query and fragment are removed.",
+      "source_code": "    def origin(self) -> \"URL\":\n        \"\"\"Return an URL with scheme, host and port parts only.\n\n        user, password, path, query and fragment are removed.\n\n        \"\"\"\n        # TODO: add a keyword-only option for keeping user/pass maybe?\n        return self._origin\n"
+    },
+    {
+      "type": "method",
+      "qualified_name": "yarl._url.URL.relative",
+      "module": "yarl._url",
+      "signature": "(self) -> 'URL'",
+      "parameters": {
+        "self": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": "URL",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Return a relative part of the URL.\n\nscheme, user, password, host and port are removed.",
+      "source_code": "    def relative(self) -> \"URL\":\n        \"\"\"Return a relative part of the URL.\n\n        scheme, user, password, host and port are removed.\n\n        \"\"\"\n        if not self._netloc:\n            raise ValueError(\"URL should be absolute\")\n        return from_parts(\"\", \"\", self._path, self._query, self._fragment)\n"
+    },
+    {
+      "type": "method",
+      "qualified_name": "yarl._url.URL.update_query",
+      "module": "yarl._url",
+      "signature": "(self, *args: Any, **kwargs: Any) -> 'URL'",
+      "parameters": {
+        "self": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "args": {
+          "default": null,
+          "annotation": "typing.Any",
+          "kind": "VAR_POSITIONAL",
+          "description": null
+        },
+        "kwargs": {
+          "default": null,
+          "annotation": "typing.Any",
+          "kind": "VAR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": "URL",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [
+        ">>> url = URL('http://example.com/?a=1&b=2')",
+        ">>> url.update_query(a=3, c=4)"
+      ],
+      "docstring": "Return a new URL with query part updated.\n\nThis method will overwrite existing query parameters.\n\nExample:\n>>> url = URL('http://example.com/?a=1&b=2')\n>>> url.update_query(a=3, c=4)\nURL('http://example.com/?a=3&b=2&c=4')",
+      "source_code": "    def update_query(self, *args: Any, **kwargs: Any) -> \"URL\":\n        \"\"\"Return a new URL with query part updated.\n\n        This method will overwrite existing query parameters.\n\n        Example:\n        >>> url = URL('http://example.com/?a=1&b=2')\n        >>> url.update_query(a=3, c=4)\n        URL('http://example.com/?a=3&b=2&c=4')\n        \"\"\"\n        in_query: Union[str, Mapping[str, QueryVariable], None]\n        if kwargs:\n            if args:\n                msg = \"Either kwargs or single query parameter must be present\"\n                raise ValueError(msg)\n            in_query = kwargs\n        elif len(args) == 1:\n            in_query = args[0]\n        else:\n            raise ValueError(\"Either kwargs or single query parameter must be present\")\n\n        if in_query is None:\n            query = \"\"\n        elif not in_query:\n            query = self._query\n        elif isinstance(in_query, Mapping):\n            qm: MultiDict[QueryVariable] = MultiDict(self._parsed_query)\n            qm.update(in_query)\n            query = get_str_query_from_sequence_iterable(qm.items())\n        elif isinstance(in_query, str):\n            qstr: MultiDict[str] = MultiDict(self._parsed_query)\n            qstr.update(query_to_pairs(in_query))\n            query = get_str_query_from_iterable(qstr.items())\n        elif isinstance(in_query, (bytes, bytearray, memoryview)):  # type: ignore[unreachable]\n            msg = \"Invalid query type: bytes, bytearray and memoryview are forbidden\"\n            raise TypeError(msg)\n        elif isinstance(in_query, Sequence):\n            # We don't expect sequence values if we're given a list of pairs\n            # already; only mappings like builtin `dict` which can't have the\n            # same key pointing to multiple values are allowed to use\n            # `_query_seq_pairs`.\n            qs: MultiDict[SimpleQuery] = MultiDict(self._parsed_query)\n            qs.update(in_query)\n            query = get_str_query_from_iterable(qs.items())\n        else:\n            raise TypeError(\n                \"Invalid query type: only str, mapping or \"\n                \"sequence of (key, value) pairs is allowed\"\n            )\n        return from_parts_uncached(\n            self._scheme, self._netloc, self._path, query, self._fragment\n        )\n"
+    },
+    {
+      "type": "method",
+      "qualified_name": "yarl._url.URL.with_fragment",
+      "module": "yarl._url",
+      "signature": "(self, fragment: Optional[str]) -> 'URL'",
+      "parameters": {
+        "self": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "fragment": {
+          "default": null,
+          "annotation": "typing.Optional[str]",
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": "URL",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Return a new URL with fragment replaced.\n\nAutoencode fragment if needed.\n\nClear fragment to default if None is passed.",
+      "source_code": "    def with_fragment(self, fragment: Union[str, None]) -> \"URL\":\n        \"\"\"Return a new URL with fragment replaced.\n\n        Autoencode fragment if needed.\n\n        Clear fragment to default if None is passed.\n\n        \"\"\"\n        # N.B. doesn't cleanup query/fragment\n        if fragment is None:\n            raw_fragment = \"\"\n        elif not isinstance(fragment, str):\n            raise TypeError(\"Invalid fragment type\")\n        else:\n            raw_fragment = FRAGMENT_QUOTER(fragment)\n        if self._fragment == raw_fragment:\n            return self\n        return from_parts(\n            self._scheme, self._netloc, self._path, self._query, raw_fragment\n        )\n"
+    },
+    {
+      "type": "method",
+      "qualified_name": "yarl._url.URL.with_host",
+      "module": "yarl._url",
+      "signature": "(self, host: str) -> 'URL'",
+      "parameters": {
+        "self": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "host": {
+          "default": null,
+          "annotation": "<class 'str'>",
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": "URL",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Return a new URL with host replaced.\n\nAutoencode host if needed.\n\nChanging host for relative URLs is not allowed, use .join()\ninstead.",
+      "source_code": "    def with_host(self, host: str) -> \"URL\":\n        \"\"\"Return a new URL with host replaced.\n\n        Autoencode host if needed.\n\n        Changing host for relative URLs is not allowed, use .join()\n        instead.\n\n        \"\"\"\n        # N.B. doesn't cleanup query/fragment\n        if not isinstance(host, str):\n            raise TypeError(\"Invalid host type\")\n        if not (netloc := self._netloc):\n            raise ValueError(\"host replacement is not allowed for relative URLs\")\n        if not host:\n            raise ValueError(\"host removing is not allowed\")\n        encoded_host = _encode_host(host, validate_host=True) if host else \"\"\n        port = self.explicit_port\n        netloc = make_netloc(self.raw_user, self.raw_password, encoded_host, port)\n        return from_parts(self._scheme, netloc, self._path, self._query, self._fragment)\n"
+    },
+    {
+      "type": "method",
+      "qualified_name": "yarl._url.URL.with_name",
+      "module": "yarl._url",
+      "signature": "(self, name: str, *, keep_query: bool = False, keep_fragment: bool = False) -> 'URL'",
+      "parameters": {
+        "self": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "name": {
+          "default": null,
+          "annotation": "<class 'str'>",
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "keep_query": {
+          "default": "False",
+          "annotation": "<class 'bool'>",
+          "kind": "KEYWORD_ONLY",
+          "description": null
+        },
+        "keep_fragment": {
+          "default": "False",
+          "annotation": "<class 'bool'>",
+          "kind": "KEYWORD_ONLY",
+          "description": null
+        }
+      },
+      "returns": "URL",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Return a new URL with name (last part of path) replaced.\n\nQuery and fragment parts are cleaned up.\n\nName is encoded if needed.",
+      "source_code": "    def with_name(\n        self,\n        name: str,\n        *,\n        keep_query: bool = False,\n        keep_fragment: bool = False,\n    ) -> \"URL\":\n        \"\"\"Return a new URL with name (last part of path) replaced.\n\n        Query and fragment parts are cleaned up.\n\n        Name is encoded if needed.\n\n        \"\"\"\n        # N.B. DOES cleanup query/fragment\n        if not isinstance(name, str):\n            raise TypeError(\"Invalid name type\")\n        if \"/\" in name:\n            raise ValueError(\"Slash in name is not allowed\")\n        name = PATH_QUOTER(name)\n        if name in (\".\", \"..\"):\n            raise ValueError(\". and .. values are forbidden\")\n        parts = list(self.raw_parts)\n        if netloc := self._netloc:\n            if len(parts) == 1:\n                parts.append(name)\n            else:\n                parts[-1] = name\n            parts[0] = \"\"  # replace leading '/'\n        else:\n            parts[-1] = name\n            if parts[0] == \"/\":\n                parts[0] = \"\"  # replace leading '/'\n\n        query = self._query if keep_query else \"\"\n        fragment = self._fragment if keep_fragment else \"\"\n        return from_parts(self._scheme, netloc, \"/\".join(parts), query, fragment)\n"
+    },
+    {
+      "type": "method",
+      "qualified_name": "yarl._url.URL.with_password",
+      "module": "yarl._url",
+      "signature": "(self, password: Optional[str]) -> 'URL'",
+      "parameters": {
+        "self": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "password": {
+          "default": null,
+          "annotation": "typing.Optional[str]",
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": "URL",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Return a new URL with password replaced.\n\nAutoencode password if needed.\n\nClear password if argument is None.",
+      "source_code": "    def with_password(self, password: Union[str, None]) -> \"URL\":\n        \"\"\"Return a new URL with password replaced.\n\n        Autoencode password if needed.\n\n        Clear password if argument is None.\n\n        \"\"\"\n        # N.B. doesn't cleanup query/fragment\n        if password is None:\n            pass\n        elif isinstance(password, str):\n            password = QUOTER(password)\n        else:\n            raise TypeError(\"Invalid password type\")\n        if not (netloc := self._netloc):\n            raise ValueError(\"password replacement is not allowed for relative URLs\")\n        encoded_host = self.host_subcomponent or \"\"\n        port = self.explicit_port\n        netloc = make_netloc(self.raw_user, password, encoded_host, port)\n        return from_parts(self._scheme, netloc, self._path, self._query, self._fragment)\n"
+    },
+    {
+      "type": "method",
+      "qualified_name": "yarl._url.URL.with_path",
+      "module": "yarl._url",
+      "signature": "(self, path: str, *, encoded: bool = False, keep_query: bool = False, keep_fragment: bool = False) -> 'URL'",
+      "parameters": {
+        "self": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "path": {
+          "default": null,
+          "annotation": "<class 'str'>",
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "encoded": {
+          "default": "False",
+          "annotation": "<class 'bool'>",
+          "kind": "KEYWORD_ONLY",
+          "description": null
+        },
+        "keep_query": {
+          "default": "False",
+          "annotation": "<class 'bool'>",
+          "kind": "KEYWORD_ONLY",
+          "description": null
+        },
+        "keep_fragment": {
+          "default": "False",
+          "annotation": "<class 'bool'>",
+          "kind": "KEYWORD_ONLY",
+          "description": null
+        }
+      },
+      "returns": "URL",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Return a new URL with path replaced.",
+      "source_code": "    def with_path(\n        self,\n        path: str,\n        *,\n        encoded: bool = False,\n        keep_query: bool = False,\n        keep_fragment: bool = False,\n    ) -> \"URL\":\n        \"\"\"Return a new URL with path replaced.\"\"\"\n        netloc = self._netloc\n        if not encoded:\n            path = PATH_QUOTER(path)\n            if netloc:\n                path = normalize_path(path) if \".\" in path else path\n        if path and path[0] != \"/\":\n            path = f\"/{path}\"\n        query = self._query if keep_query else \"\"\n        fragment = self._fragment if keep_fragment else \"\"\n        return from_parts(self._scheme, netloc, path, query, fragment)\n"
+    },
+    {
+      "type": "method",
+      "qualified_name": "yarl._url.URL.with_port",
+      "module": "yarl._url",
+      "signature": "(self, port: Optional[int]) -> 'URL'",
+      "parameters": {
+        "self": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "port": {
+          "default": null,
+          "annotation": "typing.Optional[int]",
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": "URL",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Return a new URL with port replaced.\n\nClear port to default if None is passed.",
+      "source_code": "    def with_port(self, port: Union[int, None]) -> \"URL\":\n        \"\"\"Return a new URL with port replaced.\n\n        Clear port to default if None is passed.\n\n        \"\"\"\n        # N.B. doesn't cleanup query/fragment\n        if port is not None:\n            if isinstance(port, bool) or not isinstance(port, int):\n                raise TypeError(f\"port should be int or None, got {type(port)}\")\n            if not (0 <= port <= 65535):\n                raise ValueError(f\"port must be between 0 and 65535, got {port}\")\n        if not (netloc := self._netloc):\n            raise ValueError(\"port replacement is not allowed for relative URLs\")\n        encoded_host = self.host_subcomponent or \"\"\n        netloc = make_netloc(self.raw_user, self.raw_password, encoded_host, port)\n        return from_parts(self._scheme, netloc, self._path, self._query, self._fragment)\n"
+    },
+    {
+      "type": "method",
+      "qualified_name": "yarl._url.URL.with_query",
+      "module": "yarl._url",
+      "signature": "(self, *args: Any, **kwargs: Any) -> 'URL'",
+      "parameters": {
+        "self": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "args": {
+          "default": null,
+          "annotation": "typing.Any",
+          "kind": "VAR_POSITIONAL",
+          "description": null
+        },
+        "kwargs": {
+          "default": null,
+          "annotation": "typing.Any",
+          "kind": "VAR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": "URL",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Return a new URL with query part replaced.\n\nAccepts any Mapping (e.g. dict, multidict.MultiDict instances)\nor str, autoencode the argument if needed.\n\nA sequence of (key, value) pairs is supported as well.\n\nIt also can take an arbitrary number of keyword arguments.\n\nClear query if None is passed.",
+      "source_code": "    def with_query(self, *args: Any, **kwargs: Any) -> \"URL\":\n        \"\"\"Return a new URL with query part replaced.\n\n        Accepts any Mapping (e.g. dict, multidict.MultiDict instances)\n        or str, autoencode the argument if needed.\n\n        A sequence of (key, value) pairs is supported as well.\n\n        It also can take an arbitrary number of keyword arguments.\n\n        Clear query if None is passed.\n\n        \"\"\"\n        # N.B. doesn't cleanup query/fragment\n        query = get_str_query(*args, **kwargs) or \"\"\n        return from_parts_uncached(\n            self._scheme, self._netloc, self._path, query, self._fragment\n        )\n"
+    },
+    {
+      "type": "method",
+      "qualified_name": "yarl._url.URL.with_scheme",
+      "module": "yarl._url",
+      "signature": "(self, scheme: str) -> 'URL'",
+      "parameters": {
+        "self": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "scheme": {
+          "default": null,
+          "annotation": "<class 'str'>",
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": "URL",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Return a new URL with scheme replaced.",
+      "source_code": "    def with_scheme(self, scheme: str) -> \"URL\":\n        \"\"\"Return a new URL with scheme replaced.\"\"\"\n        # N.B. doesn't cleanup query/fragment\n        if not isinstance(scheme, str):\n            raise TypeError(\"Invalid scheme type\")\n        lower_scheme = scheme.lower()\n        netloc = self._netloc\n        if not netloc and lower_scheme in SCHEME_REQUIRES_HOST:\n            msg = (\n                \"scheme replacement is not allowed for \"\n                f\"relative URLs for the {lower_scheme} scheme\"\n            )\n            raise ValueError(msg)\n        return from_parts(lower_scheme, netloc, self._path, self._query, self._fragment)\n"
+    },
+    {
+      "type": "method",
+      "qualified_name": "yarl._url.URL.with_suffix",
+      "module": "yarl._url",
+      "signature": "(self, suffix: str, *, keep_query: bool = False, keep_fragment: bool = False) -> 'URL'",
+      "parameters": {
+        "self": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "suffix": {
+          "default": null,
+          "annotation": "<class 'str'>",
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "keep_query": {
+          "default": "False",
+          "annotation": "<class 'bool'>",
+          "kind": "KEYWORD_ONLY",
+          "description": null
+        },
+        "keep_fragment": {
+          "default": "False",
+          "annotation": "<class 'bool'>",
+          "kind": "KEYWORD_ONLY",
+          "description": null
+        }
+      },
+      "returns": "URL",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Return a new URL with suffix (file extension of name) replaced.\n\nQuery and fragment parts are cleaned up.\n\nsuffix is encoded if needed.",
+      "source_code": "    def with_suffix(\n        self,\n        suffix: str,\n        *,\n        keep_query: bool = False,\n        keep_fragment: bool = False,\n    ) -> \"URL\":\n        \"\"\"Return a new URL with suffix (file extension of name) replaced.\n\n        Query and fragment parts are cleaned up.\n\n        suffix is encoded if needed.\n        \"\"\"\n        if not isinstance(suffix, str):\n            raise TypeError(\"Invalid suffix type\")\n        if suffix and not suffix[0] == \".\" or suffix == \".\" or \"/\" in suffix:\n            raise ValueError(f\"Invalid suffix {suffix!r}\")\n        name = self.raw_name\n        if not name:\n            raise ValueError(f\"{self!r} has an empty name\")\n        old_suffix = self.raw_suffix\n        suffix = PATH_QUOTER(suffix)\n        name = name + suffix if not old_suffix else name[: -len(old_suffix)] + suffix\n        if name in (\".\", \"..\"):\n            raise ValueError(\". and .. values are forbidden\")\n        parts = list(self.raw_parts)\n        if netloc := self._netloc:\n            if len(parts) == 1:\n                parts.append(name)\n            else:\n                parts[-1] = name\n            parts[0] = \"\"  # replace leading '/'\n        else:\n            parts[-1] = name\n            if parts[0] == \"/\":\n                parts[0] = \"\"  # replace leading '/'\n\n        query = self._query if keep_query else \"\"\n        fragment = self._fragment if keep_fragment else \"\"\n        return from_parts(self._scheme, netloc, \"/\".join(parts), query, fragment)\n"
+    },
+    {
+      "type": "method",
+      "qualified_name": "yarl._url.URL.with_user",
+      "module": "yarl._url",
+      "signature": "(self, user: Optional[str]) -> 'URL'",
+      "parameters": {
+        "self": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "user": {
+          "default": null,
+          "annotation": "typing.Optional[str]",
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        }
+      },
+      "returns": "URL",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Return a new URL with user replaced.\n\nAutoencode user if needed.\n\nClear user/password if user is None.",
+      "source_code": "    def with_user(self, user: Union[str, None]) -> \"URL\":\n        \"\"\"Return a new URL with user replaced.\n\n        Autoencode user if needed.\n\n        Clear user/password if user is None.\n\n        \"\"\"\n        # N.B. doesn't cleanup query/fragment\n        if user is None:\n            password = None\n        elif isinstance(user, str):\n            user = QUOTER(user)\n            password = self.raw_password\n        else:\n            raise TypeError(\"Invalid user type\")\n        if not (netloc := self._netloc):\n            raise ValueError(\"user replacement is not allowed for relative URLs\")\n        encoded_host = self.host_subcomponent or \"\"\n        netloc = make_netloc(user, password, encoded_host, self.explicit_port)\n        return from_parts(self._scheme, netloc, self._path, self._query, self._fragment)\n"
+    },
+    {
+      "type": "method",
+      "qualified_name": "yarl._url.URL.without_query_params",
+      "module": "yarl._url",
+      "signature": "(self, *query_params: str) -> 'URL'",
+      "parameters": {
+        "self": {
+          "default": null,
+          "annotation": null,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "description": null
+        },
+        "query_params": {
+          "default": null,
+          "annotation": "<class 'str'>",
+          "kind": "VAR_POSITIONAL",
+          "description": null
+        }
+      },
+      "returns": "URL",
+      "return_description": null,
+      "raises": [],
+      "decorators": [],
+      "examples": [],
+      "docstring": "Remove some keys from query part and return new URL.",
+      "source_code": "    def without_query_params(self, *query_params: str) -> \"URL\":\n        \"\"\"Remove some keys from query part and return new URL.\"\"\"\n        params_to_remove = set(query_params) & self.query.keys()\n        if not params_to_remove:\n            return self\n        return self.with_query(\n            tuple(\n                (name, value)\n                for name, value in self.query.items()\n                if name not in params_to_remove\n            )\n        )\n"
+    }
+  ]
+}

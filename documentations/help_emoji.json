@@ -378,8 +378,8 @@
       "raises": [],
       "decorators": [],
       "examples": [],
-      "docstring": "A simple typed namespace. At runtime it is equivalent to a plain dict.\n\nTypedDict creates a dictionary type that expects all of its\ninstances to have a certain set of keys, where each key is\nassociated with a value of a consistent type. This expectation\nis not checked at runtime but is only enforced by type checkers.\nUsage::\n\n    class Point2D(TypedDict):\n        x: int\n        y: int\n        label: str\n\n    a: Point2D = {'x': 1, 'y': 2, 'label': 'good'}  # OK\n    b: Point2D = {'z': 3, 'label': 'bad'}           # Fails type check\n\n    assert Point2D(x=1, y=2, label='first') == dict(x=1, y=2, label='first')\n\nThe type info can be accessed via the Point2D.__annotations__ dict, and\nthe Point2D.__required_keys__ and Point2D.__optional_keys__ frozensets.\nTypedDict supports an additional equivalent form::\n\n    Point2D = TypedDict('Point2D', {'x': int, 'y': int, 'label': str})\n\nBy default, all keys must be present in a TypedDict. It is possible\nto override this by specifying totality.\nUsage::\n\n    class point2D(TypedDict, total=False):\n        x: int\n        y: int\n\nThis means that a point2D TypedDict can have any of the keys omitted.A type\nchecker is only expected to support a literal False or True as the value of\nthe total argument. True is the default, and makes all items defined in the\nclass body be required.\n\nThe class syntax is only supported in Python 3.6+, while the other\nsyntax form works for Python 2.7 and 3.2+",
-      "source_code": "def TypedDict(typename, fields=None, /, *, total=True, **kwargs):\n    \"\"\"A simple typed namespace. At runtime it is equivalent to a plain dict.\n\n    TypedDict creates a dictionary type that expects all of its\n    instances to have a certain set of keys, where each key is\n    associated with a value of a consistent type. This expectation\n    is not checked at runtime but is only enforced by type checkers.\n    Usage::\n\n        class Point2D(TypedDict):\n            x: int\n            y: int\n            label: str\n\n        a: Point2D = {'x': 1, 'y': 2, 'label': 'good'}  # OK\n        b: Point2D = {'z': 3, 'label': 'bad'}           # Fails type check\n\n        assert Point2D(x=1, y=2, label='first') == dict(x=1, y=2, label='first')\n\n    The type info can be accessed via the Point2D.__annotations__ dict, and\n    the Point2D.__required_keys__ and Point2D.__optional_keys__ frozensets.\n    TypedDict supports an additional equivalent form::\n\n        Point2D = TypedDict('Point2D', {'x': int, 'y': int, 'label': str})\n\n    By default, all keys must be present in a TypedDict. It is possible\n    to override this by specifying totality.\n    Usage::\n\n        class point2D(TypedDict, total=False):\n            x: int\n            y: int\n\n    This means that a point2D TypedDict can have any of the keys omitted.A type\n    checker is only expected to support a literal False or True as the value of\n    the total argument. True is the default, and makes all items defined in the\n    class body be required.\n\n    The class syntax is only supported in Python 3.6+, while the other\n    syntax form works for Python 2.7 and 3.2+\n    \"\"\"\n    if fields is None:\n        fields = kwargs\n    elif kwargs:\n        raise TypeError(\"TypedDict takes either a dict or keyword arguments,\"\n                        \" but not both\")\n    if kwargs:\n        warnings.warn(\n            \"The kwargs-based syntax for TypedDict definitions is deprecated \"\n            \"in Python 3.11, will be removed in Python 3.13, and may not be \"\n            \"understood by third-party type checkers.\",\n            DeprecationWarning,\n            stacklevel=2,\n        )\n\n    ns = {'__annotations__': dict(fields)}\n    module = _caller()\n    if module is not None:\n        # Setting correct module is necessary to make typed dict classes pickleable.\n        ns['__module__'] = module\n\n    return _TypedDictMeta(typename, (), ns, total=total)\n"
+      "docstring": "A simple typed namespace. At runtime it is equivalent to a plain dict.\n\nTypedDict creates a dictionary type that expects all of its\ninstances to have a certain set of keys, where each key is\nassociated with a value of a consistent type. This expectation\nis not checked at runtime but is only enforced by type checkers.\nUsage::\n\n    class Point2D(TypedDict):\n        x: int\n        y: int\n        label: str\n\n    a: Point2D = {'x': 1, 'y': 2, 'label': 'good'}  # OK\n    b: Point2D = {'z': 3, 'label': 'bad'}           # Fails type check\n\n    assert Point2D(x=1, y=2, label='first') == dict(x=1, y=2, label='first')\n\nThe type info can be accessed via the Point2D.__annotations__ dict, and\nthe Point2D.__required_keys__ and Point2D.__optional_keys__ frozensets.\nTypedDict supports two additional equivalent forms::\n\n    Point2D = TypedDict('Point2D', x=int, y=int, label=str)\n    Point2D = TypedDict('Point2D', {'x': int, 'y': int, 'label': str})\n\nBy default, all keys must be present in a TypedDict. It is possible\nto override this by specifying totality.\nUsage::\n\n    class point2D(TypedDict, total=False):\n        x: int\n        y: int\n\nThis means that a point2D TypedDict can have any of the keys omitted.A type\nchecker is only expected to support a literal False or True as the value of\nthe total argument. True is the default, and makes all items defined in the\nclass body be required.\n\nThe class syntax is only supported in Python 3.6+, while two other\nsyntax forms work for Python 2.7 and 3.2+",
+      "source_code": "def TypedDict(typename, fields=None, /, *, total=True, **kwargs):\n    \"\"\"A simple typed namespace. At runtime it is equivalent to a plain dict.\n\n    TypedDict creates a dictionary type that expects all of its\n    instances to have a certain set of keys, where each key is\n    associated with a value of a consistent type. This expectation\n    is not checked at runtime but is only enforced by type checkers.\n    Usage::\n\n        class Point2D(TypedDict):\n            x: int\n            y: int\n            label: str\n\n        a: Point2D = {'x': 1, 'y': 2, 'label': 'good'}  # OK\n        b: Point2D = {'z': 3, 'label': 'bad'}           # Fails type check\n\n        assert Point2D(x=1, y=2, label='first') == dict(x=1, y=2, label='first')\n\n    The type info can be accessed via the Point2D.__annotations__ dict, and\n    the Point2D.__required_keys__ and Point2D.__optional_keys__ frozensets.\n    TypedDict supports two additional equivalent forms::\n\n        Point2D = TypedDict('Point2D', x=int, y=int, label=str)\n        Point2D = TypedDict('Point2D', {'x': int, 'y': int, 'label': str})\n\n    By default, all keys must be present in a TypedDict. It is possible\n    to override this by specifying totality.\n    Usage::\n\n        class point2D(TypedDict, total=False):\n            x: int\n            y: int\n\n    This means that a point2D TypedDict can have any of the keys omitted.A type\n    checker is only expected to support a literal False or True as the value of\n    the total argument. True is the default, and makes all items defined in the\n    class body be required.\n\n    The class syntax is only supported in Python 3.6+, while two other\n    syntax forms work for Python 2.7 and 3.2+\n    \"\"\"\n    if fields is None:\n        fields = kwargs\n    elif kwargs:\n        raise TypeError(\"TypedDict takes either a dict or keyword arguments,\"\n                        \" but not both\")\n\n    ns = {'__annotations__': dict(fields)}\n    try:\n        # Setting correct module is necessary to make typed dict classes pickleable.\n        ns['__module__'] = sys._getframe(1).f_globals.get('__name__', '__main__')\n    except (AttributeError, ValueError):\n        pass\n\n    return _TypedDictMeta(typename, (), ns, total=total)\n"
     },
     {
       "type": "function",
@@ -793,7 +793,7 @@
       "decorators": [],
       "examples": [],
       "docstring": "Typed version of namedtuple.\n\nUsage in Python versions >= 3.6::\n\n    class Employee(NamedTuple):\n        name: str\n        id: int\n\nThis is equivalent to::\n\n    Employee = collections.namedtuple('Employee', ['name', 'id'])\n\nThe resulting class has an extra __annotations__ attribute, giving a\ndict that maps field names to types.  (The field names are also in\nthe _fields attribute, which is part of the namedtuple API.)\nAlternative equivalent keyword syntax is also accepted::\n\n    Employee = NamedTuple('Employee', name=str, id=int)\n\nIn Python versions <= 3.5 use::\n\n    Employee = NamedTuple('Employee', [('name', str), ('id', int)])",
-      "source_code": "def NamedTuple(typename, fields=None, /, **kwargs):\n    \"\"\"Typed version of namedtuple.\n\n    Usage in Python versions >= 3.6::\n\n        class Employee(NamedTuple):\n            name: str\n            id: int\n\n    This is equivalent to::\n\n        Employee = collections.namedtuple('Employee', ['name', 'id'])\n\n    The resulting class has an extra __annotations__ attribute, giving a\n    dict that maps field names to types.  (The field names are also in\n    the _fields attribute, which is part of the namedtuple API.)\n    Alternative equivalent keyword syntax is also accepted::\n\n        Employee = NamedTuple('Employee', name=str, id=int)\n\n    In Python versions <= 3.5 use::\n\n        Employee = NamedTuple('Employee', [('name', str), ('id', int)])\n    \"\"\"\n    if fields is None:\n        fields = kwargs.items()\n    elif kwargs:\n        raise TypeError(\"Either list of fields or keywords\"\n                        \" can be provided to NamedTuple, not both\")\n    return _make_nmtuple(typename, fields, module=_caller())\n"
+      "source_code": "def NamedTuple(typename, fields=None, /, **kwargs):\n    \"\"\"Typed version of namedtuple.\n\n    Usage in Python versions >= 3.6::\n\n        class Employee(NamedTuple):\n            name: str\n            id: int\n\n    This is equivalent to::\n\n        Employee = collections.namedtuple('Employee', ['name', 'id'])\n\n    The resulting class has an extra __annotations__ attribute, giving a\n    dict that maps field names to types.  (The field names are also in\n    the _fields attribute, which is part of the namedtuple API.)\n    Alternative equivalent keyword syntax is also accepted::\n\n        Employee = NamedTuple('Employee', name=str, id=int)\n\n    In Python versions <= 3.5 use::\n\n        Employee = NamedTuple('Employee', [('name', str), ('id', int)])\n    \"\"\"\n    if fields is None:\n        fields = kwargs.items()\n    elif kwargs:\n        raise TypeError(\"Either list of fields or keywords\"\n                        \" can be provided to NamedTuple, not both\")\n    try:\n        module = sys._getframe(1).f_globals.get('__name__', '__main__')\n    except (AttributeError, ValueError):\n        module = None\n    return _make_nmtuple(typename, fields, module=module)\n"
     },
     {
       "type": "function",
@@ -981,18 +981,6 @@
     },
     {
       "type": "class",
-      "qualified_name": "emoji.core.Any",
-      "module": "emoji.core",
-      "signature": "(self, /, *args, **kwargs)",
-      "return_description": null,
-      "raises": [],
-      "decorators": [],
-      "examples": [],
-      "docstring": "Special type indicating an unconstrained type.\n\n- Any is compatible with every type.\n- Any assumed to have all methods.\n- All values assumed to be instances of Any.\n\nNote that all the above statements are true from the point of view of\nstatic type checkers. At runtime, Any should not be used with instance\nchecks.",
-      "source_code": "class Any(metaclass=_AnyMeta):\n    \"\"\"Special type indicating an unconstrained type.\n\n    - Any is compatible with every type.\n    - Any assumed to have all methods.\n    - All values assumed to be instances of Any.\n\n    Note that all the above statements are true from the point of view of\n    static type checkers. At runtime, Any should not be used with instance\n    checks.\n    \"\"\"\n    def __new__(cls, *args, **kwargs):\n        if cls is Any:\n            raise TypeError(\"Any cannot be instantiated\")\n        return super().__new__(cls, *args, **kwargs)\n"
-    },
-    {
-      "type": "class",
       "qualified_name": "emoji.core.EmojiMatch",
       "module": "emoji.core",
       "signature": "(self, emoji: str, start: int, end: int, data: Optional[Dict[str, Any]])",
@@ -1055,18 +1043,6 @@
     },
     {
       "type": "class",
-      "qualified_name": "emoji.tokenizer.Any",
-      "module": "emoji.tokenizer",
-      "signature": "(self, /, *args, **kwargs)",
-      "return_description": null,
-      "raises": [],
-      "decorators": [],
-      "examples": [],
-      "docstring": "Special type indicating an unconstrained type.\n\n- Any is compatible with every type.\n- Any assumed to have all methods.\n- All values assumed to be instances of Any.\n\nNote that all the above statements are true from the point of view of\nstatic type checkers. At runtime, Any should not be used with instance\nchecks.",
-      "source_code": "class Any(metaclass=_AnyMeta):\n    \"\"\"Special type indicating an unconstrained type.\n\n    - Any is compatible with every type.\n    - Any assumed to have all methods.\n    - All values assumed to be instances of Any.\n\n    Note that all the above statements are true from the point of view of\n    static type checkers. At runtime, Any should not be used with instance\n    checks.\n    \"\"\"\n    def __new__(cls, *args, **kwargs):\n        if cls is Any:\n            raise TypeError(\"Any cannot be instantiated\")\n        return super().__new__(cls, *args, **kwargs)\n"
-    },
-    {
-      "type": "class",
       "qualified_name": "emoji.tokenizer.EmojiMatch",
       "module": "emoji.tokenizer",
       "signature": "(self, emoji: str, start: int, end: int, data: Optional[Dict[str, Any]])",
@@ -1115,18 +1091,6 @@
     },
     {
       "type": "class",
-      "qualified_name": "emoji.unicode_codes.Any",
-      "module": "emoji.unicode_codes",
-      "signature": "(self, /, *args, **kwargs)",
-      "return_description": null,
-      "raises": [],
-      "decorators": [],
-      "examples": [],
-      "docstring": "Special type indicating an unconstrained type.\n\n- Any is compatible with every type.\n- Any assumed to have all methods.\n- All values assumed to be instances of Any.\n\nNote that all the above statements are true from the point of view of\nstatic type checkers. At runtime, Any should not be used with instance\nchecks.",
-      "source_code": "class Any(metaclass=_AnyMeta):\n    \"\"\"Special type indicating an unconstrained type.\n\n    - Any is compatible with every type.\n    - Any assumed to have all methods.\n    - All values assumed to be instances of Any.\n\n    Note that all the above statements are true from the point of view of\n    static type checkers. At runtime, Any should not be used with instance\n    checks.\n    \"\"\"\n    def __new__(cls, *args, **kwargs):\n        if cls is Any:\n            raise TypeError(\"Any cannot be instantiated\")\n        return super().__new__(cls, *args, **kwargs)\n"
-    },
-    {
-      "type": "class",
       "qualified_name": "emoji.unicode_codes.BinaryIO",
       "module": "emoji.unicode_codes",
       "signature": "(self, /, *args, **kwargs)",
@@ -1151,30 +1115,6 @@
       "examples": [],
       "docstring": "Replaces built-in-dict in the values of the EMOJI_DATA dict.\nAuto loads language data when accessing language data via\nkey-access without prior loading of the language:\ne.g. EMOJI_DATA['\ud83d\udc4c']['fr'] will auto load French language and not throw\na KeyError.\nShows a deprecation warning explainging that `emoji.config.load_language()`\nshould be used.",
       "source_code": "class EmojiDataDict(Dict[str, Any]):\n    \"\"\"Replaces built-in-dict in the values of the EMOJI_DATA dict.\n    Auto loads language data when accessing language data via\n    key-access without prior loading of the language:\n    e.g. EMOJI_DATA['\ud83d\udc4c']['fr'] will auto load French language and not throw\n    a KeyError.\n    Shows a deprecation warning explainging that `emoji.config.load_language()`\n    should be used.\"\"\"\n\n    def __missing__(self, key: str) -> str:\n        \"\"\"Auto load language `key`, raises KeyError if language is no supported.\"\"\"\n        if key in LANGUAGES and key not in _loaded_keys:\n            load_from_json(key)\n            if key in self:\n                warn(\n                    f\"\"\"Use emoji.config.load_language('{key}') before accesing EMOJI_DATA[emj]['{key}'].\nAccessing EMOJI_DATA[emj]['{key}'] without loading the language is deprecated.\"\"\",\n                    DeprecationWarning,\n                    stacklevel=3,\n                )\n                return self[key]  # type: ignore\n\n        raise KeyError(key)\n"
-    },
-    {
-      "type": "class",
-      "qualified_name": "emoji.unicode_codes.data_dict.Any",
-      "module": "emoji.unicode_codes.data_dict",
-      "signature": "(self, /, *args, **kwargs)",
-      "return_description": null,
-      "raises": [],
-      "decorators": [],
-      "examples": [],
-      "docstring": "Special type indicating an unconstrained type.\n\n- Any is compatible with every type.\n- Any assumed to have all methods.\n- All values assumed to be instances of Any.\n\nNote that all the above statements are true from the point of view of\nstatic type checkers. At runtime, Any should not be used with instance\nchecks.",
-      "source_code": "class Any(metaclass=_AnyMeta):\n    \"\"\"Special type indicating an unconstrained type.\n\n    - Any is compatible with every type.\n    - Any assumed to have all methods.\n    - All values assumed to be instances of Any.\n\n    Note that all the above statements are true from the point of view of\n    static type checkers. At runtime, Any should not be used with instance\n    checks.\n    \"\"\"\n    def __new__(cls, *args, **kwargs):\n        if cls is Any:\n            raise TypeError(\"Any cannot be instantiated\")\n        return super().__new__(cls, *args, **kwargs)\n"
-    },
-    {
-      "type": "class",
-      "qualified_name": "emoji.unicode_codes.data_dict.Any",
-      "module": "emoji.unicode_codes.data_dict",
-      "signature": "(self, /, *args, **kwargs)",
-      "return_description": null,
-      "raises": [],
-      "decorators": [],
-      "examples": [],
-      "docstring": "Special type indicating an unconstrained type.\n\n- Any is compatible with every type.\n- Any assumed to have all methods.\n- All values assumed to be instances of Any.\n\nNote that all the above statements are true from the point of view of\nstatic type checkers. At runtime, Any should not be used with instance\nchecks.",
-      "source_code": "class Any(metaclass=_AnyMeta):\n    \"\"\"Special type indicating an unconstrained type.\n\n    - Any is compatible with every type.\n    - Any assumed to have all methods.\n    - All values assumed to be instances of Any.\n\n    Note that all the above statements are true from the point of view of\n    static type checkers. At runtime, Any should not be used with instance\n    checks.\n    \"\"\"\n    def __new__(cls, *args, **kwargs):\n        if cls is Any:\n            raise TypeError(\"Any cannot be instantiated\")\n        return super().__new__(cls, *args, **kwargs)\n"
     },
     {
       "type": "method",

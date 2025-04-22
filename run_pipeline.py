@@ -52,7 +52,7 @@ def correction(test_code_fp, test_error, current_iteration, max_iteration, modul
     return correction(refined_response_fp, test_error, current_iteration+1, max_iteration, module, formatted_qualified_name, prompt_type)
 
 
-modules = ["emoji", "pyfiglet", "pytz", "shortuuid"]
+modules = ["emoji", "pyfiglet", "pytz", "shortuuid", "yarl"]
 
 # Generate prompts (base, with function body, docstring, examples) for all modules' public functions
 for module in modules:
