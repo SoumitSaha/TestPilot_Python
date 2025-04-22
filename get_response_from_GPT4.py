@@ -55,7 +55,8 @@ def generate_using_OPENAI(content, model, sys_msg="You are a professional Python
         {"role": "system", "content": sys_msg},
         {"role": "user", "content": content}
     ]
-    response = send_message_to_openai(message, model).replace(f"```", "__CODE__").replace(f"```", "").replace("```", "__CODE__")
+    response = send_message_to_openai(message, model)
+    response = utility.get_longest_code_snippet(response)
     return utility.get_longest_code_snippet(response)
 
 if __name__ == "__main__":

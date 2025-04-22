@@ -32,13 +32,14 @@ def build_base_prompt(item: Dict, no_of_tests: int, module_name: str) -> str:
 
     # Format the qualified name to replace '.' with '_'
     formatted_qualified_name = qualified_name.replace(".", "_")
+    modules_part, method_name = qualified_name.rsplit('.', 1)
 
     # Format base prompt with placeholders
     prompt = (
-        f"You need to write {no_of_tests} unit tests of {qualified_name} of pypi module {module_name}.\n"
-        f"The method signature: \n{qualified_name}{func_sig}\n\n"
+        f"You need to write {no_of_tests} unit tests of {method_name} method of module {modules_part}.\n"
+        f"The method signature: \n{method_name}{func_sig}\n\n"
         "Maintain the following format:\n\n"
-        f"import {module_name}\n"
+        f"from {modules_part} import {method_name}\n"
         "import unittest\n\n"
         f"class Test{module_name}Module(unittest.TestCase):\n"
     )
@@ -46,7 +47,7 @@ def build_base_prompt(item: Dict, no_of_tests: int, module_name: str) -> str:
     # Generate tests
     for i in range(no_of_tests):
         prompt += f"    def test_{formatted_qualified_name}_{i}(self):\n"
-        prompt += f"        # Write code to test the {qualified_name} method\n"
+        prompt += f"        # Write code to test the {method_name} method\n"
         prompt += f"        pass\n\n"
 
     prompt += "\nif __name__ == '__main__':\n"
@@ -67,14 +68,15 @@ def build_prompt_with_func_body(item: Dict, no_of_tests: int, module_name: str) 
 
     # Format the qualified name to replace '.' with '_'
     formatted_qualified_name = qualified_name.replace(".", "_")
+    modules_part, method_name = qualified_name.rsplit('.', 1)
 
     # Format prompt with function body
     prompt = (
-        f"You need to write {no_of_tests} unit tests of {qualified_name} of pypi module {module_name}.\n"
-        f"The method signature: \n{qualified_name}{func_sig}\n"
+        f"You need to write {no_of_tests} unit tests of {method_name} method of module {modules_part}.\n"
+        f"The method signature: \n{method_name}{func_sig}\n"
         f"The method body:\n{func_body}\n\n"
         "Maintain the following format:\n\n"
-        f"import {module_name}\n"
+        f"from {modules_part} import {method_name}\n"
         "import unittest\n\n"
         f"class Test{module_name}Module(unittest.TestCase):\n"
     )
@@ -82,7 +84,7 @@ def build_prompt_with_func_body(item: Dict, no_of_tests: int, module_name: str) 
     # Generate tests
     for i in range(no_of_tests):
         prompt += f"    def test_{formatted_qualified_name}_funcBody_{i}(self):\n"
-        prompt += f"        # Write code to test the {qualified_name} method\n"
+        prompt += f"        # Write code to test the {method_name} method\n"
         prompt += f"        pass\n\n"
 
     prompt += "\nif __name__ == '__main__':\n"
@@ -110,14 +112,15 @@ def build_prompt_with_func_example(item: Dict, no_of_tests: int, module_name: st
 
     # Format the qualified name to replace '.' with '_'
     formatted_qualified_name = qualified_name.replace(".", "_")
+    modules_part, method_name = qualified_name.rsplit('.', 1)
 
-    # Format prompt with function example
+    # Format prompt with function body
     prompt = (
-        f"You need to write {no_of_tests} unit tests of {qualified_name} of pypi module {module_name}.\n"
-        f"The method signature: \n{qualified_name}{func_sig}\n"
+        f"You need to write {no_of_tests} unit tests of {method_name} method of module {modules_part}.\n"
+        f"The method signature: \n{method_name}{func_sig}\n"
         f"Sample Usage of the method:\n{func_example}\n\n"
         "Maintain the following format:\n\n"
-        f"import {module_name}\n"
+        f"from {modules_part} import {method_name}\n"
         "import unittest\n\n"
         f"class Test{module_name}Module(unittest.TestCase):\n"
     )
@@ -125,7 +128,7 @@ def build_prompt_with_func_example(item: Dict, no_of_tests: int, module_name: st
     # Generate tests
     for i in range(no_of_tests):
         prompt += f"    def test_{formatted_qualified_name}_example_{i}(self):\n"
-        prompt += f"        # Write code to test the {qualified_name} method\n"
+        prompt += f"        # Write code to test the {method_name} method\n"
         prompt += f"        pass\n\n"
 
     prompt += "\nif __name__ == '__main__':\n"
@@ -139,7 +142,7 @@ def build_prompt_with_func_example(item: Dict, no_of_tests: int, module_name: st
 def build_prompt_with_func_docstring(item: Dict, no_of_tests: int, module_name: str) -> str:
     """
     Builds a prompt with the function docstring, following the specified format with placeholders replaced by metadata.
-    If the docstring is not available or empty, it prints a message indicating no docstring.
+    If tf"You need to write {no_of_tests} unit tests of {method_name} method of module {modules_part}.\n"he docstring is not available or empty, it prints a message indicating no docstring.
     """
     qualified_name = item.get("qualified_name", "unknown")
     func_sig = item.get("signature", "")
@@ -151,14 +154,15 @@ def build_prompt_with_func_docstring(item: Dict, no_of_tests: int, module_name: 
 
     # Format the qualified name to replace '.' with '_'
     formatted_qualified_name = qualified_name.replace(".", "_")
+    modules_part, method_name = qualified_name.rsplit('.', 1)
 
-    # Format prompt with function docstring
+    # Format prompt with function body
     prompt = (
-        f"You need to write {no_of_tests} unit tests of {qualified_name} of pypi module {module_name}.\n"
-        f"The method signature: \n{qualified_name}{func_sig}\n"
+        f"You need to write {no_of_tests} unit tests of {method_name} method of module {modules_part}.\n"
+        f"The method signature: \n{method_name}{func_sig}\n"
         f"The method docstring:\n{func_docstring}\n\n"
         "Maintain the following format:\n\n"
-        f"import {module_name}\n"
+        f"from {modules_part} import {method_name}\n"
         "import unittest\n\n"
         f"class Test{module_name}Module(unittest.TestCase):\n"
     )
@@ -166,7 +170,7 @@ def build_prompt_with_func_docstring(item: Dict, no_of_tests: int, module_name: 
     # Generate tests
     for i in range(no_of_tests):
         prompt += f"    def test_{formatted_qualified_name}_docstring_{i}(self):\n"
-        prompt += f"        # Write code to test the {qualified_name} method\n"
+        prompt += f"        # Write code to test the {method_name} method\n"
         prompt += f"        pass\n\n"
 
     prompt += "\nif __name__ == '__main__':\n"

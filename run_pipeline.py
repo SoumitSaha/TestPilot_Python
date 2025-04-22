@@ -1,4 +1,4 @@
-import Compiler
+from tqdm import tqdm
 import subprocess
 import os
 import json
@@ -18,25 +18,26 @@ def throw(prompt, response_file):
         pass
     else:
         response = get_response_from_GPT4.generate_using_OPENAI(prompt, "gpt-4")
-
         with open(response_file, "w") as f:
             print(response, file=f)
             f.close()
         utility.wait_for_file(response_file)
 
-def correction(test_code_fp, test_error, current_iteration, max_iteration, module, formatted_qualified_name, prompt_type):
+def correction(test_code_fp, test_error, current_iteration, max_iteration, module, qualified_name, prompt_type):
     if current_iteration > max_iteration:
         return test_code_fp
     
     if test_error is None:
         return test_code_fp
     
+    formatted_qualified_name = formatted_qualified_name = qualified_name.replace(".", "_")
+
     refined_prompt_dir = f"{os.getcwd()}/refined_prompts/{module}"
     os.makedirs(refined_prompt_dir, exist_ok=True)
     refined_prompt_fp = f"{refined_prompt_dir}/refined_prompt_{formatted_qualified_name}_{prompt_type}_it{current_iteration}.txt"
 
     test_code = utility.load_file_content(test_code_fp)
-    prompt = f"{test_code}\nWhen we run the code following error occurs:\n{test_error}\nFix the error.\nPrint only the Python code and end with the comment \"#End of Code\". Do not change any method signature, do not print anything except the Python code, Strictly follow the mentioned format."
+    prompt = f"{test_code}\nThe unittest code to test {qualified_name} has following error(s):\n{test_error}\nFix the error. (Note that the {qualified_name} function exits in {module}. So, do not add any new function to the code on your own. Try to fix assertion errors. Our main target is to write correct unittest code for {qualified_name})\nPrint only the Python code and end with the comment \"#End of Code\". Do not change any method signature, do not print anything except the Python code, Strictly follow the mentioned format."
 
     with open(refined_prompt_fp, "w") as f:
         print(prompt, file=f)
@@ -49,31 +50,33 @@ def correction(test_code_fp, test_error, current_iteration, max_iteration, modul
 
     throw(prompt, refined_response_fp)
     test_error = validate(refined_response_fp)
-    return correction(refined_response_fp, test_error, current_iteration+1, max_iteration, module, formatted_qualified_name, prompt_type)
+    return correction(refined_response_fp, test_error, current_iteration+1, max_iteration, module, qualified_name, prompt_type)
 
 
 modules = ["emoji", "pyfiglet", "pytz", "shortuuid", "yarl"]
 
 # Generate prompts (base, with function body, docstring, examples) for all modules' public functions
 for module in modules:
-    try:
-        subprocess.run("python generate_prompt.py --json documentations/help_" + module + ".json --out prompts/" + module + " --no_of_tests 5", check=True, capture_output=True, shell=True, timeout=100)
-    except Exception as e:
-        print(e)
-        quit()
-
+    if not os.path.exists(f"{os.getcwd()}/prompts/{module}"):
+        try:
+            subprocess.run("python generate_prompt.py --json documentations/help_" + module + ".json --out prompts/" + module + " --no_of_tests 5", check=True, capture_output=True, shell=True, timeout=100)
+        except Exception as e:
+            print(e)
+            quit()
+    else:
+        print(f"{module}: Documentation already exists")
 
 # Run whole pipeline
 max_refine_iteration = 3
 
-for module in modules:
+for module in tqdm(modules, desc="Modules"):
     documentation_json = f"{os.getcwd()}/documentations/help_{module}.json"
 
     with open(documentation_json, "r") as f:
         metadata = json.load(f)
 
     for package_name, items in metadata.items():
-        for item in items:
+        for item in tqdm(items, desc=f"Items in {package_name}", leave=False):
             module_name = package_name
             qualified_name = item.get("qualified_name", "unknown")
             formatted_qualified_name = qualified_name.replace(".", "_")
@@ -96,17 +99,17 @@ for module in modules:
 
             throw(base_prompt, response_base_fp)
             test_error = validate(response_base_fp)
-            correction(response_base_fp, test_error, 1, max_refine_iteration, module, formatted_qualified_name, "base")
+            correction(response_base_fp, test_error, 1, max_refine_iteration, module, qualified_name, "base")
 
             throw(prompt_with_func_body, response_with_func_body_fp)
             test_error = validate(response_with_func_body_fp)
-            correction(response_with_func_body_fp, test_error, 1, max_refine_iteration, module, formatted_qualified_name, "with_func_body")
+            correction(response_with_func_body_fp, test_error, 1, max_refine_iteration, module, qualified_name, "with_func_body")
 
             throw(prompt_with_func_docstring, response_with_func_docstring_fp)
             test_error = validate(response_with_func_docstring_fp)
-            correction(response_with_func_docstring_fp, test_error, 1, max_refine_iteration, module, formatted_qualified_name, "with_func_docstring")
+            correction(response_with_func_docstring_fp, test_error, 1, max_refine_iteration, module, qualified_name, "with_func_docstring")
 
             throw(prompt_with_func_example, response_with_func_example_fp)
             test_error = validate(response_with_func_example_fp)
-            correction(response_with_func_example_fp, test_error, 1, max_refine_iteration, module, formatted_qualified_name, "with_func_example")
+            correction(response_with_func_example_fp, test_error, 1, max_refine_iteration, module, qualified_name, "with_func_example")
 

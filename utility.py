@@ -11,9 +11,30 @@ import re
 def extract_code_snippets(text):
     """
     Extracts all code snippets enclosed in triple backticks from the text.
+    If no such blocks exist, treats the whole text as a single code snippet.
     """
-    code_blocks = re.findall(r'__CODE__(?:[\w+]*\n)?(.*?)__CODE__', text, re.DOTALL)
-    return [block.strip() for block in code_blocks]
+    code_blocks = re.findall(r'```(?:[\w+]*\n)?(.*?)```', text, re.DOTALL)
+    code_blocks = [block.strip() for block in code_blocks]
+
+    if not code_blocks:
+        # If no backticks, treat the entire text as a code snippet if it looks like code
+        if looks_like_code(text):
+            code_blocks.append(text.strip())
+
+    return code_blocks
+
+def looks_like_code(text):
+    """
+    A simple heuristic to decide if a text looks like code:
+    - Contains multiple lines
+    - Has typical code patterns (like 'def', 'class', '=', 'import', 'return', braces, etc.)
+    """
+    code_keywords = ['def ', 'class ', 'import ', 'return', 'if ', 'else', '=', 'for ', 'while ', '(', ')', '{', '}', ':']
+    lines = text.strip().splitlines()
+    if len(lines) < 2:
+        return False
+    score = sum(any(kw in line for kw in code_keywords) for line in lines)
+    return score / len(lines) > 0.3  # at least 30% of lines should look like code
 
 def get_longest_code_snippet(text):
     """
