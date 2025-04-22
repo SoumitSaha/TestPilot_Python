@@ -35,8 +35,8 @@ def build_base_prompt(item: Dict, no_of_tests: int, module_name: str) -> str:
 
     # Format base prompt with placeholders
     prompt = (
-        f"You are a Python developer. You need to write {no_of_tests} unit tests of {qualified_name} of pypi module {module_name}.\n"
-        f"The method signature: \n{func_sig}\n\n"
+        f"You need to write {no_of_tests} unit tests of {qualified_name} of pypi module {module_name}.\n"
+        f"The method signature: \n{qualified_name}{func_sig}\n\n"
         "Maintain the following format:\n\n"
         f"import {module_name}\n"
         "import unittest\n\n"
@@ -52,7 +52,7 @@ def build_base_prompt(item: Dict, no_of_tests: int, module_name: str) -> str:
     prompt += "\nif __name__ == '__main__':\n"
     prompt += "    unittest.main()\n\n"
     prompt += "Print only the Python code and end with the comment \"#End of Code\". "
-    prompt += "Do not print anything except the Python code and Strictly follow the mentioned format."
+    prompt += "Do not change any method signature, do not print anything except the Python code, Strictly follow the mentioned format."
 
     return prompt
 
@@ -70,8 +70,8 @@ def build_prompt_with_func_body(item: Dict, no_of_tests: int, module_name: str) 
 
     # Format prompt with function body
     prompt = (
-        f"You are a Python developer. You need to write {no_of_tests} unit tests of {qualified_name} of pypi module {module_name}.\n"
-        f"The method signature: \n{func_sig}\n"
+        f"You need to write {no_of_tests} unit tests of {qualified_name} of pypi module {module_name}.\n"
+        f"The method signature: \n{qualified_name}{func_sig}\n"
         f"The method body:\n{func_body}\n\n"
         "Maintain the following format:\n\n"
         f"import {module_name}\n"
@@ -88,7 +88,7 @@ def build_prompt_with_func_body(item: Dict, no_of_tests: int, module_name: str) 
     prompt += "\nif __name__ == '__main__':\n"
     prompt += "    unittest.main()\n\n"
     prompt += "Print only the Python code and end with the comment \"#End of Code\". "
-    prompt += "Do not print anything except the Python code and Strictly follow the mentioned format."
+    prompt += "Do not change any method signature, do not print anything except the Python code, Strictly follow the mentioned format."
 
     return prompt
 
@@ -113,8 +113,8 @@ def build_prompt_with_func_example(item: Dict, no_of_tests: int, module_name: st
 
     # Format prompt with function example
     prompt = (
-        f"You are a Python developer. You need to write {no_of_tests} unit tests of {qualified_name} of pypi module {module_name}.\n"
-        f"The method signature: \n{func_sig}\n"
+        f"You need to write {no_of_tests} unit tests of {qualified_name} of pypi module {module_name}.\n"
+        f"The method signature: \n{qualified_name}{func_sig}\n"
         f"Sample Usage of the method:\n{func_example}\n\n"
         "Maintain the following format:\n\n"
         f"import {module_name}\n"
@@ -131,7 +131,7 @@ def build_prompt_with_func_example(item: Dict, no_of_tests: int, module_name: st
     prompt += "\nif __name__ == '__main__':\n"
     prompt += "    unittest.main()\n\n"
     prompt += "Print only the Python code and end with the comment \"#End of Code\". "
-    prompt += "Do not print anything except the Python code and Strictly follow the mentioned format."
+    prompt += "Do not change any method signature, do not print anything except the Python code, Strictly follow the mentioned format."
 
     return prompt
 
@@ -154,8 +154,8 @@ def build_prompt_with_func_docstring(item: Dict, no_of_tests: int, module_name: 
 
     # Format prompt with function docstring
     prompt = (
-        f"You are a Python developer. You need to write {no_of_tests} unit tests of {qualified_name} of pypi module {module_name}.\n"
-        f"The method signature: \n{func_sig}\n"
+        f"You need to write {no_of_tests} unit tests of {qualified_name} of pypi module {module_name}.\n"
+        f"The method signature: \n{qualified_name}{func_sig}\n"
         f"The method docstring:\n{func_docstring}\n\n"
         "Maintain the following format:\n\n"
         f"import {module_name}\n"
@@ -172,7 +172,7 @@ def build_prompt_with_func_docstring(item: Dict, no_of_tests: int, module_name: 
     prompt += "\nif __name__ == '__main__':\n"
     prompt += "    unittest.main()\n\n"
     prompt += "Print only the Python code and end with the comment \"#End of Code\". "
-    prompt += "Do not print anything except the Python code and Strictly follow the mentioned format."
+    prompt += "Do not change any method signature, do not print anything except the Python code, Strictly follow the mentioned format."
 
     return prompt
 
@@ -225,7 +225,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Generate LLM prompts from API metadata JSON.")
     parser.add_argument("--json", required=True, help="Path to JSON file with API metadata.")
-    parser.add_argument("--out", help="Optional: Output directory to save prompt text files.")
+    parser.add_argument("--out", help="Optional: Output directory to save prompt text files.", default="prompts/")
     parser.add_argument("--no_of_tests", type=int, required=True, help="Number of unit tests to generate.")
     args = parser.parse_args()
 

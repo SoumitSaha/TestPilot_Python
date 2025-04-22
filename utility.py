@@ -8,6 +8,22 @@ import Constants
 import json
 import re
 
+def extract_code_snippets(text):
+    """
+    Extracts all code snippets enclosed in triple backticks from the text.
+    """
+    code_blocks = re.findall(r'__CODE__(?:[\w+]*\n)?(.*?)__CODE__', text, re.DOTALL)
+    return [block.strip() for block in code_blocks]
+
+def get_longest_code_snippet(text):
+    """
+    Returns the longest code snippet from the text.
+    """
+    code_snippets = extract_code_snippets(text)
+    if not code_snippets:
+        return None
+    return max(code_snippets, key=len)
+
 def load_dict_from_file(file_location):
     if os.path.isfile(file_location):
         with open(file_location, "r") as f:

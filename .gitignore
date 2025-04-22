@@ -12,6 +12,9 @@ __pycache__/
 doc_text/
 #documentations/
 prompts/
+LLM_Responses/
+refined_prompts/
+refined_LLM_Responses/
 .pytest_cache/
 .coverage
 .idea

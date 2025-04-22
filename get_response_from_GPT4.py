@@ -50,13 +50,13 @@ def send_message_to_openai(message, model):
     # If no response with text is found, return the first response's content (which may be empty)
     return response.choices[0].message['content']
 
-def generate_using_OPENAI(content, model, target_lang):
+def generate_using_OPENAI(content, model, sys_msg="You are a professional Python developer and Quality Assurance Engineer."):
     message = [
-        {"role": "system", "content": "You are a helpful assistant."},
+        {"role": "system", "content": sys_msg},
         {"role": "user", "content": content}
     ]
-    response = send_message_to_openai(message, model).replace(f"```{target_lang.lower()}", "").replace(f"```cpp", "").replace("```", "")
-    return response
+    response = send_message_to_openai(message, model).replace(f"```", "__CODE__").replace(f"```", "").replace("```", "__CODE__")
+    return utility.get_longest_code_snippet(response)
 
 if __name__ == "__main__":
     import argparse
@@ -65,7 +65,10 @@ if __name__ == "__main__":
     parser.add_argument("--prompt_file", required=True, help="Path to prompt file")
     parser.add_argument("--response_dir", required=True, help="Directory to response save")
     parser.add_argument("--response_file", required=True, help="Response save filename")
+    parser.add_argument("--sys_msg", help="Role of the system/LLM (i.e. You are a Python developer)", default="You are a professional Python developer and Quality Assurance Engineer.")
     args = parser.parse_args()
+
+    sys_msg = args.sys_msg
 
     prompt_file = f"{os.getcwd()}/{args.prompt_file}"
     response_dir = f"{os.getcwd()}/{args.response_dir}"
@@ -78,11 +81,11 @@ if __name__ == "__main__":
         print("Invalid Prompt File. Program exit.")
         exit()
 
-    response = generate_using_OPENAI(content, "gpt-4", "Python")
+    response = generate_using_OPENAI(content, "gpt-4", sys_msg)
 
     os.makedirs(response_dir, exist_ok=True)
     with open(fname, "w") as f:
         f.write(response)
 
 # How to use this file:
-# python throw_prompt_with_gpt4.py --prompt_file prompts/prompt_emoji_core_demojize_base.txt --response_dir LLM_Responses --response_file response_emoji_core_demojize_base_gpt4.py
+# python get_response_from_gpt4.py --prompt_file prompts/prompt_emoji_core_demojize_base.txt --response_dir LLM_Responses --response_file response_emoji_core_demojize_base_gpt4.py
