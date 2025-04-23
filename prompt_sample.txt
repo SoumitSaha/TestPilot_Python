@@ -1,21 +1,21 @@
 Base_Prompt:
 
-You need to write __NO_OF_TESTS__ unit tests of __QUALIFIED_NAME__ of pypi module __MODULE_NAME__.
+You need to write __NO_OF_TESTS__ unit tests of __MODULE_NAME__ method of module __MODULE_NAME__.
 The method signature: 
 __FUNC_SIG__
 
 Maintain the following format:
 
-import __MODULE_NAME__
+from __QUALIFIED_NAME__ import __MODULE_NAME__
 import unittest
 
 class Test__MODULE_NAME__Module(unittest.TestCase):
     def test_0(self):
-        # Write code to test the __QUALIFIED_NAME__ method
+        # Write code to test the __MODULE_NAME__ method
         pass
 
     def test_1(self):
-        # Write code to test the __QUALIFIED_NAME__ method
+        # Write code to test the __MODULE_NAME__ method
         pass
 
     # Continue up to __NO_OF_TESTS__ test cases
@@ -23,9 +23,9 @@ class Test__MODULE_NAME__Module(unittest.TestCase):
 if __name__ == '__main__':
     unittest.main()
 
-Print only the Python code and end with the comment "End of Code". Do not print anything except the Python code and Strictly follow the mentioned format.
-
-
+Print only the Python code and end with the comment "#End of Code".
+Do not change any method signature, do not print anything except the Python code,
+Strictly follow the mentioned format.
 
 Prompt_with_func_body:
 
