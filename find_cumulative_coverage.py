@@ -4,6 +4,10 @@ def parse_coverage_report(xml_file):
     tree = ET.parse(xml_file)
     root = tree.getroot()
 
+    total_loc = 0
+    for line in root.findall(".//line"):
+        total_loc += 1
+
     total_line_rate = 0
     total_branch_rate = 0
     total_packages = 0
@@ -29,7 +33,7 @@ def parse_coverage_report(xml_file):
     avg_line_rate = total_line_rate / total_packages if total_packages > 0 else 0
     avg_branch_rate = total_branch_rate / total_packages if total_packages > 0 else 0
 
-    return avg_line_rate, min_coverage, max_coverage, avg_branch_rate, total_packages
+    return avg_line_rate, min_coverage, max_coverage, avg_branch_rate, total_packages, total_loc
 
 if __name__ == "__main__":
     import argparse
@@ -38,10 +42,11 @@ if __name__ == "__main__":
     parser.add_argument("--xml", required=True, help="Path to xml file (coverage) with API metadata.")
     args = parser.parse_args()
 
-    avg_line_rate, min_coverage, max_coverage, avg_branch_rate, total_packages = parse_coverage_report(args.xml)
+    avg_line_rate, min_coverage, max_coverage, avg_branch_rate, total_packages, total_loc = parse_coverage_report(args.xml)
     print(f"Average Line Coverage: {avg_line_rate * 100:.2f}%")
     print(f"Average Branch Coverage: {avg_branch_rate * 100:.2f}%")
     print(f"Min Line Coverage: {min_coverage * 100:.2f}%")
     print(f"Max Line Coverage: {max_coverage * 100:.2f}%")
     print(f"Total Modules: {total_packages}")
+    print(f"Total Modules: {total_loc}")
     
