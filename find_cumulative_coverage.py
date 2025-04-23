@@ -48,5 +48,5 @@ if __name__ == "__main__":
     print(f"Min Line Coverage: {min_coverage * 100:.2f}%")
     print(f"Max Line Coverage: {max_coverage * 100:.2f}%")
     print(f"Total Modules: {total_packages}")
-    print(f"Total Modules: {total_loc}")
+    print(f"LOC: {total_loc}")
     
