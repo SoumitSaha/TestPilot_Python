@@ -4,6 +4,7 @@ import os
 import json
 import utility
 import get_response_from_GPT4
+import ast
 
 def validate(response_file):
     cmd = f"python \"{response_file}\""
@@ -30,7 +31,7 @@ def correction(test_code_fp, test_error, current_iteration, max_iteration, modul
     if test_error is None:
         return test_code_fp
     
-    formatted_qualified_name = formatted_qualified_name = qualified_name.replace(".", "_")
+    formatted_qualified_name = qualified_name.replace(".", "_")
 
     refined_prompt_dir = f"{os.getcwd()}/refined_prompts/{module}"
     os.makedirs(refined_prompt_dir, exist_ok=True)
@@ -113,3 +114,83 @@ for module in tqdm(modules, desc="Modules"):
             test_error = validate(response_with_func_example_fp)
             correction(response_with_func_example_fp, test_error, 1, max_refine_iteration, module, qualified_name, "with_func_example")
 
+# Merge all the passing unittests for each module in a single file
+doc_dir = f"{os.getcwd()}/documentations/"
+response_dir = f"{os.getcwd()}/LLM_Responses/"
+refined_response_dir = f"{os.getcwd()}/refined_LLM_Responses/"
+
+for module in modules:
+    required_files = utility.find_best_test_files(doc_dir, response_dir, refined_response_dir, module, max_refine_iteration)
+
+    imports = set()
+    class_definitions = []
+    class_prefix = f"Test{module}Module"
+
+    for idx, file in enumerate(required_files):
+        passing_methods_in_file = utility.list_passing_methods_of_file(file)
+
+        if not passing_methods_in_file:
+            continue
+
+        with open(file, "r") as f:
+            tree = ast.parse(f.read(), filename=file)
+
+        for node in tree.body:
+            # Collect top-level imports
+            if isinstance(node, ast.Import) or isinstance(node, ast.ImportFrom):
+                imports.add(ast.unparse(node))
+
+            # Locate the test class
+            elif isinstance(node, ast.ClassDef) and node.name == class_prefix:
+                new_class_name = f"{class_prefix}FromFile{idx}"
+                new_class = ast.ClassDef(
+                    name=new_class_name,
+                    bases=node.bases,
+                    keywords=node.keywords if hasattr(node, 'keywords') else [],
+                    decorator_list=node.decorator_list,
+                    body=[]
+                )
+
+                for item in node.body:
+                    if isinstance(item, ast.FunctionDef):
+                        if item.name in passing_methods_in_file or item.name.startswith("setUp") or item.name.startswith("tearDown"):
+                            new_class.body.append(item)
+
+                if new_class.body:
+                    class_definitions.append(new_class)
+
+    # Save to final merged test file
+    save_dir = f"{os.getcwd()}/Merged_Response/{module}"
+    os.makedirs(save_dir, exist_ok=True)
+    output_path = f"{save_dir}/test_{module}_merged.py"
+
+    with open(output_path, "w") as out:
+        out.write("import unittest\n")
+        out.write("\n".join(imports))
+        out.write("\n\n")
+
+        for class_node in class_definitions:
+            class_code = ast.unparse(class_node)
+            out.write(class_code + "\n\n")
+
+        out.write("if __name__ == '__main__':\n")
+        out.write("    unittest.main()\n")
+
+# Generate coverage for each module
+merged_file_dir = f"{os.getcwd()}/Merged_Response"
+for module in modules:
+    merged_file = f"{merged_file_dir}/test_{module}_merged.py"
+    cmd = f"pytest --cov={module} --cov-branch --cov-report=xml:coverage_{module}.xml -s -q --tb=short {merged_file}"
+    try:
+        subprocess.run(cmd, check=True, capture_output=True, shell=True, timeout=100)
+    except subprocess.CalledProcessError as e:
+        print(e.stderr.decode())
+
+
+# Give branch and statement coverage for the modules
+for module in modules:
+    cmd = f"python find_cumulative_coverage.py --xml coverage_{module}.py"
+    try:
+        subprocess.run(cmd, check=True, capture_output=True, shell=True, timeout=100)
+    except subprocess.CalledProcessError as e:
+        print(e.stderr.decode())

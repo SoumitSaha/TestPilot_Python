@@ -15,6 +15,7 @@ prompts/
 LLM_Responses/
 refined_prompts/
 refined_LLM_Responses/
+Merged_Response/
 .pytest_cache/
 .coverage
 .idea

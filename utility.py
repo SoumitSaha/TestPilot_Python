@@ -7,13 +7,107 @@ import Compiler
 import Constants
 import json
 import re
+import ast
 
-# def find_best_test_files(response_dir, refined_response_dir, module):
-#     prompt_types = ["base", "with_func_body", "with_func_docstring", "with_func_example"]
-#     best_file_for_each_type = {}
-#     for type in prompt_types:
-#         if os.path.exists()
-#     pass
+def get_test_methods_from_file(file):
+    """Return a list of test method names defined in the file."""
+    with open(file, 'r') as f:
+        tree = ast.parse(f.read(), filename=file)
+
+    test_methods = []
+    for node in tree.body:
+        if isinstance(node, ast.ClassDef):
+            for item in node.body:
+                if isinstance(item, ast.FunctionDef):
+                    test_methods.append(item.name)
+    return test_methods
+
+def extract_failing_methods(test_error_output):
+    """Parse stderr to find failing method names."""
+    return re.findall(r'(?:FAIL|ERROR): (test_\w+)', test_error_output)
+
+def validate(response_file):
+    cmd = f"python \"{response_file}\""
+    try:
+        subprocess.run(cmd, check=True, capture_output=True, shell=True, timeout=100)
+        return None
+    except subprocess.CalledProcessError as e:
+        return e.stderr.decode()
+
+def list_passing_methods_of_file(file):
+    test_error = validate(file)
+
+    # Get all test method names defined in the file
+    all_methods = get_test_methods_from_file(file)
+
+    # If no error, all methods passed
+    if test_error is None:
+        return all_methods
+
+    # Extract failing methods from the error output
+    failing = extract_failing_methods(test_error)
+
+    if test_error and not failing:
+        return []
+
+    passing = [m for m in all_methods if m not in failing]
+    return passing
+
+def get_highest_iteration_file(partial_file_fp, max_iteration):
+    iteration = max_iteration
+    best_response = None
+    while(iteration > 0):
+        if os.path.exists(f"{partial_file_fp}{iteration}.py"):
+            best_response = f"{partial_file_fp}{iteration}.py"
+            return best_response
+        else:
+            iteration -= 1
+
+
+def find_best_test_files(doc_dir, response_dir, refined_response_dir, module, max_iteration=5):
+    documentation_json = f"{doc_dir}/help_{module}.json"
+
+    with open(documentation_json, "r") as f:
+        metadata = json.load(f)
+        f.close()
+
+    for package_name, items in metadata.items():
+        best_response_files = []
+        for item in items:
+            module_name = package_name
+            qualified_name = item.get("qualified_name", "unknown")
+            modules_part, method_name = qualified_name.rsplit('.', 1)
+            formatted_qualified_name = qualified_name.replace(".", "_")
+
+            best_base_response = get_highest_iteration_file(f"{refined_response_dir}/{module_name}/refined_response_{formatted_qualified_name}_base_it", max_iteration)
+            if best_base_response is None:
+                if os.path.exists(f"{response_dir}/{module_name}/response_{formatted_qualified_name}_base.py"):
+                    best_base_response = f"{response_dir}/{module_name}/response_{formatted_qualified_name}_base.py"
+            if best_base_response is not None:
+                best_response_files.append(best_base_response)
+
+            best_body_response = get_highest_iteration_file(f"{refined_response_dir}/{module_name}/refined_response_{formatted_qualified_name}_with_func_body_it", max_iteration)
+            if best_body_response is None:
+                if os.path.exists(f"{response_dir}/{module_name}/response_{formatted_qualified_name}_with_func_body.py"):
+                    best_body_response = f"{response_dir}/{module_name}/response_{formatted_qualified_name}_with_func_body.py"
+            if best_body_response is not None:
+                best_response_files.append(best_body_response)
+
+            best_doc_response = get_highest_iteration_file(f"{refined_response_dir}/{module_name}/refined_response_{formatted_qualified_name}_with_func_docstring_it", max_iteration)
+            if best_doc_response is None:
+                if os.path.exists(f"{response_dir}/{module_name}/response_{formatted_qualified_name}_with_func_docstring.py"):
+                    best_doc_response = f"{response_dir}/{module_name}/response_{formatted_qualified_name}_with_func_docstring.py"
+            if best_doc_response is not None:
+                best_response_files.append(best_doc_response)
+
+            best_example_response = get_highest_iteration_file(f"{refined_response_dir}/{module_name}/refined_response_{formatted_qualified_name}_with_func_example_it", max_iteration)
+            if best_example_response is None:
+                if os.path.exists(f"{response_dir}/{module_name}/response_{formatted_qualified_name}_with_func_example.py"):
+                    best_example_response = f"{response_dir}/{module_name}/response_{formatted_qualified_name}_with_func_example.py"
+            if best_example_response is not None:
+                best_response_files.append(best_example_response)
+    
+    return best_response_files
 
 def extract_code_snippets(text):
     """
