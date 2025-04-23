@@ -179,7 +179,7 @@ for module in modules:
 # Generate coverage for each module
 merged_file_dir = f"{os.getcwd()}/Merged_Response"
 for module in modules:
-    merged_file = f"{merged_file_dir}/test_{module}_merged.py"
+    merged_file = f"{merged_file_dir}/{module}/test_{module}_merged.py"
     cmd = f"pytest --cov={module} --cov-branch --cov-report=xml:coverage_{module}.xml -s -q --tb=short {merged_file}"
     try:
         subprocess.run(cmd, check=True, capture_output=True, shell=True, timeout=100)
@@ -187,10 +187,10 @@ for module in modules:
         print(e.stderr.decode())
 
 
-# Give branch and statement coverage for the modules
-for module in modules:
-    cmd = f"python find_cumulative_coverage.py --xml coverage_{module}.py"
-    try:
-        subprocess.run(cmd, check=True, capture_output=True, shell=True, timeout=100)
-    except subprocess.CalledProcessError as e:
-        print(e.stderr.decode())
+# # Give branch and statement coverage for the modules
+# for module in modules:
+#     cmd = f"python find_cumulative_coverage.py --xml coverage_{module}.py"
+#     try:
+#         subprocess.run(cmd, check=True, capture_output=True, shell=True, timeout=100)
+#     except subprocess.CalledProcessError as e:
+#         print(e.stderr.decode())
