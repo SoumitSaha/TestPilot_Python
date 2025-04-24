@@ -28,3 +28,4 @@ Merged_Response/
 .idea/vcs.xml
 *.xml
 rq3.py
+/coverage_results/
