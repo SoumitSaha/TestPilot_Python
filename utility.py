@@ -109,6 +109,102 @@ def find_best_test_files(doc_dir, response_dir, refined_response_dir, module, ma
     
     return best_response_files
 
+def find_best_base_files(doc_dir, response_dir, refined_response_dir, module, max_iteration=5):
+    documentation_json = f"{doc_dir}/help_{module}.json"
+
+    with open(documentation_json, "r") as f:
+        metadata = json.load(f)
+        f.close()
+
+    for package_name, items in metadata.items():
+        best_response_files = []
+        for item in items:
+            module_name = package_name
+            qualified_name = item.get("qualified_name", "unknown")
+            modules_part, method_name = qualified_name.rsplit('.', 1)
+            formatted_qualified_name = qualified_name.replace(".", "_")
+
+            best_base_response = get_highest_iteration_file(f"{refined_response_dir}/{module_name}/refined_response_{formatted_qualified_name}_base_it", max_iteration)
+            if best_base_response is None:
+                if os.path.exists(f"{response_dir}/{module_name}/response_{formatted_qualified_name}_base.py"):
+                    best_base_response = f"{response_dir}/{module_name}/response_{formatted_qualified_name}_base.py"
+            if best_base_response is not None:
+                best_response_files.append(best_base_response)
+    
+    return best_response_files
+
+def find_best_body_files(doc_dir, response_dir, refined_response_dir, module, max_iteration=5):
+    documentation_json = f"{doc_dir}/help_{module}.json"
+
+    with open(documentation_json, "r") as f:
+        metadata = json.load(f)
+        f.close()
+
+    for package_name, items in metadata.items():
+        best_response_files = []
+        for item in items:
+            module_name = package_name
+            qualified_name = item.get("qualified_name", "unknown")
+            modules_part, method_name = qualified_name.rsplit('.', 1)
+            formatted_qualified_name = qualified_name.replace(".", "_")
+
+            best_body_response = get_highest_iteration_file(f"{refined_response_dir}/{module_name}/refined_response_{formatted_qualified_name}_with_func_body_it", max_iteration)
+            if best_body_response is None:
+                if os.path.exists(f"{response_dir}/{module_name}/response_{formatted_qualified_name}_with_func_body.py"):
+                    best_body_response = f"{response_dir}/{module_name}/response_{formatted_qualified_name}_with_func_body.py"
+            if best_body_response is not None:
+                best_response_files.append(best_body_response)
+    
+    return best_response_files
+
+def find_best_example_files(doc_dir, response_dir, refined_response_dir, module, max_iteration=5):
+    documentation_json = f"{doc_dir}/help_{module}.json"
+
+    with open(documentation_json, "r") as f:
+        metadata = json.load(f)
+        f.close()
+
+    for package_name, items in metadata.items():
+        best_response_files = []
+        for item in items:
+            module_name = package_name
+            qualified_name = item.get("qualified_name", "unknown")
+            modules_part, method_name = qualified_name.rsplit('.', 1)
+            formatted_qualified_name = qualified_name.replace(".", "_")
+
+            best_example_response = get_highest_iteration_file(f"{refined_response_dir}/{module_name}/refined_response_{formatted_qualified_name}_with_func_example_it", max_iteration)
+            if best_example_response is None:
+                if os.path.exists(f"{response_dir}/{module_name}/response_{formatted_qualified_name}_with_func_example.py"):
+                    best_example_response = f"{response_dir}/{module_name}/response_{formatted_qualified_name}_with_func_example.py"
+            if best_example_response is not None:
+                best_response_files.append(best_example_response)
+    
+    return best_response_files
+
+def find_best_docstring_files(doc_dir, response_dir, refined_response_dir, module, max_iteration=5):
+    documentation_json = f"{doc_dir}/help_{module}.json"
+
+    with open(documentation_json, "r") as f:
+        metadata = json.load(f)
+        f.close()
+
+    for package_name, items in metadata.items():
+        best_response_files = []
+        for item in items:
+            module_name = package_name
+            qualified_name = item.get("qualified_name", "unknown")
+            modules_part, method_name = qualified_name.rsplit('.', 1)
+            formatted_qualified_name = qualified_name.replace(".", "_")
+
+            best_doc_response = get_highest_iteration_file(f"{refined_response_dir}/{module_name}/refined_response_{formatted_qualified_name}_with_func_docstring_it", max_iteration)
+            if best_doc_response is None:
+                if os.path.exists(f"{response_dir}/{module_name}/response_{formatted_qualified_name}_with_func_docstring.py"):
+                    best_doc_response = f"{response_dir}/{module_name}/response_{formatted_qualified_name}_with_func_docstring.py"
+            if best_doc_response is not None:
+                best_response_files.append(best_doc_response)
+    
+    return best_response_files
+
 def extract_code_snippets(text):
     """
     Extracts all code snippets enclosed in triple backticks from the text.
